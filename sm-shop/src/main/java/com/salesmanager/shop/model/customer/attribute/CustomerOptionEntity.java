@@ -12,20 +12,20 @@ public class CustomerOptionEntity extends CustomerOption implements
 	private int order;
 	private String code;
 	private String type;//TEXT|SELECT|RADIO|CHECKBOX
-	public void setOrder(int order) {
-		this.order = order;
+	public String getCode() {
+		return code;
 	}
 	public int getOrder() {
 		return order;
 	}
+	public String getType() {
+		return type;
+	}
 	public void setCode(String code) {
 		this.code = code;
 	}
-	public String getCode() {
-		return code;
-	}
-	public String getType() {
-		return type;
+	public void setOrder(int order) {
+		this.order = order;
 	}
 	public void setType(String type) {
 		this.type = type;

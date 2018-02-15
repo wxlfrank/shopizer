@@ -1,18 +1,15 @@
 package com.salesmanager.shop.admin.controller.customers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.salesmanager.core.business.services.customer.attribute.CustomerOptionService;
-import com.salesmanager.core.business.services.customer.attribute.CustomerOptionSetService;
-import com.salesmanager.core.business.services.customer.attribute.CustomerOptionValueService;
-import com.salesmanager.core.business.services.reference.language.LanguageService;
-import com.salesmanager.core.business.utils.ajax.AjaxResponse;
-import com.salesmanager.core.model.customer.attribute.*;
-import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.model.reference.language.Language;
-import com.salesmanager.shop.admin.controller.ControllerConstants;
-import com.salesmanager.shop.admin.model.web.Menu;
-import com.salesmanager.shop.constants.Constants;
-import com.salesmanager.shop.utils.LabelUtils;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -29,17 +26,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.salesmanager.core.business.services.customer.attribute.CustomerOptionService;
+import com.salesmanager.core.business.services.customer.attribute.CustomerOptionSetService;
+import com.salesmanager.core.business.services.customer.attribute.CustomerOptionValueService;
+import com.salesmanager.core.business.services.reference.language.LanguageService;
+import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import com.salesmanager.core.model.customer.attribute.CustomerOption;
+import com.salesmanager.core.model.customer.attribute.CustomerOptionDescription;
+import com.salesmanager.core.model.customer.attribute.CustomerOptionSet;
+import com.salesmanager.core.model.customer.attribute.CustomerOptionValue;
+import com.salesmanager.core.model.customer.attribute.CustomerOptionValueDescription;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.admin.controller.ControllerConstants;
+import com.salesmanager.shop.admin.model.web.Menu;
+import com.salesmanager.shop.constants.Constants;
+import com.salesmanager.shop.utils.LabelUtils;
 
 @Controller
 public class CustomerOptionsSetController {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerOptionsSetController.class);
 	
 	@Inject
 	private LanguageService languageService;
@@ -56,7 +64,49 @@ public class CustomerOptionsSetController {
 	@Inject
 	private LabelUtils messages;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerOptionsSetController.class);
+	
+	@PreAuthorize("hasRole('CUSTOMER')")
+	@RequestMapping(value="/admin/customers/optionsset/remove.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> deleteOptionSet(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String sid = request.getParameter("id");
+
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		AjaxResponse resp = new AjaxResponse();
+
+		
+		try {
+			
+
+			
+			Long optionSetId = Long.parseLong(sid);
+
+			
+			CustomerOptionSet entity = customerOptionSetService.getById(optionSetId);
+			//if(entity==null || entity.getPk().getCustomerOption().getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+			if(entity==null || entity.getCustomerOption().getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				
+			} else {
+				
+				customerOptionSetService.delete(entity);
+				resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+				
+			}
+		
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting option", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
 	
 	
 	@PreAuthorize("hasRole('CUSTOMER')")
@@ -87,7 +137,81 @@ public class CustomerOptionsSetController {
 		
 
 	}
+
 	
+	
+	@SuppressWarnings("unchecked")
+	@PreAuthorize("hasRole('CUSTOMER')")
+	@RequestMapping(value="/admin/customers/optionsset/paging.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String>  pageOptionsSet(HttpServletRequest request, HttpServletResponse response) {
+
+		AjaxResponse resp = new AjaxResponse();
+
+		
+		try {
+			
+			
+			Language language = (Language)request.getAttribute("LANGUAGE");	
+			MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+			//List<CustomerOption> options = null;
+				
+			List<CustomerOptionSet> optionSet = customerOptionSetService.listByStore(store, language);
+			//for(CustomerOption option : options) {
+				
+				
+				//Set<CustomerOptionSet> optionSet = option.getCustomerOptions();
+				
+				if(optionSet!=null && optionSet.size()>0) {
+					
+					for(CustomerOptionSet optSet : optionSet) {
+						
+						//CustomerOption customerOption = optSet.getPk().getCustomerOption();
+						CustomerOption customerOption = optSet.getCustomerOption();
+						//CustomerOptionValue customerOptionValue = optSet.getPk().getCustomerOptionValue();
+						CustomerOptionValue customerOptionValue = optSet.getCustomerOptionValue();
+						
+						@SuppressWarnings("rawtypes")
+						Map entry = new HashMap();
+						
+						
+						entry.put("id", optSet.getId());
+
+						CustomerOptionDescription description = customerOption.getDescriptionsSettoList().get(0);
+						CustomerOptionValueDescription valueDescription = customerOptionValue.getDescriptionsSettoList().get(0);
+						
+						entry.put("optionCode", customerOption.getCode());
+						entry.put("optionName", description.getName());
+						entry.put("optionValueCode", customerOptionValue.getCode());
+						entry.put("optionValueName", valueDescription.getName());
+						entry.put("order", customerOptionValue.getSortOrder());
+						resp.addDataEntry(entry);
+					
+					}
+				
+				}
+				
+				
+			//}
+			
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_SUCCESS);
+			
+
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while paging options", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+		}
+		
+		String returnString = resp.toJSONString();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		
+		
+	}
+	
+	
+
 	
 	@PreAuthorize("hasRole('CUSTOMER')")
 	@RequestMapping(value="/admin/customers/optionsset/save.html", method=RequestMethod.POST)
@@ -181,144 +305,7 @@ public class CustomerOptionsSetController {
 		model.addAttribute("success","success");
 		return ControllerConstants.Tiles.Customer.optionsSet;
 	}
-
 	
-	
-	@SuppressWarnings("unchecked")
-	@PreAuthorize("hasRole('CUSTOMER')")
-	@RequestMapping(value="/admin/customers/optionsset/paging.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String>  pageOptionsSet(HttpServletRequest request, HttpServletResponse response) {
-
-		AjaxResponse resp = new AjaxResponse();
-
-		
-		try {
-			
-			
-			Language language = (Language)request.getAttribute("LANGUAGE");	
-			MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-			//List<CustomerOption> options = null;
-				
-			List<CustomerOptionSet> optionSet = customerOptionSetService.listByStore(store, language);
-			//for(CustomerOption option : options) {
-				
-				
-				//Set<CustomerOptionSet> optionSet = option.getCustomerOptions();
-				
-				if(optionSet!=null && optionSet.size()>0) {
-					
-					for(CustomerOptionSet optSet : optionSet) {
-						
-						//CustomerOption customerOption = optSet.getPk().getCustomerOption();
-						CustomerOption customerOption = optSet.getCustomerOption();
-						//CustomerOptionValue customerOptionValue = optSet.getPk().getCustomerOptionValue();
-						CustomerOptionValue customerOptionValue = optSet.getCustomerOptionValue();
-						
-						@SuppressWarnings("rawtypes")
-						Map entry = new HashMap();
-						
-						
-						entry.put("id", optSet.getId());
-
-						CustomerOptionDescription description = customerOption.getDescriptionsSettoList().get(0);
-						CustomerOptionValueDescription valueDescription = customerOptionValue.getDescriptionsSettoList().get(0);
-						
-						entry.put("optionCode", customerOption.getCode());
-						entry.put("optionName", description.getName());
-						entry.put("optionValueCode", customerOptionValue.getCode());
-						entry.put("optionValueName", valueDescription.getName());
-						entry.put("order", customerOptionValue.getSortOrder());
-						resp.addDataEntry(entry);
-					
-					}
-				
-				}
-				
-				
-			//}
-			
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_SUCCESS);
-			
-
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while paging options", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-		}
-		
-		String returnString = resp.toJSONString();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		
-		
-	}
-	
-	
-
-	
-	private void setMenu(Model model, HttpServletRequest request) throws Exception {
-		
-		//display menu
-		Map<String,String> activeMenus = new HashMap<String,String>();
-		activeMenus.put("customer", "customer");
-		activeMenus.put("customer-options", "customer-options");
-		
-		@SuppressWarnings("unchecked")
-		Map<String, Menu> menus = (Map<String, Menu>)request.getAttribute("MENUMAP");
-		
-		Menu currentMenu = (Menu)menus.get("customer");
-		model.addAttribute("currentMenu",currentMenu);
-		model.addAttribute("activeMenus",activeMenus);
-		//
-		
-	}
-	
-	@PreAuthorize("hasRole('CUSTOMER')")
-	@RequestMapping(value="/admin/customers/optionsset/remove.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> deleteOptionSet(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String sid = request.getParameter("id");
-
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		AjaxResponse resp = new AjaxResponse();
-
-		
-		try {
-			
-
-			
-			Long optionSetId = Long.parseLong(sid);
-
-			
-			CustomerOptionSet entity = customerOptionSetService.getById(optionSetId);
-			//if(entity==null || entity.getPk().getCustomerOption().getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			if(entity==null || entity.getCustomerOption().getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				
-			} else {
-				
-				customerOptionSetService.delete(entity);
-				resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-				
-			}
-		
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting option", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-	}
-	
-	
-
 	@PreAuthorize("hasRole('CUSTOMER')")
 	@RequestMapping(value="/admin/customers/optionsset/update.html", method=RequestMethod.POST)
 	public @ResponseBody ResponseEntity<String> updateOrder(HttpServletRequest request, HttpServletResponse response) {
@@ -361,6 +348,25 @@ public class CustomerOptionsSetController {
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	
+
+	private void setMenu(Model model, HttpServletRequest request) throws Exception {
+		
+		//display menu
+		Map<String,String> activeMenus = new HashMap<String,String>();
+		activeMenus.put("customer", "customer");
+		activeMenus.put("customer-options", "customer-options");
+		
+		@SuppressWarnings("unchecked")
+		Map<String, Menu> menus = (Map<String, Menu>)request.getAttribute("MENUMAP");
+		
+		Menu currentMenu = (Menu)menus.get("customer");
+		model.addAttribute("currentMenu",currentMenu);
+		model.addAttribute("activeMenus",activeMenus);
+		//
+		
 	}
 	
 	

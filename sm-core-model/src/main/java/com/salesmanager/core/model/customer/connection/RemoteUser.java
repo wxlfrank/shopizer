@@ -4,50 +4,50 @@ import org.springframework.social.UserIdSource;
 
 public interface RemoteUser extends UserIdSource{
 
-	public String getUserId();
+	public String getAccessToken();
 	
-	public void setUserId(String id);
+	public String getDisplayName();
+	public Long getExpireTime();
+
+	public String getImageUrl();
+
+	public String getProfileUrl();
+
+	public String getProviderId();
+
 	/*
 	 * Provider identifier: Facebook, Twitter, LinkedIn etc
 	 */
 	public String getProviderUserId();
 
-	public void setProviderUserId(String provider);
-
-	public String getProviderId();
-
-	public void setProviderId(String providerId);
-
 	public int getRank();
-
-	public void setRank(int rank);
-
-	public String getSecret();
-
-	public void setSecret(String secret);
-
-	public String getDisplayName();
-
-	public void setDisplayName(String displayName);
-
-	public String getProfileUrl();
-
-	public void setProfileUrl(String profileUrl);
-
-	public String getImageUrl();
-
-	public void setImageUrl(String imageUrl);
-
-	public String getAccessToken();
-
-	public void setAccessToken(String accessToken);
 
 	public String getRefreshToken();
 
-	public void setRefreshToken(String refreshToken);
+	public String getSecret();
 
-	public Long getExpireTime();
+	public String getUserId();
+
+	public void setAccessToken(String accessToken);
+
+	public void setDisplayName(String displayName);
 
 	public void setExpireTime(Long expireTime);
+
+	public void setImageUrl(String imageUrl);
+
+	public void setProfileUrl(String profileUrl);
+
+	public void setProviderId(String providerId);
+
+	public void setProviderUserId(String provider);
+
+	public void setRank(int rank);
+
+	public void setRefreshToken(String refreshToken);
+
+	public void setSecret(String secret);
+
+	public void setUserId(String id);
 	
 }

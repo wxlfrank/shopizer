@@ -49,12 +49,16 @@ public class LandingController {
 	private final static String LANDING_PAGE = "LANDING_PAGE";
 	
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(LandingController.class);
+	
+	private final static String HOME_LINK_CODE="HOME";
+
+	
 	@Inject
 	private ContentService contentService;
 	
 	@Inject
 	private ProductRelationshipService productRelationshipService;
-
 	
 	@Inject
 	private LabelUtils messages;
@@ -64,13 +68,14 @@ public class LandingController {
 	
 	@Inject
 	private MerchantStoreService merchantService;
-	
 	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(LandingController.class);
-	private final static String HOME_LINK_CODE="HOME";
+	@RequestMapping(value={Constants.SHOP_URI + "/stub.html"}, method=RequestMethod.GET)
+	public String displayHomeStub(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		return "index";
+	}
 	
 	@RequestMapping(value={Constants.SHOP_URI + "/home.html",Constants.SHOP_URI +"/", Constants.SHOP_URI}, method=RequestMethod.GET)
 	public String displayLanding(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
@@ -139,11 +144,6 @@ public class LandingController {
 		/** template **/
 		StringBuilder template = new StringBuilder().append("landing.").append(store.getStoreTemplate());
 		return template.toString();
-	}
-	
-	@RequestMapping(value={Constants.SHOP_URI + "/stub.html"}, method=RequestMethod.GET)
-	public String displayHomeStub(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		return "index";
 	}
 	
 	@RequestMapping( value=Constants.SHOP_URI + "/{store}", method=RequestMethod.GET)

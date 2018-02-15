@@ -89,6 +89,37 @@ public class ManufacturerApi {
 		
 	}
 	
+	@RequestMapping( value="/manufacturers/{id}", method=RequestMethod.DELETE)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public void delete(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		try {
+			
+			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			Language language = languageUtils.getRESTLanguage(request, merchantStore);
+			
+			Manufacturer manufacturer = manufacturerService.getById(id);
+					
+			if(manufacturer != null){
+				productFacade.deleteManufacturer(manufacturer, merchantStore, language);
+			}else{
+				response.sendError(404, "No Manufacturer found for ID : " + id);
+			}
+
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting manufacturer id " + id,e);
+			try {
+				response.sendError(503, "Error while deleting manufacturer id " + id + " - " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			
+		}
+
+	}
+	
 	@RequestMapping( value="/manufacturers/{id}", method=RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
@@ -175,37 +206,6 @@ public class ManufacturerApi {
 			return null;
 		}
 		
-	}
-	
-	@RequestMapping( value="/manufacturers/{id}", method=RequestMethod.DELETE)
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public void delete(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		try {
-			
-			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			Language language = languageUtils.getRESTLanguage(request, merchantStore);
-			
-			Manufacturer manufacturer = manufacturerService.getById(id);
-					
-			if(manufacturer != null){
-				productFacade.deleteManufacturer(manufacturer, merchantStore, language);
-			}else{
-				response.sendError(404, "No Manufacturer found for ID : " + id);
-			}
-
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting manufacturer id " + id,e);
-			try {
-				response.sendError(503, "Error while deleting manufacturer id " + id + " - " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			
-		}
-
 	}
 
 }

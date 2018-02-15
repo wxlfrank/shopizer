@@ -43,57 +43,57 @@ public class ContentDescription extends Description implements Serializable {
 	@Column(name="META_TITLE")
 	private String metatagTitle;
 	
-	public String getMetatagTitle() {
-		return metatagTitle;
-	}
-
-	public void setMetatagTitle(String metatagTitle) {
-		this.metatagTitle = metatagTitle;
-	}
-
 	@Column(name="META_DESCRIPTION")
 	private String metatagDescription;
-	
+
 	public ContentDescription() {
 	}
-	
+
 	public ContentDescription(String name, Language language) {
 		this.setName(name);
 		this.setLanguage(language);
 		super.setId(0L);
 	}
-
+	
 	public Content getContent() {
 		return content;
 	}
+	
+	public String getMetatagDescription() {
+		return metatagDescription;
+	}
 
-	public void setContent(Content content) {
-		this.content = content;
+	public String getMetatagKeywords() {
+		return metatagKeywords;
+	}
+
+	public String getMetatagTitle() {
+		return metatagTitle;
 	}
 
 	public String getSeUrl() {
 		return seUrl;
 	}
 
-	public void setSeUrl(String seUrl) {
-		this.seUrl = seUrl;
+	public void setContent(Content content) {
+		this.content = content;
 	}
 
 
-	public String getMetatagKeywords() {
-		return metatagKeywords;
+	public void setMetatagDescription(String metatagDescription) {
+		this.metatagDescription = metatagDescription;
 	}
 
 	public void setMetatagKeywords(String metatagKeywords) {
 		this.metatagKeywords = metatagKeywords;
 	}
 
-	public String getMetatagDescription() {
-		return metatagDescription;
+	public void setMetatagTitle(String metatagTitle) {
+		this.metatagTitle = metatagTitle;
 	}
 
-	public void setMetatagDescription(String metatagDescription) {
-		this.metatagDescription = metatagDescription;
+	public void setSeUrl(String seUrl) {
+		this.seUrl = seUrl;
 	}
 
 }

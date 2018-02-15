@@ -12,23 +12,23 @@ public class ReadableProductPrice implements Serializable {
 	private String finalPrice;
 	private boolean discounted = false;
 
-	public String getOriginalPrice() {
-		return originalPrice;
-	}
-	public void setOriginalPrice(String originalPrice) {
-		this.originalPrice = originalPrice;
-	}
 	public String getFinalPrice() {
 		return finalPrice;
 	}
-	public void setFinalPrice(String finalPrice) {
-		this.finalPrice = finalPrice;
+	public String getOriginalPrice() {
+		return originalPrice;
 	}
 	public boolean isDiscounted() {
 		return discounted;
 	}
 	public void setDiscounted(boolean discounted) {
 		this.discounted = discounted;
+	}
+	public void setFinalPrice(String finalPrice) {
+		this.finalPrice = finalPrice;
+	}
+	public void setOriginalPrice(String originalPrice) {
+		this.originalPrice = originalPrice;
 	}
 
 }

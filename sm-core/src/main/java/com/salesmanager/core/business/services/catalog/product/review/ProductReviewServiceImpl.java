@@ -35,19 +35,18 @@ public class ProductReviewServiceImpl extends
 			this.productReviewRepository = productReviewRepository;
 	}
 
+	public void create(ProductReview review) throws ServiceException {
+		this.saveOrUpdate(review);
+	}
+
 	@Override
 	public List<ProductReview> getByCustomer(Customer customer) {
 		return productReviewRepository.findByCustomer(customer.getId());
 	}
-
+	
 	@Override
 	public List<ProductReview> getByProduct(Product product) {
 		return productReviewRepository.findByProduct(product.getId());
-	}
-	
-	@Override
-	public ProductReview getByProductAndCustomer(Long productId, Long customerId) {
-		return productReviewRepository.findByProductAndCustomer(productId, customerId);
 	}
 	
 	@Override
@@ -55,6 +54,23 @@ public class ProductReviewServiceImpl extends
 		return productReviewRepository.findByProduct(product.getId(), language.getId());
 	}
 	
+	@Override
+	public ProductReview getByProductAndCustomer(Long productId, Long customerId) {
+		return productReviewRepository.findByProductAndCustomer(productId, customerId);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.salesmanager.core.business.services.catalog.product.review.ProductReviewService#getByProductNoObjects(com.salesmanager.core.model.catalog.product.Product)
+	 */
+	@Override
+	public List<ProductReview> getByProductNoCustomers(Product product) {
+		return productReviewRepository.findByProductNoCustomers(product.getId());
+	}
+	
+	public void update(ProductReview review) throws ServiceException {
+		this.saveOrUpdate(review);
+	}
+
 	private void saveOrUpdate(ProductReview review) throws ServiceException {
 		
 
@@ -96,22 +112,6 @@ public class ProductReviewServiceImpl extends
 		
 		review.setProduct(product);
 		
-	}
-	
-	public void update(ProductReview review) throws ServiceException {
-		this.saveOrUpdate(review);
-	}
-	
-	public void create(ProductReview review) throws ServiceException {
-		this.saveOrUpdate(review);
-	}
-
-	/* (non-Javadoc)
-	 * @see com.salesmanager.core.business.services.catalog.product.review.ProductReviewService#getByProductNoObjects(com.salesmanager.core.model.catalog.product.Product)
-	 */
-	@Override
-	public List<ProductReview> getByProductNoCustomers(Product product) {
-		return productReviewRepository.findByProductNoCustomers(product.getId());
 	}
 
 

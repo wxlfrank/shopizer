@@ -186,22 +186,6 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 	private Integer rentalPeriod;
 
 	
-	public Integer getRentalPeriod() {
-		return rentalPeriod;
-	}
-
-	public void setRentalPeriod(Integer rentalPeriod) {
-		this.rentalPeriod = rentalPeriod;
-	}
-
-	public Integer getRentalDuration() {
-		return rentalDuration;
-	}
-
-	public void setRentalDuration(Integer rentalDuration) {
-		this.rentalDuration = rentalDuration;
-	}
-
 	/**
 	 * End rental fields
 	 */
@@ -213,14 +197,8 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 	public Product() {
 	}
 
-	@Override
-	public Long getId() {
-		return this.id;
-	}
-
-	@Override
-	public void setId(Long id) {
-		this.id = id;
+	public Set<ProductAttribute> getAttributes() {
+		return attributes;
 	}
 
 	@Override
@@ -228,117 +206,34 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 		return auditSection;
 	}
 
-	@Override
-	public void setAuditSection(AuditSection auditSection) {
-		this.auditSection = auditSection;
+	public Set<ProductAvailability> getAvailabilities() {
+		return availabilities;
 	}
 
-
-	public boolean isProductVirtual() {
-		return productVirtual;
+	public Set<Category> getCategories() {
+		return categories;
 	}
 
-
-
-	public BigDecimal getProductLength() {
-		return productLength;
+	public ProductCondition getCondition() {
+		return condition;
 	}
 
-	public void setProductLength(BigDecimal productLength) {
-		this.productLength = productLength;
-	}
-
-	public BigDecimal getProductWidth() {
-		return productWidth;
-	}
-
-	public void setProductWidth(BigDecimal productWidth) {
-		this.productWidth = productWidth;
-	}
-
-	public BigDecimal getProductHeight() {
-		return productHeight;
-	}
-
-	public void setProductHeight(BigDecimal productHeight) {
-		this.productHeight = productHeight;
-	}
-
-	public BigDecimal getProductWeight() {
-		return productWeight;
-	}
-
-	public void setProductWeight(BigDecimal productWeight) {
-		this.productWeight = productWeight;
-	}
-
-	public BigDecimal getProductReviewAvg() {
-		return productReviewAvg;
-	}
-
-	public void setProductReviewAvg(BigDecimal productReviewAvg) {
-		this.productReviewAvg = productReviewAvg;
-	}
-
-	public Integer getProductReviewCount() {
-		return productReviewCount;
-	}
-
-	public void setProductReviewCount(Integer productReviewCount) {
-		this.productReviewCount = productReviewCount;
-	}
-
-
-
-	public Integer getProductOrdered() {
-		return productOrdered;
-	}
-
-	public void setProductOrdered(Integer productOrdered) {
-		this.productOrdered = productOrdered;
-	}
-
-	public String getSku() {
-		return sku;
-	}
-
-	public void setSku(String sku) {
-		this.sku = sku;
+	public Date getDateAvailable() {
+		return dateAvailable;
 	}
 
 	public Set<ProductDescription> getDescriptions() {
 		return descriptions;
 	}
 
-	public void setDescriptions(Set<ProductDescription> descriptions) {
-		this.descriptions = descriptions;
+	@Override
+	public Long getId() {
+		return this.id;
 	}
 
 
-	public boolean getProductVirtual() {
-		return productVirtual;
-	}
-
-	public void setProductVirtual(boolean productVirtual) {
-		this.productVirtual = productVirtual;
-	}
-
-	public boolean getProductIsFree() {
-		return productIsFree;
-	}
-
-	public void setProductIsFree(boolean productIsFree) {
-		this.productIsFree = productIsFree;
-	}
-
-
-
-	public Set<ProductAttribute> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(Set<ProductAttribute> attributes) {
-		this.attributes = attributes;
+	public Set<ProductImage> getImages() {
+		return images;
 	}
 
 
@@ -347,113 +242,25 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 		return manufacturer;
 	}
 
-	public void setManufacturer(Manufacturer manufacturer) {
-		this.manufacturer = manufacturer;
-	}
-
-	public ProductType getType() {
-		return type;
-	}
-
-	public void setType(ProductType type) {
-		this.type = type;
-	}
-
-
-
-	public Set<ProductAvailability> getAvailabilities() {
-		return availabilities;
-	}
-
-	public void setAvailabilities(Set<ProductAvailability> availabilities) {
-		this.availabilities = availabilities;
-	}
-
-	public TaxClass getTaxClass() {
-		return taxClass;
-	}
-
-	public void setTaxClass(TaxClass taxClass) {
-		this.taxClass = taxClass;
-	}
-
-	public Set<ProductImage> getImages() {
-		return images;
-	}
-
-	public void setImages(Set<ProductImage> images) {
-		this.images = images;
-	}
-
-	public Set<ProductRelationship> getRelationships() {
-		return relationships;
-	}
-
-	public void setRelationships(Set<ProductRelationship> relationships) {
-		this.relationships = relationships;
-	}
-
-
-	public Set<Category> getCategories() {
-		return categories;
-	}
-
-	public void setCategories(Set<Category> categories) {
-		this.categories = categories;
-	}
-
 	public MerchantStore getMerchantStore() {
 		return merchantStore;
 	}
 
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
+	public Customer getOwner() {
+		return owner;
 	}
 
-
-
-	public Date getDateAvailable() {
-		return dateAvailable;
-	}
-
-	public void setDateAvailable(Date dateAvailable) {
-		this.dateAvailable = dateAvailable;
-	}
-
-	public void setSortOrder(Integer sortOrder) {
-		this.sortOrder = sortOrder;
-	}
-
-	public Integer getSortOrder() {
-		return sortOrder;
-	}
-
-
-
-	public void setAvailable(boolean available) {
-		this.available = available;
-	}
-
-	public boolean isAvailable() {
-		return available;
-	}
-	
-	public boolean isProductShipeable() {
-		return productShipeable;
-	}
-
-	public void setProductShipeable(boolean productShipeable) {
-		this.productShipeable = productShipeable;
-	}
-
-	
 	public ProductDescription getProductDescription() {
 		if(this.getDescriptions()!=null && this.getDescriptions().size()>0) {
 			return this.getDescriptions().iterator().next();
 		}
 		return null;
 	}
-	
+
+	public BigDecimal getProductHeight() {
+		return productHeight;
+	}
+
 	public ProductImage getProductImage() {
 		ProductImage productImage = null;
 		if(this.getImages()!=null && this.getImages().size()>0) {
@@ -466,45 +273,238 @@ public class Product extends SalesManagerEntity<Long, Product> implements Audita
 		}
 		return productImage;
 	}
-	
-	public boolean isPreOrder() {
-		return preOrder;
+
+	public boolean getProductIsFree() {
+		return productIsFree;
 	}
 
-	public void setPreOrder(boolean preOrder) {
-		this.preOrder = preOrder;
+	public BigDecimal getProductLength() {
+		return productLength;
+	}
+
+	public Integer getProductOrdered() {
+		return productOrdered;
+	}
+
+	public BigDecimal getProductReviewAvg() {
+		return productReviewAvg;
+	}
+
+	public Integer getProductReviewCount() {
+		return productReviewCount;
+	}
+
+	public boolean getProductVirtual() {
+		return productVirtual;
+	}
+
+
+
+	public BigDecimal getProductWeight() {
+		return productWeight;
+	}
+
+	public BigDecimal getProductWidth() {
+		return productWidth;
 	}
 
 	public String getRefSku() {
 		return refSku;
 	}
 
-	public void setRefSku(String refSku) {
-		this.refSku = refSku;
+	public Set<ProductRelationship> getRelationships() {
+		return relationships;
 	}
 
-	public ProductCondition getCondition() {
-		return condition;
+	public Integer getRentalDuration() {
+		return rentalDuration;
+	}
+
+	public Integer getRentalPeriod() {
+		return rentalPeriod;
+	}
+
+
+	public RentalStatus getRentalStatus() {
+		return rentalStatus;
+	}
+
+	public String getSku() {
+		return sku;
+	}
+
+	public Integer getSortOrder() {
+		return sortOrder;
+	}
+
+	public TaxClass getTaxClass() {
+		return taxClass;
+	}
+
+
+
+	public ProductType getType() {
+		return type;
+	}
+
+	public boolean isAvailable() {
+		return available;
+	}
+
+
+
+	public boolean isPreOrder() {
+		return preOrder;
+	}
+
+	public boolean isProductShipeable() {
+		return productShipeable;
+	}
+
+	public boolean isProductVirtual() {
+		return productVirtual;
+	}
+
+	public void setAttributes(Set<ProductAttribute> attributes) {
+		this.attributes = attributes;
+	}
+
+
+
+	@Override
+	public void setAuditSection(AuditSection auditSection) {
+		this.auditSection = auditSection;
+	}
+
+	public void setAvailabilities(Set<ProductAvailability> availabilities) {
+		this.availabilities = availabilities;
+	}
+
+	public void setAvailable(boolean available) {
+		this.available = available;
+	}
+
+	public void setCategories(Set<Category> categories) {
+		this.categories = categories;
 	}
 
 	public void setCondition(ProductCondition condition) {
 		this.condition = condition;
 	}
 
-	public RentalStatus getRentalStatus() {
-		return rentalStatus;
+	public void setDateAvailable(Date dateAvailable) {
+		this.dateAvailable = dateAvailable;
+	}
+
+	public void setDescriptions(Set<ProductDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
+	public void setImages(Set<ProductImage> images) {
+		this.images = images;
+	}
+
+	public void setManufacturer(Manufacturer manufacturer) {
+		this.manufacturer = manufacturer;
+	}
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
+
+	public void setOwner(Customer owner) {
+		this.owner = owner;
+	}
+
+
+
+	public void setPreOrder(boolean preOrder) {
+		this.preOrder = preOrder;
+	}
+
+	public void setProductHeight(BigDecimal productHeight) {
+		this.productHeight = productHeight;
+	}
+
+	public void setProductIsFree(boolean productIsFree) {
+		this.productIsFree = productIsFree;
+	}
+
+	public void setProductLength(BigDecimal productLength) {
+		this.productLength = productLength;
+	}
+
+
+
+	public void setProductOrdered(Integer productOrdered) {
+		this.productOrdered = productOrdered;
+	}
+
+	public void setProductReviewAvg(BigDecimal productReviewAvg) {
+		this.productReviewAvg = productReviewAvg;
+	}
+	
+	public void setProductReviewCount(Integer productReviewCount) {
+		this.productReviewCount = productReviewCount;
+	}
+
+	public void setProductShipeable(boolean productShipeable) {
+		this.productShipeable = productShipeable;
+	}
+
+	
+	public void setProductVirtual(boolean productVirtual) {
+		this.productVirtual = productVirtual;
+	}
+	
+	public void setProductWeight(BigDecimal productWeight) {
+		this.productWeight = productWeight;
+	}
+	
+	public void setProductWidth(BigDecimal productWidth) {
+		this.productWidth = productWidth;
+	}
+
+	public void setRefSku(String refSku) {
+		this.refSku = refSku;
+	}
+
+	public void setRelationships(Set<ProductRelationship> relationships) {
+		this.relationships = relationships;
+	}
+
+	public void setRentalDuration(Integer rentalDuration) {
+		this.rentalDuration = rentalDuration;
+	}
+
+	public void setRentalPeriod(Integer rentalPeriod) {
+		this.rentalPeriod = rentalPeriod;
 	}
 
 	public void setRentalStatus(RentalStatus rentalStatus) {
 		this.rentalStatus = rentalStatus;
 	}
-	
-	public Customer getOwner() {
-		return owner;
+
+	public void setSku(String sku) {
+		this.sku = sku;
 	}
 
-	public void setOwner(Customer owner) {
-		this.owner = owner;
+	public void setSortOrder(Integer sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+	
+	public void setTaxClass(TaxClass taxClass) {
+		this.taxClass = taxClass;
+	}
+
+	public void setType(ProductType type) {
+		this.type = type;
 	}
 
 

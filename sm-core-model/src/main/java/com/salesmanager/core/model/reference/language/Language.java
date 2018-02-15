@@ -64,43 +64,6 @@ public class Language extends SalesManagerEntity<Integer, Language> implements A
 	}
 	
 	@Override
-	public Integer getId() {
-		return id;
-	}
-	
-	@Override
-	public void setId(Integer id) {
-		this.id = id;
-	}
-	
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public Integer getSortOrder() {
-		return sortOrder;
-	}
-
-	public void setSortOrder(Integer sortOrder) {
-		this.sortOrder = sortOrder;
-	}
-	
-	@Override
-	public AuditSection getAuditSection() {
-		return auditSection;
-	}
-	
-	@Override
-	public void setAuditSection(AuditSection auditSection) {
-		this.auditSection = auditSection;
-	}
-	
-	@Override
 	public boolean equals(Object obj) {
 		if (null == obj)
 			return false;
@@ -110,5 +73,42 @@ public class Language extends SalesManagerEntity<Integer, Language> implements A
 			Language language = (Language) obj;
 			return (this.id == language.getId());
 		}
+	}
+	
+	@Override
+	public AuditSection getAuditSection() {
+		return auditSection;
+	}
+	
+
+	public String getCode() {
+		return code;
+	}
+
+	@Override
+	public Integer getId() {
+		return id;
+	}
+
+	public Integer getSortOrder() {
+		return sortOrder;
+	}
+
+	@Override
+	public void setAuditSection(AuditSection auditSection) {
+		this.auditSection = auditSection;
+	}
+	
+	public void setCode(String code) {
+		this.code = code;
+	}
+	
+	@Override
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	public void setSortOrder(Integer sortOrder) {
+		this.sortOrder = sortOrder;
 	}
 }

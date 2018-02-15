@@ -1,13 +1,14 @@
 package com.salesmanager.shop.admin.model.orders;
 
-import com.salesmanager.core.model.common.Billing;
-import com.salesmanager.core.model.common.Delivery;
-import com.salesmanager.core.model.order.orderstatus.OrderStatus;
-
-import javax.persistence.Embedded;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.persistence.Embedded;
+
+import com.salesmanager.core.model.common.Billing;
+import com.salesmanager.core.model.common.Delivery;
+import com.salesmanager.core.model.order.orderstatus.OrderStatus;
 
 
 public class Order implements Serializable {
@@ -33,60 +34,60 @@ public class Order implements Serializable {
 	
 	
 	
+	public Billing getBilling() {
+		return billing;
+	}
+
 	public String getDatePurchased() {
 		return datePurchased;
-	}
-
-	public void setDatePurchased(String datePurchased) {
-		this.datePurchased = datePurchased;
-	}
-
-	public Long getId() {
-		return Id;
-	}
-
-	public void setId(Long id) {
-		Id = id;
-	}
-
-	public String getOrderHistoryComment() {
-		return orderHistoryComment;
-	}
-
-	public void setOrderHistoryComment(String orderHistoryComment) {
-		this.orderHistoryComment = orderHistoryComment;
-	}
-
-	public List<OrderStatus> getOrderStatusList() {
-		return orderStatusList;
-	}
-
-	public void setOrderStatusList(List<OrderStatus> orderStatusList) {
-		this.orderStatusList = orderStatusList;
-	}
-
-	public com.salesmanager.core.model.order.Order getOrder() {
-		return order;
-	}
-
-	public void setOrder(com.salesmanager.core.model.order.Order order) {
-		this.order = order;
 	}
 
 	public Delivery getDelivery() {
 		return delivery;
 	}
 
-	public void setDelivery(Delivery delivery) {
-		this.delivery = delivery;
+	public Long getId() {
+		return Id;
 	}
 
-	public Billing getBilling() {
-		return billing;
+	public com.salesmanager.core.model.order.Order getOrder() {
+		return order;
+	}
+
+	public String getOrderHistoryComment() {
+		return orderHistoryComment;
+	}
+
+	public List<OrderStatus> getOrderStatusList() {
+		return orderStatusList;
 	}
 
 	public void setBilling(Billing billing) {
 		this.billing = billing;
+	}
+
+	public void setDatePurchased(String datePurchased) {
+		this.datePurchased = datePurchased;
+	}
+
+	public void setDelivery(Delivery delivery) {
+		this.delivery = delivery;
+	}
+
+	public void setId(Long id) {
+		Id = id;
+	}
+
+	public void setOrder(com.salesmanager.core.model.order.Order order) {
+		this.order = order;
+	}
+
+	public void setOrderHistoryComment(String orderHistoryComment) {
+		this.orderHistoryComment = orderHistoryComment;
+	}
+
+	public void setOrderStatusList(List<OrderStatus> orderStatusList) {
+		this.orderStatusList = orderStatusList;
 	}
 
 

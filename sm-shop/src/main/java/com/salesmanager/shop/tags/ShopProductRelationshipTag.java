@@ -56,6 +56,11 @@ public class ShopProductRelationshipTag extends RequestContextAwareTag  {
 
 
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
+
 	public String getGroupName() {
 		return groupName;
 	}
@@ -66,6 +71,31 @@ public class ShopProductRelationshipTag extends RequestContextAwareTag  {
 	}
 
 
+	private List<ReadableProduct> getProducts(HttpServletRequest request) throws Exception {
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
+		Language language = (Language)request.getAttribute(Constants.LANGUAGE);
+
+		List<ProductRelationship> relationships = productRelationshipService.getByGroup(store, this.getGroupName(), language);
+		
+		ReadableProductPopulator populator = new ReadableProductPopulator();
+		populator.setPricingService(pricingService);
+		populator.setimageUtils(imageUtils);
+		
+		List<ReadableProduct> products = new ArrayList<ReadableProduct>();
+		for(ProductRelationship relationship : relationships) {
+			
+			Product product = relationship.getRelatedProduct();
+			
+			ReadableProduct proxyProduct = populator.populate(product, new ReadableProduct(), store, language);
+			products.add(proxyProduct);
+
+		}
+		
+		return products;
+		
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected int doStartTagInternal() throws Exception {
@@ -126,36 +156,6 @@ public class ShopProductRelationshipTag extends RequestContextAwareTag  {
 		
 		return SKIP_BODY;
 
-	}
-
-
-	public int doEndTag() {
-		return EVAL_PAGE;
-	}
-	
-	private List<ReadableProduct> getProducts(HttpServletRequest request) throws Exception {
-		
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
-		Language language = (Language)request.getAttribute(Constants.LANGUAGE);
-
-		List<ProductRelationship> relationships = productRelationshipService.getByGroup(store, this.getGroupName(), language);
-		
-		ReadableProductPopulator populator = new ReadableProductPopulator();
-		populator.setPricingService(pricingService);
-		populator.setimageUtils(imageUtils);
-		
-		List<ReadableProduct> products = new ArrayList<ReadableProduct>();
-		for(ProductRelationship relationship : relationships) {
-			
-			Product product = relationship.getRelatedProduct();
-			
-			ReadableProduct proxyProduct = populator.populate(product, new ReadableProduct(), store, language);
-			products.add(proxyProduct);
-
-		}
-		
-		return products;
-		
 	}
 
 	

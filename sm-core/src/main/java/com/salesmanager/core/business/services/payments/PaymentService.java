@@ -24,11 +24,28 @@ public interface PaymentService {
 	public List<IntegrationModule> getPaymentMethods(MerchantStore store)
 			throws ServiceException;
 
-	Map<String, IntegrationConfiguration> getPaymentModulesConfigured(
-			MerchantStore store) throws ServiceException;
+	List<PaymentMethod> getAcceptedPaymentMethods(MerchantStore store)
+			throws ServiceException;
 	
-	Transaction processPayment(Customer customer, MerchantStore store, Payment payment, List<ShoppingCartItem> items, Order order) throws ServiceException;
-	Transaction processRefund(Order order, Customer customer, MerchantStore store, BigDecimal amount) throws ServiceException;
+	/**
+	 * Get the integration configuration
+	 * for a specific payment module
+	 * @param moduleCode
+	 * @param store
+	 * @return IntegrationConfiguration
+	 * @throws ServiceException
+	 */
+	IntegrationConfiguration getPaymentConfiguration(String moduleCode,
+			MerchantStore store) throws ServiceException;
+	/**
+	 * Get a specific Payment module by payment code (defined in integrationmoduel.json) paypal, authorizenet ..
+	 * @param store
+	 * @param name
+	 * @return IntegrationModule
+	 * @throws ServiceException
+	 */
+	IntegrationModule getPaymentMethodByCode(MerchantStore store, String name)
+			throws ServiceException;
 
 	/**
 	 * Get a specific Payment module by payment type CREDITCART, MONEYORDER ...
@@ -41,13 +58,46 @@ public interface PaymentService {
 			throws ServiceException;
 	
 	/**
-	 * Get a specific Payment module by payment code (defined in integrationmoduel.json) paypal, authorizenet ..
-	 * @param store
-	 * @param name
-	 * @return IntegrationModule
+	 * Returns a PaymentModule based on the payment code
+	 * @param paymentModuleCode
+	 * @return PaymentModule
 	 * @throws ServiceException
 	 */
-	IntegrationModule getPaymentMethodByCode(MerchantStore store, String name)
+	PaymentModule getPaymentModule(String paymentModuleCode)
+			throws ServiceException;
+
+	Map<String, IntegrationConfiguration> getPaymentModulesConfigured(
+			MerchantStore store) throws ServiceException;
+
+	/**
+	 * Initializes a transaction without an order
+	 * @param order
+	 * @param customer
+	 * @param payment
+	 * @param store
+	 * @return Transaction
+	 */
+	Transaction initTransaction(Customer customer, Payment payment, MerchantStore store) throws ServiceException;
+
+	/**
+	 * Initializes a transaction
+	 * @param order
+	 * @param customer
+	 * @param payment
+	 * @param store
+	 * @return Transaction
+	 */
+	Transaction initTransaction(Order order, Customer customer, Payment payment, MerchantStore store) throws ServiceException;
+
+	Transaction processCapturePayment(Order order, Customer customer,
+			MerchantStore store)
+			throws ServiceException;
+
+	Transaction processPayment(Customer customer, MerchantStore store, Payment payment, List<ShoppingCartItem> items, Order order) throws ServiceException;
+	
+	Transaction processRefund(Order order, Customer customer, MerchantStore store, BigDecimal amount) throws ServiceException;
+	
+	void removePaymentModuleConfiguration(String moduleCode, MerchantStore store)
 			throws ServiceException;
 
 	/**
@@ -68,56 +118,6 @@ public interface PaymentService {
 	 * @throws ServiceException
 	 */
 	void validateCreditCard(String number, CreditCardType creditCard, String month, String date)
-			throws ServiceException;
-
-	/**
-	 * Get the integration configuration
-	 * for a specific payment module
-	 * @param moduleCode
-	 * @param store
-	 * @return IntegrationConfiguration
-	 * @throws ServiceException
-	 */
-	IntegrationConfiguration getPaymentConfiguration(String moduleCode,
-			MerchantStore store) throws ServiceException;
-
-	void removePaymentModuleConfiguration(String moduleCode, MerchantStore store)
-			throws ServiceException;
-
-	Transaction processCapturePayment(Order order, Customer customer,
-			MerchantStore store)
-			throws ServiceException;
-	
-	/**
-	 * Initializes a transaction
-	 * @param order
-	 * @param customer
-	 * @param payment
-	 * @param store
-	 * @return Transaction
-	 */
-	Transaction initTransaction(Order order, Customer customer, Payment payment, MerchantStore store) throws ServiceException;
-	
-	/**
-	 * Initializes a transaction without an order
-	 * @param order
-	 * @param customer
-	 * @param payment
-	 * @param store
-	 * @return Transaction
-	 */
-	Transaction initTransaction(Customer customer, Payment payment, MerchantStore store) throws ServiceException;
-
-	List<PaymentMethod> getAcceptedPaymentMethods(MerchantStore store)
-			throws ServiceException;
-
-	/**
-	 * Returns a PaymentModule based on the payment code
-	 * @param paymentModuleCode
-	 * @return PaymentModule
-	 * @throws ServiceException
-	 */
-	PaymentModule getPaymentModule(String paymentModuleCode)
 			throws ServiceException;
 
 }

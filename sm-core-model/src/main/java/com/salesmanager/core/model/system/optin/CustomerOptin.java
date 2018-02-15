@@ -70,9 +70,41 @@ public class CustomerOptin extends SalesManagerEntity<Long, CustomerOptin> imple
 	@Type(type = "org.hibernate.type.StringClobType")
 	private String value;
 
+	public String getEmail() {
+		return email;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
 	@Override
 	public Long getId() {
 		return id;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public Optin getOptin() {
+		return optin;
+	}
+
+	public Date getOptinDate() {
+		return optinDate;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 
 	@Override
@@ -80,48 +112,16 @@ public class CustomerOptin extends SalesManagerEntity<Long, CustomerOptin> imple
 		this.id = id;	
 	}
 
-	public Date getOptinDate() {
-		return optinDate;
-	}
-
-	public void setOptinDate(Date optinDate) {
-		this.optinDate = optinDate;
-	}
-
-	public Optin getOptin() {
-		return optin;
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 	public void setOptin(Optin optin) {
 		this.optin = optin;
 	}
 
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getValue() {
-		return value;
+	public void setOptinDate(Date optinDate) {
+		this.optinDate = optinDate;
 	}
 
 	public void setValue(String value) {

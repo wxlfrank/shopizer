@@ -9,20 +9,20 @@ public class CustomShippingQuoteWeightItem extends CustomShippingQuoteItem imple
 	
 	private String priceText;
 
-	public String getPriceText() {
-		return priceText;
+	public int getMaximumWeight() {
+		return maximumWeight;
 	}
 
-	public void setPriceText(String priceText) {
-		this.priceText = priceText;
+	public String getPriceText() {
+		return priceText;
 	}
 
 	public void setMaximumWeight(int maximumWeight) {
 		this.maximumWeight = maximumWeight;
 	}
 
-	public int getMaximumWeight() {
-		return maximumWeight;
+	public void setPriceText(String priceText) {
+		this.priceText = priceText;
 	}
 
 	@SuppressWarnings("unchecked")

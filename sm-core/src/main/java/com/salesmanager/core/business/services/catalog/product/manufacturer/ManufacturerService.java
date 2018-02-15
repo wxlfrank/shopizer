@@ -11,21 +11,14 @@ import com.salesmanager.core.model.reference.language.Language;
 
 public interface ManufacturerService extends SalesManagerEntityService<Long, Manufacturer> {
 
-	List<Manufacturer> listByStore(MerchantStore store, Language language)
-			throws ServiceException;
-
-	List<Manufacturer> listByStore(MerchantStore store) throws ServiceException;
-
-	void saveOrUpdate(Manufacturer manufacturer) throws ServiceException;
-	
 	void addManufacturerDescription(Manufacturer manufacturer, ManufacturerDescription description) throws ServiceException;
+
+	void delete(Manufacturer manufacturer) throws ServiceException;
+
+	Manufacturer getByCode(MerchantStore store, String code);
 	
 	Long getCountManufAttachedProducts( Manufacturer manufacturer )  throws ServiceException;
 	
-	void delete(Manufacturer manufacturer) throws ServiceException;
-	
-	Manufacturer getByCode(MerchantStore store, String code);
-
 	/**
 	 * List manufacturers by products from a given list of categories
 	 * @param store
@@ -36,5 +29,12 @@ public interface ManufacturerService extends SalesManagerEntityService<Long, Man
 	 */
 	List<Manufacturer> listByProductsByCategoriesId(MerchantStore store,
 			List<Long> ids, Language language) throws ServiceException;
+	
+	List<Manufacturer> listByStore(MerchantStore store) throws ServiceException;
+	
+	List<Manufacturer> listByStore(MerchantStore store, Language language)
+			throws ServiceException;
+
+	void saveOrUpdate(Manufacturer manufacturer) throws ServiceException;
 	
 }

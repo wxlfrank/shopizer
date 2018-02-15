@@ -24,12 +24,12 @@ public class PersistableCustomerReviewPopulator extends AbstractDataPopulator<Pe
 	
 	private LanguageService languageService;
 	
-	public LanguageService getLanguageService() {
-		return languageService;
+	public CustomerService getCustomerService() {
+		return customerService;
 	}
 
-	public void setLanguageService(LanguageService languageService) {
-		this.languageService = languageService;
+	public LanguageService getLanguageService() {
+		return languageService;
 	}
 
 	@Override
@@ -91,18 +91,18 @@ public class PersistableCustomerReviewPopulator extends AbstractDataPopulator<Pe
 		return target;
 	}
 
+	public void setCustomerService(CustomerService customerService) {
+		this.customerService = customerService;
+	}
+
+	public void setLanguageService(LanguageService languageService) {
+		this.languageService = languageService;
+	}
+
 	@Override
 	protected CustomerReview createTarget() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public CustomerService getCustomerService() {
-		return customerService;
-	}
-
-	public void setCustomerService(CustomerService customerService) {
-		this.customerService = customerService;
 	}
 
 }

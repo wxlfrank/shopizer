@@ -30,12 +30,24 @@ import freemarker.template.TemplateException;
 public class HtmlEmailSenderImpl implements HtmlEmailSender {
 	
 	private static final String CHARSET = "UTF-8";
+	private final static String TEMPLATE_PATH = "templates/email";
 	private Configuration freemarkerMailConfiguration;
 	private JavaMailSender mailSender;
+	
 	private EmailConfig emailConfig;
 	
-	private final static String TEMPLATE_PATH = "templates/email";
-	
+	public EmailConfig getEmailConfig() {
+		return emailConfig;
+	}
+
+	public Configuration getFreemarkerMailConfiguration() {
+		return freemarkerMailConfiguration;
+	}
+
+	public JavaMailSender getMailSender() {
+		return mailSender;
+	}
+
 	@Override
 	public void send(Email email)
 			throws Exception {
@@ -91,6 +103,10 @@ public class HtmlEmailSenderImpl implements HtmlEmailSender {
 				}
 				textPart.setDataHandler(new javax.activation.DataHandler(
 						new javax.activation.DataSource() {
+							public String getContentType() {
+								return "text/plain";
+							}
+
 							public InputStream getInputStream()
 									throws IOException {
 								//return new StringBufferInputStream(textWriter
@@ -99,17 +115,13 @@ public class HtmlEmailSenderImpl implements HtmlEmailSender {
 										.toString().getBytes(CHARSET));
 							}
 
+							public String getName() {
+								return "main";
+							}
+
 							public OutputStream getOutputStream()
 									throws IOException {
 								throw new IOException("Read-only data");
-							}
-
-							public String getContentType() {
-								return "text/plain";
-							}
-
-							public String getName() {
-								return "main";
 							}
 						}));
 				mp.addBodyPart(textPart);
@@ -128,6 +140,10 @@ public class HtmlEmailSenderImpl implements HtmlEmailSender {
 				}
 				htmlPage.setDataHandler(new javax.activation.DataHandler(
 						new javax.activation.DataSource() {
+							public String getContentType() {
+								return "text/html";
+							}
+
 							public InputStream getInputStream()
 									throws IOException {
 								//return new StringBufferInputStream(htmlWriter
@@ -136,17 +152,13 @@ public class HtmlEmailSenderImpl implements HtmlEmailSender {
 										.toString().getBytes(CHARSET));
 							}
 
+							public String getName() {
+								return "main";
+							}
+
 							public OutputStream getOutputStream()
 									throws IOException {
 								throw new IOException("Read-only data");
-							}
-
-							public String getContentType() {
-								return "text/html";
-							}
-
-							public String getName() {
-								return "main";
 							}
 						}));
 				htmlContent.addBodyPart(htmlPage);
@@ -168,28 +180,16 @@ public class HtmlEmailSenderImpl implements HtmlEmailSender {
 		mailSender.send(preparator);
 	}
 
-	public Configuration getFreemarkerMailConfiguration() {
-		return freemarkerMailConfiguration;
+	public void setEmailConfig(EmailConfig emailConfig) {
+		this.emailConfig = emailConfig;
 	}
 
 	public void setFreemarkerMailConfiguration(Configuration freemarkerMailConfiguration) {
 		this.freemarkerMailConfiguration = freemarkerMailConfiguration;
 	}
 
-	public JavaMailSender getMailSender() {
-		return mailSender;
-	}
-
 	public void setMailSender(JavaMailSender mailSender) {
 		this.mailSender = mailSender;
-	}
-
-	public EmailConfig getEmailConfig() {
-		return emailConfig;
-	}
-
-	public void setEmailConfig(EmailConfig emailConfig) {
-		this.emailConfig = emailConfig;
 	}
 
 }

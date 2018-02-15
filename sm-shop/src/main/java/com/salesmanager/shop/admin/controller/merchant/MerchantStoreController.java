@@ -1,6 +1,35 @@
 package com.salesmanager.shop.admin.controller.merchant;
 
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.modules.email.Email;
 import com.salesmanager.core.business.services.merchant.MerchantStoreService;
 import com.salesmanager.core.business.services.reference.country.CountryService;
@@ -22,34 +51,19 @@ import com.salesmanager.shop.admin.model.reference.Weight;
 import com.salesmanager.shop.admin.model.web.Menu;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.constants.EmailConstants;
-import com.salesmanager.shop.utils.*;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.*;
+import com.salesmanager.shop.utils.DateUtil;
+import com.salesmanager.shop.utils.EmailUtils;
+import com.salesmanager.shop.utils.FilePathUtils;
+import com.salesmanager.shop.utils.LabelUtils;
+import com.salesmanager.shop.utils.LocaleUtils;
+import com.salesmanager.shop.utils.UserUtils;
 
 @Controller
 public class MerchantStoreController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MerchantStoreController.class);
+	
+	private final static String NEW_STORE_TMPL = "email_template_new_store.ftl";
 	
 	@Inject
 	private MerchantStoreService merchantStoreService;
@@ -78,12 +92,95 @@ public class MerchantStoreController {
 	@Inject
 	private EmailUtils emailUtils;
 	
+	
 	@Inject
 	private FilePathUtils filePathUtils;
 	
+	@PreAuthorize("hasRole('AUTH')")
+	@RequestMapping(value="/admin/store/checkStoreCode.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> checkStoreCode(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String code = request.getParameter("code");
+
+
+		AjaxResponse resp = new AjaxResponse();
+		
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		try {
+			
+			if(StringUtils.isBlank(code)) {
+				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
+				return new ResponseEntity<String>(resp.toJSONString(),httpHeaders,HttpStatus.OK);
+			}
+			
+			MerchantStore store = merchantStoreService.getByCode(code);
+		
+
+
+			
+			if(store!=null) {
+				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
+				return new ResponseEntity<String>(resp.toJSONString(),httpHeaders,HttpStatus.OK);
+			}
+
+
+
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+
+		} catch (Exception e) {
+			LOGGER.error("Error while getting user", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		
+		
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
 	
-	private final static String NEW_STORE_TMPL = "email_template_new_store.ftl";
+	@PreAuthorize("hasRole('STORE')")
+	@RequestMapping(value="/admin/store/editStore.html", method=RequestMethod.GET)
+	public String displayMerchantStore(@ModelAttribute("id") Integer id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		
+		setMenu(model,request);
+		MerchantStore store = merchantStoreService.getById(id);
+		return displayMerchantStore(store, model, request, response, locale);
+	}
 	
+	@PreAuthorize("hasRole('STORE')")
+	@RequestMapping(value="/admin/store/store.html", method=RequestMethod.GET)
+	public String displayMerchantStore(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		
+		setMenu(model,request);
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		return displayMerchantStore(store, model, request, response, locale);
+	}
+	
+	@PreAuthorize("hasRole('STORE')")
+	@RequestMapping(value="/admin/store/storeCreate.html", method=RequestMethod.GET)
+	public String displayMerchantStoreCreate(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		
+		
+		
+		setMenu(model,request);
+
+		MerchantStore store = new MerchantStore();
+		
+		MerchantStore sessionStore = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		store.setCurrency(sessionStore.getCurrency());
+		store.setCountry(sessionStore.getCountry());
+		store.setZone(sessionStore.getZone());
+		store.setStorestateprovince(sessionStore.getStorestateprovince());
+		store.setLanguages(sessionStore.getLanguages());
+		store.setDomainName(sessionStore.getDomainName());
+		
+
+		return displayMerchantStore(store, model, request, response, locale);
+	}
+		
+
 	@PreAuthorize("hasRole('STORE_ADMIN')")
 	@RequestMapping(value="/admin/store/list.html", method=RequestMethod.GET)
 	public String displayStores(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
@@ -133,89 +230,61 @@ public class MerchantStoreController {
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
-	@PreAuthorize("hasRole('STORE')")
-	@RequestMapping(value="/admin/store/storeCreate.html", method=RequestMethod.GET)
-	public String displayMerchantStoreCreate(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		
-		
-		
-		setMenu(model,request);
 
-		MerchantStore store = new MerchantStore();
-		
-		MerchantStore sessionStore = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		store.setCurrency(sessionStore.getCurrency());
-		store.setCountry(sessionStore.getCountry());
-		store.setZone(sessionStore.getZone());
-		store.setStorestateprovince(sessionStore.getStorestateprovince());
-		store.setLanguages(sessionStore.getLanguages());
-		store.setDomainName(sessionStore.getDomainName());
-		
+	@PreAuthorize("hasRole('STORE_ADMIN')")
+	@RequestMapping(value="/admin/store/remove.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> removeMerchantStore(HttpServletRequest request, Locale locale) throws Exception {
 
-		return displayMerchantStore(store, model, request, response, locale);
-	}
-	
-	@PreAuthorize("hasRole('STORE')")
-	@RequestMapping(value="/admin/store/store.html", method=RequestMethod.GET)
-	public String displayMerchantStore(Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		
-		setMenu(model,request);
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		return displayMerchantStore(store, model, request, response, locale);
-	}
-		
+		String sMerchantStoreId = request.getParameter("storeId");
 
-	@PreAuthorize("hasRole('STORE')")
-	@RequestMapping(value="/admin/store/editStore.html", method=RequestMethod.GET)
-	public String displayMerchantStore(@ModelAttribute("id") Integer id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
 		
-		setMenu(model,request);
-		MerchantStore store = merchantStoreService.getById(id);
-		return displayMerchantStore(store, model, request, response, locale);
-	}
-	
-	private String displayMerchantStore(MerchantStore store, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		try {
+			
+			Integer storeId = Integer.parseInt(sMerchantStoreId);
+			MerchantStore store = merchantStoreService.getById(storeId);
+			
+			User user = userService.getByUserName(request.getRemoteUser());
+			
+			/**
+			 * In order to remove a Store the logged in ser must be SUPERADMIN
+			 */
+
+			//check if the user removed has group SUPERADMIN
+			boolean isSuperAdmin = false;
+			if(UserUtils.userInGroup(user, Constants.GROUP_SUPERADMIN)) {
+				isSuperAdmin = true;
+			}
+
+			
+			if(!isSuperAdmin) {
+				resp.setStatusMessage(messages.getMessage("message.security.caanotremovesuperadmin", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			merchantStoreService.delete(store);
+			
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+
 		
 		
-		setMenu(model,request);
-		Language language = (Language)request.getAttribute("LANGUAGE");
-		List<Language> languages = languageService.getLanguages();
-		List<Currency> currencies = currencyService.list();
-		Date dt = store.getInBusinessSince();
-		if(dt!=null) {
-			store.setDateBusinessSince(DateUtil.formatDate(dt));
-		} else {
-			store.setDateBusinessSince(DateUtil.formatDate(new Date()));
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting product price", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
 		}
 		
-		//get countries
-		List<Country> countries = countryService.getCountries(language);
-		
-		List<Weight> weights = new ArrayList<Weight>();
-		weights.add(new Weight("LB",messages.getMessage("label.generic.weightunit.LB", locale)));
-		weights.add(new Weight("KG",messages.getMessage("label.generic.weightunit.KG", locale)));
-		
-		List<Size> sizes = new ArrayList<Size>();
-		sizes.add(new Size("CM",messages.getMessage("label.generic.sizeunit.CM", locale)));
-		sizes.add(new Size("IN",messages.getMessage("label.generic.sizeunit.IN", locale)));
-		
-		//display menu
+		String returnString = resp.toJSONString();
 
-		model.addAttribute("countries", countries);
-		model.addAttribute("languages",languages);
-		model.addAttribute("currencies",currencies);
-		
-		model.addAttribute("weights",weights);
-		model.addAttribute("sizes",sizes);
-		model.addAttribute("store", store);
-		
-		
-		return "admin-store";
-		
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 		
 	}
 	
-
 	@PreAuthorize("hasRole('STORE')")
 	@RequestMapping(value="/admin/store/save.html", method=RequestMethod.POST)
 	public String saveMerchantStore(@Valid @ModelAttribute("store") MerchantStore store, BindingResult result, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
@@ -367,102 +436,45 @@ public class MerchantStoreController {
 		return "admin-store";
 	}
 	
-	@PreAuthorize("hasRole('AUTH')")
-	@RequestMapping(value="/admin/store/checkStoreCode.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> checkStoreCode(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String code = request.getParameter("code");
-
-
-		AjaxResponse resp = new AjaxResponse();
+	
+	private String displayMerchantStore(MerchantStore store, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 		
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		
-		try {
-			
-			if(StringUtils.isBlank(code)) {
-				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
-				return new ResponseEntity<String>(resp.toJSONString(),httpHeaders,HttpStatus.OK);
-			}
-			
-			MerchantStore store = merchantStoreService.getByCode(code);
-		
-
-
-			
-			if(store!=null) {
-				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
-				return new ResponseEntity<String>(resp.toJSONString(),httpHeaders,HttpStatus.OK);
-			}
-
-
-
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-
-		} catch (Exception e) {
-			LOGGER.error("Error while getting user", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
+		setMenu(model,request);
+		Language language = (Language)request.getAttribute("LANGUAGE");
+		List<Language> languages = languageService.getLanguages();
+		List<Currency> currencies = currencyService.list();
+		Date dt = store.getInBusinessSince();
+		if(dt!=null) {
+			store.setDateBusinessSince(DateUtil.formatDate(dt));
+		} else {
+			store.setDateBusinessSince(DateUtil.formatDate(new Date()));
 		}
 		
-		String returnString = resp.toJSONString();
+		//get countries
+		List<Country> countries = countryService.getCountries(language);
+		
+		List<Weight> weights = new ArrayList<Weight>();
+		weights.add(new Weight("LB",messages.getMessage("label.generic.weightunit.LB", locale)));
+		weights.add(new Weight("KG",messages.getMessage("label.generic.weightunit.KG", locale)));
+		
+		List<Size> sizes = new ArrayList<Size>();
+		sizes.add(new Size("CM",messages.getMessage("label.generic.sizeunit.CM", locale)));
+		sizes.add(new Size("IN",messages.getMessage("label.generic.sizeunit.IN", locale)));
+		
+		//display menu
+
+		model.addAttribute("countries", countries);
+		model.addAttribute("languages",languages);
+		model.addAttribute("currencies",currencies);
+		
+		model.addAttribute("weights",weights);
+		model.addAttribute("sizes",sizes);
+		model.addAttribute("store", store);
 		
 		
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-	}
-	
-	
-	@PreAuthorize("hasRole('STORE_ADMIN')")
-	@RequestMapping(value="/admin/store/remove.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> removeMerchantStore(HttpServletRequest request, Locale locale) throws Exception {
-
-		String sMerchantStoreId = request.getParameter("storeId");
-
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-
+		return "admin-store";
 		
-		try {
-			
-			Integer storeId = Integer.parseInt(sMerchantStoreId);
-			MerchantStore store = merchantStoreService.getById(storeId);
-			
-			User user = userService.getByUserName(request.getRemoteUser());
-			
-			/**
-			 * In order to remove a Store the logged in ser must be SUPERADMIN
-			 */
-
-			//check if the user removed has group SUPERADMIN
-			boolean isSuperAdmin = false;
-			if(UserUtils.userInGroup(user, Constants.GROUP_SUPERADMIN)) {
-				isSuperAdmin = true;
-			}
-
-			
-			if(!isSuperAdmin) {
-				resp.setStatusMessage(messages.getMessage("message.security.caanotremovesuperadmin", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			merchantStoreService.delete(store);
-			
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-
-		
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting product price", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 		
 	}
 	

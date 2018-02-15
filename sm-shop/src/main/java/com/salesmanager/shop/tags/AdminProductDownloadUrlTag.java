@@ -38,12 +38,8 @@ public class AdminProductDownloadUrlTag extends RequestContextAwareTag {
 
 
 
-	public DigitalProduct getDigitalProduct() {
-		return digitalProduct;
-	}
-
-	public void setDigitalProduct(DigitalProduct digitalProduct) {
-		this.digitalProduct = digitalProduct;
+	public int doEndTag() {
+		return EVAL_PAGE;
 	}
 
 	public int doStartTagInternal() throws JspException {
@@ -99,8 +95,12 @@ public class AdminProductDownloadUrlTag extends RequestContextAwareTag {
 		return SKIP_BODY;
 	}
 
-	public int doEndTag() {
-		return EVAL_PAGE;
+	public DigitalProduct getDigitalProduct() {
+		return digitalProduct;
+	}
+
+	public void setDigitalProduct(DigitalProduct digitalProduct) {
+		this.digitalProduct = digitalProduct;
 	}
 
 

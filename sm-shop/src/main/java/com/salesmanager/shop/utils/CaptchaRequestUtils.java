@@ -1,9 +1,13 @@
 package com.salesmanager.shop.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.salesmanager.core.business.utils.CoreConfiguration;
-import com.salesmanager.shop.constants.ApplicationConstants;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -17,12 +21,10 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.salesmanager.core.business.utils.CoreConfiguration;
+import com.salesmanager.shop.constants.ApplicationConstants;
 
 /**
  * Creates a request to reCaptcha 2
@@ -35,10 +37,10 @@ import java.util.Map;
 @Component
 public class CaptchaRequestUtils {
 	
+	private static final String SUCCESS_INDICATOR = "success";
+	
 	@Inject
 	private CoreConfiguration configuration; //for reading public and secret key
-	
-	private static final String SUCCESS_INDICATOR = "success";
 	
 	public boolean checkCaptcha(String gRecaptchaResponse) throws Exception {
 

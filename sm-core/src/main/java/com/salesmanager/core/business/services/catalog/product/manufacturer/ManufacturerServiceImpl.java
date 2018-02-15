@@ -34,34 +34,6 @@ public class ManufacturerServiceImpl extends
 		this.manufacturerRepository = manufacturerRepository;		
 	}
 	
-	@Override 
-	public void delete(Manufacturer manufacturer) throws ServiceException{
-		manufacturer =  this.getById(manufacturer.getId() );
-		super.delete( manufacturer );
-	}
-	
-	@Override
-	public Long getCountManufAttachedProducts( Manufacturer manufacturer ) throws ServiceException {
-		return manufacturerRepository.countByProduct(manufacturer.getId());
-				//.getCountManufAttachedProducts( manufacturer );
-	}
-	
-	
-	@Override
-	public List<Manufacturer> listByStore(MerchantStore store, Language language) throws ServiceException {
-		return manufacturerRepository.findByStoreAndLanguage(store.getId(), language.getId());
-	}
-	
-	@Override
-	public List<Manufacturer> listByStore(MerchantStore store) throws ServiceException {
-		return manufacturerRepository.findByStore(store.getId());
-	}
-	
-	@Override
-	public List<Manufacturer> listByProductsByCategoriesId(MerchantStore store, List<Long> ids, Language language) throws ServiceException {
-		return manufacturerRepository.findByCategoriesAndLanguage(ids, language.getId());
-	}
-
 	@Override
 	public void addManufacturerDescription(Manufacturer manufacturer, ManufacturerDescription description)
 			throws ServiceException {
@@ -76,6 +48,39 @@ public class ManufacturerServiceImpl extends
 		update(manufacturer);
 	}
 	
+	@Override 
+	public void delete(Manufacturer manufacturer) throws ServiceException{
+		manufacturer =  this.getById(manufacturer.getId() );
+		super.delete( manufacturer );
+	}
+	
+	
+	@Override
+	public Manufacturer getByCode(com.salesmanager.core.model.merchant.MerchantStore store, String code) {
+		return manufacturerRepository.findByCodeAndMerchandStore(code, store.getId());
+	}
+	
+	@Override
+	public Long getCountManufAttachedProducts( Manufacturer manufacturer ) throws ServiceException {
+		return manufacturerRepository.countByProduct(manufacturer.getId());
+				//.getCountManufAttachedProducts( manufacturer );
+	}
+	
+	@Override
+	public List<Manufacturer> listByProductsByCategoriesId(MerchantStore store, List<Long> ids, Language language) throws ServiceException {
+		return manufacturerRepository.findByCategoriesAndLanguage(ids, language.getId());
+	}
+
+	@Override
+	public List<Manufacturer> listByStore(MerchantStore store) throws ServiceException {
+		return manufacturerRepository.findByStore(store.getId());
+	}
+	
+	@Override
+	public List<Manufacturer> listByStore(MerchantStore store, Language language) throws ServiceException {
+		return manufacturerRepository.findByStoreAndLanguage(store.getId(), language.getId());
+	}
+
 	@Override	
 	public void saveOrUpdate(Manufacturer manufacturer) throws ServiceException {
 
@@ -88,10 +93,5 @@ public class ManufacturerServiceImpl extends
 		   super.create(manufacturer);
 
 		}
-	}
-
-	@Override
-	public Manufacturer getByCode(com.salesmanager.core.model.merchant.MerchantStore store, String code) {
-		return manufacturerRepository.findByCodeAndMerchandStore(code, store.getId());
 	}
 }

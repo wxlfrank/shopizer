@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
-import com.salesmanager.core.business.services.customer.CustomerService;
-import com.salesmanager.core.business.services.merchant.MerchantStoreService;
 import com.salesmanager.core.model.catalog.category.Category;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.ProductCriteria;
@@ -49,21 +47,23 @@ import com.salesmanager.shop.utils.LanguageUtils;
 @RequestMapping("/api/v1")
 public class ProductApi {
 	
-	@Inject
-	private MerchantStoreService merchantStoreService;
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProductApi.class);
+	
+//	@Inject
+//	private MerchantStoreService merchantStoreService;
 	
 	@Inject
 	private CategoryService categoryService;
 	
-	@Inject
-	private CustomerService customerService;
+//	@Inject
+//	private CustomerService customerService;
 	
 	@Inject
 	private ProductService productService;
 	
+	
 	@Inject
 	private ProductFacade productFacade;
-	
 	
 	@Inject
 	@Qualifier("img")
@@ -72,13 +72,39 @@ public class ProductApi {
 	@Inject
 	private StoreFacade storeFacade;
 	
+	
 	@Inject
 	private LanguageUtils languageUtils;
 	
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProductApi.class);
-	
 
+    @ResponseStatus(HttpStatus.CREATED)
+	@RequestMapping( value={"/private/products/{productId}/category/{categoryId}","/auth/products/{productId}/category/{categoryId}"}, method=RequestMethod.POST)
+    public @ResponseBody ReadableProduct addProductToCategory(@PathVariable Long productId, @PathVariable Long categoryId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    	
+		try {
+    	
+	    	MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
+	    	
+	    	//get the product
+	    	Product product = productService.getById(productId);
+	    	
+	    	Category category = categoryService.getById(categoryId);
+	    	
+	    	ReadableProduct readableProduct = productFacade.addProductToCategory(category, product, language);
+    	
+	    	return readableProduct;
+	    	
+		} catch (Exception e) {
+			LOGGER.error("Error while adding product to category",e);
+			try {
+				response.sendError(503, "Error while adding product to category " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return null;
+		}
+    }
     @ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping( value={"/private/products","/auth/products"}, method=RequestMethod.POST)
     public @ResponseBody PersistableProduct create(@Valid @RequestBody PersistableProduct product, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -97,28 +123,6 @@ public class ProductApi {
 			LOGGER.error("Error while creating product",e);
 			try {
 				response.sendError(503, "Error while creating product " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
-		
-	}
-    @ResponseStatus(HttpStatus.OK)
-	@RequestMapping( value={"/private/products/{id}","/auth/products/{id}"}, method=RequestMethod.PUT)
-    public @ResponseBody PersistableProduct update(@PathVariable Long id, @Valid @RequestBody PersistableProduct product, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		try {
-			
-			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			productFacade.saveProduct(merchantStore, product, merchantStore.getDefaultLanguage());
-			
-			return product;
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while updating product",e);
-			try {
-				response.sendError(503, "Error while updating product " + e.getMessage());
 			} catch (Exception ignore) {
 			}
 			
@@ -413,6 +417,36 @@ public class ProductApi {
 
 
 	/**
+	 * API for getting a product
+	 * @param id
+	 * @param lang
+	 * 	?lang=fr|en
+	 * @param request
+	 * @param response
+	 * @return ReadableProduct
+	 * @throws Exception
+	 * 
+	 * 	/api/v1/product/123
+	 */
+	@RequestMapping(value = "/products/{id}", method=RequestMethod.GET)
+	@ResponseBody
+	public ReadableProduct get(@PathVariable final Long id, @RequestParam(value = "lang", required=false) String lang, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	
+		MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+		Language language = languageUtils.getRESTLanguage(request, merchantStore);	
+		
+		ReadableProduct product = productFacade.getProduct(merchantStore, id, language);
+		
+		if(product==null) {
+			response.sendError(404, "Product not fount for id " + id);
+			return null;
+		}
+		
+		return product;
+		
+	}
+	
+	/**
 	 * Filtering product lists based on product attributes
 	 * ?category=1
 	 * &manufacturer=2
@@ -495,67 +529,8 @@ public class ProductApi {
 
 		
 	}
-	
-	/**
-	 * API for getting a product
-	 * @param id
-	 * @param lang
-	 * 	?lang=fr|en
-	 * @param request
-	 * @param response
-	 * @return ReadableProduct
-	 * @throws Exception
-	 * 
-	 * 	/api/v1/product/123
-	 */
-	@RequestMapping(value = "/products/{id}", method=RequestMethod.GET)
-	@ResponseBody
-	public ReadableProduct get(@PathVariable final Long id, @RequestParam(value = "lang", required=false) String lang, HttpServletRequest request, HttpServletResponse response) throws Exception {
-	
-		MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-		Language language = languageUtils.getRESTLanguage(request, merchantStore);	
-		
-		ReadableProduct product = productFacade.getProduct(merchantStore, id, language);
-		
-		if(product==null) {
-			response.sendError(404, "Product not fount for id " + id);
-			return null;
-		}
-		
-		return product;
-		
-	}
 
 	
-    @ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping( value={"/private/products/{productId}/category/{categoryId}","/auth/products/{productId}/category/{categoryId}"}, method=RequestMethod.POST)
-    public @ResponseBody ReadableProduct addProductToCategory(@PathVariable Long productId, @PathVariable Long categoryId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-    	
-		try {
-    	
-	    	MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
-	    	
-	    	//get the product
-	    	Product product = productService.getById(productId);
-	    	
-	    	Category category = categoryService.getById(categoryId);
-	    	
-	    	ReadableProduct readableProduct = productFacade.addProductToCategory(category, product, language);
-    	
-	    	return readableProduct;
-	    	
-		} catch (Exception e) {
-			LOGGER.error("Error while adding product to category",e);
-			try {
-				response.sendError(503, "Error while adding product to category " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
-    }
-    
     @ResponseStatus(HttpStatus.OK)
 	@RequestMapping( value={"/private/products/{productId}/category/{categoryId}","/auth/products/{productId}/category/{categoryId}"}, method=RequestMethod.DELETE)
     public @ResponseBody ReadableProduct removeProductFromCategory(@PathVariable Long productId, @PathVariable Long categoryId, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -584,5 +559,28 @@ public class ProductApi {
 			return null;
 		}
     }
+    
+    @ResponseStatus(HttpStatus.OK)
+	@RequestMapping( value={"/private/products/{id}","/auth/products/{id}"}, method=RequestMethod.PUT)
+    public @ResponseBody PersistableProduct update(@PathVariable Long id, @Valid @RequestBody PersistableProduct product, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		try {
+			
+			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			productFacade.saveProduct(merchantStore, product, merchantStore.getDefaultLanguage());
+			
+			return product;
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while updating product",e);
+			try {
+				response.sendError(503, "Error while updating product " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return null;
+		}
+		
+	}
 
 }

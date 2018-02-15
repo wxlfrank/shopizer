@@ -48,17 +48,6 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Long id;
 	
-	public User() {
-		
-	}
-	
-	public User(String userName,String password, String email) {
-		
-		this.adminName = userName;
-		this.adminPassword = password;
-		this.adminEmail = email;
-	}
-	
 	@NotEmpty
 	@Column(name="ADMIN_NAME", length=100, unique=true)
 	private String adminName;
@@ -92,7 +81,6 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	@JoinColumn(name="MERCHANT_ID", nullable=false)
 	private MerchantStore merchantStore;
 	
-	
 	@Column(name="ADMIN_FIRST_NAME")
 	private String firstName;
 	
@@ -114,6 +102,7 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	@Column(name="ADMIN_Q2")
 	private String question2;
 	
+	
 	@Column(name="ADMIN_Q3")
 	private String question3;
 	
@@ -125,31 +114,133 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 	
 	@Column(name="ADMIN_A3")
 	private String answer3;
-
+	
 	@Embedded
 	private AuditSection auditSection = new AuditSection();
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "LAST_ACCESS")
 	private Date lastAccess;
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "LOGIN_ACCESS")
 	private Date loginTime;
+	
+	public User() {
+		
+	}
+	
+	public User(String userName,String password, String email) {
+		
+		this.adminName = userName;
+		this.adminPassword = password;
+		this.adminEmail = email;
+	}
+
+	public String getAdminEmail() {
+		return adminEmail;
+	}
+
+	public String getAdminName() {
+		return adminName;
+	}
+
+	public String getAdminPassword() {
+		return adminPassword;
+	}
+
+	public String getAnswer1() {
+		return answer1;
+	}
+
+	public String getAnswer2() {
+		return answer2;
+	}
+
+	public String getAnswer3() {
+		return answer3;
+	}
+
+	@Override
+	public AuditSection getAuditSection() {
+		return auditSection;
+	}
+
+	public Language getDefaultLanguage() {
+		return defaultLanguage;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public List<Group> getGroups() {
+		return groups;
+	}
 
 	@Override
 	public Long getId() {
 		return this.id;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
+	public Date getLastAccess() {
+		return lastAccess;
 	}
 
-	@Override
-	public AuditSection getAuditSection() {
-		return auditSection;
+	public String getLastName() {
+		return lastName;
+	}
+
+	public Date getLoginTime() {
+		return loginTime;
+	}
+
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
+	}
+
+	public String getQuestion1() {
+		return question1;
+	}
+
+	public String getQuestion2() {
+		return question2;
+	}
+
+	public String getQuestion3() {
+		return question3;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public void setAdminEmail(String adminEmail) {
+		this.adminEmail = adminEmail;
+	}
+
+	public void setAdminName(String adminName) {
+		this.adminName = adminName;
+	}
+
+	public void setAdminPassword(String adminPassword) {
+		this.adminPassword = adminPassword;
+	}
+
+	public void setAnswer1(String answer1) {
+		this.answer1 = answer1;
+	}
+
+	public void setAnswer2(String answer2) {
+		this.answer2 = answer2;
+	}
+
+	public void setAnswer3(String answer3) {
+		this.answer3 = answer3;
 	}
 
 	@Override
@@ -158,140 +249,49 @@ public class User extends SalesManagerEntity<Long, User> implements Auditable {
 		
 	}
 
-	public String getAdminName() {
-		return adminName;
-	}
-
-	public void setAdminName(String adminName) {
-		this.adminName = adminName;
-	}
-
-	public String getAdminEmail() {
-		return adminEmail;
-	}
-
-	public void setAdminEmail(String adminEmail) {
-		this.adminEmail = adminEmail;
-	}
-
-	public String getAdminPassword() {
-		return adminPassword;
-	}
-
-	public void setAdminPassword(String adminPassword) {
-		this.adminPassword = adminPassword;
-	}
-
-	public String getFirstName() {
-		return firstName;
+	public void setDefaultLanguage(Language defaultLanguage) {
+		this.defaultLanguage = defaultLanguage;
 	}
 
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
 
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public Language getDefaultLanguage() {
-		return defaultLanguage;
-	}
-
-	public void setDefaultLanguage(Language defaultLanguage) {
-		this.defaultLanguage = defaultLanguage;
-	}
-
-	public String getQuestion1() {
-		return question1;
-	}
-
-	public void setQuestion1(String question1) {
-		this.question1 = question1;
-	}
-
-	public String getQuestion2() {
-		return question2;
-	}
-
-	public void setQuestion2(String question2) {
-		this.question2 = question2;
-	}
-
-	public String getQuestion3() {
-		return question3;
-	}
-
-	public void setQuestion3(String question3) {
-		this.question3 = question3;
-	}
-
-	public String getAnswer1() {
-		return answer1;
-	}
-
-	public void setAnswer1(String answer1) {
-		this.answer1 = answer1;
-	}
-
-	public String getAnswer2() {
-		return answer2;
-	}
-
-	public void setAnswer2(String answer2) {
-		this.answer2 = answer2;
-	}
-
-	public String getAnswer3() {
-		return answer3;
-	}
-
-	public void setAnswer3(String answer3) {
-		this.answer3 = answer3;
-	}
-
 	public void setGroups(List<Group> groups) {
 		this.groups = groups;
 	}
 
-	public List<Group> getGroups() {
-		return groups;
-	}
-
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
-	}
-
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
-	public boolean isActive() {
-		return active;
+	@Override
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public void setLastAccess(Date lastAccess) {
 		this.lastAccess = lastAccess;
 	}
 
-	public Date getLastAccess() {
-		return lastAccess;
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 	public void setLoginTime(Date loginTime) {
 		this.loginTime = loginTime;
 	}
 
-	public Date getLoginTime() {
-		return loginTime;
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
+
+	public void setQuestion1(String question1) {
+		this.question1 = question1;
+	}
+
+	public void setQuestion2(String question2) {
+		this.question2 = question2;
+	}
+
+	public void setQuestion3(String question3) {
+		this.question3 = question3;
 	}
 	
 

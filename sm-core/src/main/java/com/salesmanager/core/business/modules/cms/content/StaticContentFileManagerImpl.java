@@ -49,20 +49,12 @@ public class StaticContentFileManagerImpl extends StaticContentFileManager
     	uploadFile.addFiles( merchantStoreCode, inputStaticContentDataList );
     }
     @Override
-    public void removeFile( final String merchantStoreCode, final FileContentType staticContentType, final String fileName)
-        throws ServiceException
-    {
-    	removeFile.removeFile(merchantStoreCode, staticContentType, fileName);
-        
-    }
-
-
-	@Override
 	public OutputContentFile getFile(String merchantStoreCode,
 			FileContentType fileContentType, String contentName)
 			throws ServiceException {
 		return getFile.getFile(merchantStoreCode, fileContentType, contentName);
 	}
+
 
 	@Override
 	public List<String> getFileNames(String merchantStoreCode,
@@ -76,35 +68,43 @@ public class StaticContentFileManagerImpl extends StaticContentFileManager
 		return getFile.getFiles(merchantStoreCode, fileContentType);
 	}
 
-	@Override
-	public void removeFiles(String merchantStoreCode) throws ServiceException {
-		removeFile.removeFiles(merchantStoreCode);
-	}
-    
-   
-
-	public void setRemoveFile(FileRemove removeFile) {
-		this.removeFile = removeFile;
+	public FileGet getGetFile() {
+		return getFile;
 	}
 
 	public FileRemove getRemoveFile() {
 		return removeFile;
+	}
+    
+   
+
+	public FilePut getUploadFile() {
+		return uploadFile;
+	}
+
+	@Override
+    public void removeFile( final String merchantStoreCode, final FileContentType staticContentType, final String fileName)
+        throws ServiceException
+    {
+    	removeFile.removeFile(merchantStoreCode, staticContentType, fileName);
+        
+    }
+
+	@Override
+	public void removeFiles(String merchantStoreCode) throws ServiceException {
+		removeFile.removeFiles(merchantStoreCode);
 	}
 
 	public void setGetFile(FileGet getFile) {
 		this.getFile = getFile;
 	}
 
-	public FileGet getGetFile() {
-		return getFile;
+	public void setRemoveFile(FileRemove removeFile) {
+		this.removeFile = removeFile;
 	}
 
 	public void setUploadFile(FilePut uploadFile) {
 		this.uploadFile = uploadFile;
-	}
-
-	public FilePut getUploadFile() {
-		return uploadFile;
 	}
   
     

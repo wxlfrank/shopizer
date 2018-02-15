@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.repositories.user.UserRepository;
 import com.salesmanager.core.business.services.common.generic.SalesManagerEntityServiceImpl;
-import com.salesmanager.core.business.services.system.EmailService;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.user.User;
 
@@ -20,21 +19,14 @@ public class UserServiceImpl extends SalesManagerEntityServiceImpl<Long, User>
 
 	private UserRepository userRepository;
 	
+//	@Inject
+//	private EmailService emailService;
+	
 	@Inject
 	public UserServiceImpl(UserRepository userRepository) {
 		super(userRepository);
 		this.userRepository = userRepository;
 
-	}
-	
-	@Inject
-	private EmailService emailService;
-	
-	@Override
-	public User getByUserName(String userName) throws ServiceException {
-		
-		return userRepository.findByUserName(userName);
-		
 	}
 	
 	@Override
@@ -44,20 +36,27 @@ public class UserServiceImpl extends SalesManagerEntityServiceImpl<Long, User>
 		super.delete(u);
 		
 	}
+	
+	@Override
+	public User getByUserName(String userName) throws ServiceException {
+		
+		return userRepository.findByUserName(userName);
+		
+	}
 
 	@Override
-	public List<User> listUser() throws ServiceException {
+	public List<User> listByStore(MerchantStore store) throws ServiceException {
 		try {
-			return userRepository.findAll();
+			return userRepository.findByStore(store.getId());
 		} catch (Exception e) {
 			throw new ServiceException(e);
 		}
 	}
 	
 	@Override
-	public List<User> listByStore(MerchantStore store) throws ServiceException {
+	public List<User> listUser() throws ServiceException {
 		try {
-			return userRepository.findByStore(store.getId());
+			return userRepository.findAll();
 		} catch (Exception e) {
 			throw new ServiceException(e);
 		}

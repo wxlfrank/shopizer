@@ -1,7 +1,6 @@
 package com.salesmanager.shop.tags;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 
 import org.slf4j.Logger;
@@ -30,6 +29,10 @@ public class ConfigurationTag extends RequestContextAwareTag {
 	private String configurationCode;
 
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
 	public int doStartTagInternal() throws JspException {
 		try {
 			
@@ -39,8 +42,8 @@ public class ConfigurationTag extends RequestContextAwareTag {
 	            factory.autowireBean(this);
 	        }
 
-			HttpServletRequest request = (HttpServletRequest) pageContext
-					.getRequest();
+//			HttpServletRequest request = (HttpServletRequest) pageContext
+//					.getRequest();
 
 
 			pageContext.getOut().print(coreConfiguration.getProperty(this.getConfigurationCode(), "property " + getConfigurationCode() + " not found"));
@@ -51,10 +54,6 @@ public class ConfigurationTag extends RequestContextAwareTag {
 			LOGGER.error("Error while getting content url", ex);
 		}
 		return SKIP_BODY;
-	}
-
-	public int doEndTag() {
-		return EVAL_PAGE;
 	}
 
 	public String getConfigurationCode() {

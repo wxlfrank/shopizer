@@ -34,60 +34,14 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 
 
 
-	public Long getCustomer() {
-		return customer;
-	}
-
-
-
-	public void setCustomer(Long customer) {
-		this.customer = customer;
-	}
-
-
-
-	public List<ReadableOrderTotal> getTotals() {
-		return totals;
-	}
-
-
-
-	public void setTotals(List<ReadableOrderTotal> totals) {
-		this.totals = totals;
-	}
-
-
-
-	public List<ReadableShoppingCartItem> getProducts() {
-		return products;
-	}
-
-
-
-	public void setProducts(List<ReadableShoppingCartItem> products) {
-		this.products = products;
-	}
-
-
-
 	public String getCode() {
 		return code;
 	}
 
 
 
-	public void setCode(String code) {
-		this.code = code;
-	}
-	
-	public BigDecimal getSubtotal() {
-		return subtotal;
-	}
-
-
-
-	public void setSubtotal(BigDecimal subtotal) {
-		this.subtotal = subtotal;
+	public Long getCustomer() {
+		return customer;
 	}
 
 
@@ -98,32 +52,14 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 
 
 
-	public void setDisplaySubTotal(String displaySubTotal) {
-		this.displaySubTotal = displaySubTotal;
-	}
-
-
-
-	public BigDecimal getTotal() {
-		return total;
-	}
-
-
-
-	public void setTotal(BigDecimal total) {
-		this.total = total;
-	}
-
-
-
 	public String getDisplayTotal() {
 		return displayTotal;
 	}
 
 
 
-	public void setDisplayTotal(String displayTotal) {
-		this.displayTotal = displayTotal;
+	public List<ReadableShoppingCartItem> getProducts() {
+		return products;
 	}
 
 
@@ -134,8 +70,72 @@ public class ReadableShoppingCart extends ShoppingCartEntity {
 
 
 
+	public BigDecimal getSubtotal() {
+		return subtotal;
+	}
+
+
+
+	public BigDecimal getTotal() {
+		return total;
+	}
+	
+	public List<ReadableOrderTotal> getTotals() {
+		return totals;
+	}
+
+
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+
+
+	public void setCustomer(Long customer) {
+		this.customer = customer;
+	}
+
+
+
+	public void setDisplaySubTotal(String displaySubTotal) {
+		this.displaySubTotal = displaySubTotal;
+	}
+
+
+
+	public void setDisplayTotal(String displayTotal) {
+		this.displayTotal = displayTotal;
+	}
+
+
+
+	public void setProducts(List<ReadableShoppingCartItem> products) {
+		this.products = products;
+	}
+
+
+
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
+	}
+
+
+
+	public void setSubtotal(BigDecimal subtotal) {
+		this.subtotal = subtotal;
+	}
+
+
+
+	public void setTotal(BigDecimal total) {
+		this.total = total;
+	}
+
+
+
+	public void setTotals(List<ReadableOrderTotal> totals) {
+		this.totals = totals;
 	}
 
 

@@ -105,6 +105,24 @@ public class InitializationDatabaseImpl implements InitializationDatabase {
 	
 
 
+	private void createCountries() throws ServiceException {
+		LOGGER.info(String.format("%s : Populating Countries ", name));
+		List<Language> languages = languageService.list();
+		for(String code : SchemaConstant.COUNTRY_ISO_CODE) {
+			Locale locale = SchemaConstant.LOCALES.get(code);
+			if (locale != null) {
+				Country country = new Country(code);
+				countryService.create(country);
+				
+				for (Language language : languages) {
+					String name = locale.getDisplayCountry(new Locale(language.getCode()));
+					CountryDescription description = new CountryDescription(language, name);
+					countryService.addCountryDescription(country, description);
+				}
+			}
+		}
+	}
+
 	private void createCurrencies() throws ServiceException {
 		LOGGER.info(String.format("%s : Populating Currencies ", name));
 
@@ -130,58 +148,7 @@ public class InitializationDatabaseImpl implements InitializationDatabase {
             }
         }  
 	}
-
-	private void createCountries() throws ServiceException {
-		LOGGER.info(String.format("%s : Populating Countries ", name));
-		List<Language> languages = languageService.list();
-		for(String code : SchemaConstant.COUNTRY_ISO_CODE) {
-			Locale locale = SchemaConstant.LOCALES.get(code);
-			if (locale != null) {
-				Country country = new Country(code);
-				countryService.create(country);
-				
-				for (Language language : languages) {
-					String name = locale.getDisplayCountry(new Locale(language.getCode()));
-					CountryDescription description = new CountryDescription(language, name);
-					countryService.addCountryDescription(country, description);
-				}
-			}
-		}
-	}
 	
-	private void createZones() throws ServiceException {
-		LOGGER.info(String.format("%s : Populating Zones ", name));
-        try {
-
-    		  Map<String,Zone> zonesMap = new HashMap<String,Zone>();
-    		  zonesMap = zonesLoader.loadZones("reference/zoneconfig.json");
-              
-              for (Map.Entry<String, Zone> entry : zonesMap.entrySet()) {
-            	    String key = entry.getKey();
-            	    Zone value = entry.getValue();
-            	    if(value.getDescriptions()==null) {
-            	    	LOGGER.warn("This zone " + key + " has no descriptions");
-            	    	continue;
-            	    }
-            	    
-            	    List<ZoneDescription> zoneDescriptions = value.getDescriptions();
-            	    value.setDescriptons(null);
-
-            	    zoneService.create(value);
-            	    
-            	    for(ZoneDescription description : zoneDescriptions) {
-            	    	description.setZone(value);
-            	    	zoneService.addDescription(value, description);
-            	    }
-              }
-
-  		} catch (Exception e) {
-  		    
-  			throw new ServiceException(e);
-  		}
-
-	}
-
 	private void createLanguages() throws ServiceException {
 		LOGGER.info(String.format("%s : Populating Languages ", name));
 		for(String code : SchemaConstant.LANGUAGE_ISO_CODE) {
@@ -189,7 +156,7 @@ public class InitializationDatabaseImpl implements InitializationDatabase {
 			languageService.create(language);
 		}
 	}
-	
+
 	private void createMerchant() throws ServiceException {
 		LOGGER.info(String.format("%s : Creating merchant ", name));
 		
@@ -245,7 +212,7 @@ public class InitializationDatabaseImpl implements InitializationDatabase {
 		
 		
 	}
-
+	
 	private void createModules() throws ServiceException {
 		
 		try {
@@ -262,7 +229,7 @@ public class InitializationDatabaseImpl implements InitializationDatabase {
 		
 		
 	}
-	
+
 	private void createSubReferences() throws ServiceException {
 		
 		LOGGER.info(String.format("%s : Loading catalog sub references ", name));
@@ -276,6 +243,39 @@ public class InitializationDatabaseImpl implements InitializationDatabase {
 
 		
 		
+	}
+	
+	private void createZones() throws ServiceException {
+		LOGGER.info(String.format("%s : Populating Zones ", name));
+        try {
+
+    		  Map<String,Zone> zonesMap = new HashMap<String,Zone>();
+    		  zonesMap = zonesLoader.loadZones("reference/zoneconfig.json");
+              
+              for (Map.Entry<String, Zone> entry : zonesMap.entrySet()) {
+            	    String key = entry.getKey();
+            	    Zone value = entry.getValue();
+            	    if(value.getDescriptions()==null) {
+            	    	LOGGER.warn("This zone " + key + " has no descriptions");
+            	    	continue;
+            	    }
+            	    
+            	    List<ZoneDescription> zoneDescriptions = value.getDescriptions();
+            	    value.setDescriptons(null);
+
+            	    zoneService.create(value);
+            	    
+            	    for(ZoneDescription description : zoneDescriptions) {
+            	    	description.setZone(value);
+            	    	zoneService.addDescription(value, description);
+            	    }
+              }
+
+  		} catch (Exception e) {
+  		    
+  			throw new ServiceException(e);
+  		}
+
 	}
 	
 

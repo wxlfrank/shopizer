@@ -23,23 +23,23 @@ public class ReadableShoppingCartItem extends ReadableProduct implements Seriali
 	private List<ReadableShoppingCartAttribute> cartItemattributes = new ArrayList<ReadableShoppingCartAttribute>();
 	
 
-	public BigDecimal getSubTotal() {
-		return subTotal;
-	}
-	public void setSubTotal(BigDecimal subTotal) {
-		this.subTotal = subTotal;
+	public List<ReadableShoppingCartAttribute> getCartItemattributes() {
+		return cartItemattributes;
 	}
 	public String getDisplaySubTotal() {
 		return displaySubTotal;
 	}
-	public void setDisplaySubTotal(String displaySubTotal) {
-		this.displaySubTotal = displaySubTotal;
-	}
-	public List<ReadableShoppingCartAttribute> getCartItemattributes() {
-		return cartItemattributes;
+	public BigDecimal getSubTotal() {
+		return subTotal;
 	}
 	public void setCartItemattributes(List<ReadableShoppingCartAttribute> cartItemattributes) {
 		this.cartItemattributes = cartItemattributes;
+	}
+	public void setDisplaySubTotal(String displaySubTotal) {
+		this.displaySubTotal = displaySubTotal;
+	}
+	public void setSubTotal(BigDecimal subTotal) {
+		this.subTotal = subTotal;
 	}
 	
 	

@@ -11,15 +11,9 @@ import com.salesmanager.core.model.user.User;
 public class UserServiceLDAPImpl implements UserService {
 
 	@Override
-	public void save(User entity) throws ServiceException {
-		throw new ServiceException("Not implemented");
-
-	}
-
-	@Override
-	public void update(User entity) throws ServiceException {
-		throw new ServiceException("Not implemented");
-
+	public Long count() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -34,6 +28,15 @@ public class UserServiceLDAPImpl implements UserService {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see com.salesmanager.core.business.services.common.generic.SalesManagerEntityService#flush()
+	 */
+	@Override
+	public void flush() {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 	@Override
@@ -43,6 +46,14 @@ public class UserServiceLDAPImpl implements UserService {
 	}
 
 	@Override
+	public User getByUserName(String userName) throws ServiceException {
+		// TODO Auto-generated method stub
+		throw new ServiceException("Not implemented");
+	}
+
+
+
+	@Override
 	public List<User> list() {
 		// TODO Auto-generated method stub
 		return null;
@@ -50,18 +61,11 @@ public class UserServiceLDAPImpl implements UserService {
 
 
 
-	@Override
-	public Long count() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
 
 
 	@Override
-	public User getByUserName(String userName) throws ServiceException {
+	public List<User> listByStore(MerchantStore store)
+			throws ServiceException {
 		// TODO Auto-generated method stub
 		throw new ServiceException("Not implemented");
 	}
@@ -73,25 +77,21 @@ public class UserServiceLDAPImpl implements UserService {
 	}
 
 	@Override
+	public void save(User entity) throws ServiceException {
+		throw new ServiceException("Not implemented");
+
+	}
+
+	@Override
 	public void saveOrUpdate(User user) throws ServiceException {
 		throw new ServiceException("Not implemented");
 
 	}
 
 	@Override
-	public List<User> listByStore(MerchantStore store)
-			throws ServiceException {
-		// TODO Auto-generated method stub
+	public void update(User entity) throws ServiceException {
 		throw new ServiceException("Not implemented");
-	}
 
-	/* (non-Javadoc)
-	 * @see com.salesmanager.core.business.services.common.generic.SalesManagerEntityService#flush()
-	 */
-	@Override
-	public void flush() {
-		// TODO Auto-generated method stub
-		
 	}
 
 

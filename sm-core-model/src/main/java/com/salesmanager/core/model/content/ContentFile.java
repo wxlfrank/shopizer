@@ -5,8 +5,8 @@ public abstract class ContentFile {
 	
 	private String fileName;
 	private String mimeType;
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
+	public String getFileName() {
+		return fileName;
 	}
 	public String getMimeType() {
 		return mimeType;
@@ -14,8 +14,8 @@ public abstract class ContentFile {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-	public String getFileName() {
-		return fileName;
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
 	}
 
 

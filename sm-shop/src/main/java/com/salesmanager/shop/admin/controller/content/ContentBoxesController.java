@@ -1,15 +1,16 @@
 package com.salesmanager.shop.admin.controller.content;
 
-import com.salesmanager.core.business.services.content.ContentService;
-import com.salesmanager.core.business.services.reference.language.LanguageService;
-import com.salesmanager.core.model.content.Content;
-import com.salesmanager.core.model.content.ContentDescription;
-import com.salesmanager.core.model.content.ContentType;
-import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.model.reference.language.Language;
-import com.salesmanager.shop.admin.controller.ControllerConstants;
-import com.salesmanager.shop.admin.model.web.Menu;
-import com.salesmanager.shop.constants.Constants;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,11 +22,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.*;
+import com.salesmanager.core.business.services.content.ContentService;
+import com.salesmanager.core.business.services.reference.language.LanguageService;
+import com.salesmanager.core.model.content.Content;
+import com.salesmanager.core.model.content.ContentDescription;
+import com.salesmanager.core.model.content.ContentType;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.admin.controller.ControllerConstants;
+import com.salesmanager.shop.admin.model.web.Menu;
+import com.salesmanager.shop.constants.Constants;
 
 @Controller
 public class ContentBoxesController {
@@ -51,18 +57,6 @@ public class ContentBoxesController {
 
 
 	
-	
-	@PreAuthorize("hasRole('CONTENT')")
-	@RequestMapping(value="/admin/content/boxes/list.html", method=RequestMethod.GET)
-	public String listContentBoxes(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		setMenu(model,request);
-
-		model.addAttribute("boxes", true);
-		return ControllerConstants.Tiles.Content.contentPages;
-		
-		
-	}
 	
 	@PreAuthorize("hasRole('CONTENT')")
 	@RequestMapping(value="/admin/content/boxes/create.html", method=RequestMethod.GET)
@@ -145,6 +139,18 @@ public class ContentBoxesController {
 		
 
 		return ControllerConstants.Tiles.Content.contentPagesDetails;
+		
+		
+	}
+	
+	@PreAuthorize("hasRole('CONTENT')")
+	@RequestMapping(value="/admin/content/boxes/list.html", method=RequestMethod.GET)
+	public String listContentBoxes(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		setMenu(model,request);
+
+		model.addAttribute("boxes", true);
+		return ControllerConstants.Tiles.Content.contentPages;
 		
 		
 	}

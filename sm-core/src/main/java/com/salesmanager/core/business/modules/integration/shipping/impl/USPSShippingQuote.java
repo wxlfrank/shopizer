@@ -67,59 +67,10 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 	
 
 	@Override
-	public void validateModuleConfiguration(
-			IntegrationConfiguration integrationConfiguration,
+	public CustomIntegrationConfiguration getCustomModuleConfiguration(
 			MerchantStore store) throws IntegrationException {
-		
-		
-		List<String> errorFields = null;
-		
-		//validate integrationKeys['account']
-		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
-		if(keys==null || StringUtils.isBlank(keys.get("account"))) {
-			errorFields = new ArrayList<String>();
-			errorFields.add("identifier");
-		}
-
-		//validate at least one integrationOptions['packages']
-		Map<String,List<String>> options = integrationConfiguration.getIntegrationOptions();
-		if(options==null) {
-			errorFields = new ArrayList<String>();
-			errorFields.add("identifier");
-		}
-		
-		List<String> packages = options.get("packages");
-		if(packages==null || packages.size()==0) {
-			if(errorFields==null) {
-				errorFields = new ArrayList<String>();
-			}
-			errorFields.add("packages");
-		}
-		
-/*		List<String> services = options.get("services");
-		if(services==null || services.size()==0) {
-			if(errorFields==null) {
-				errorFields = new ArrayList<String>();
-			}
-			errorFields.add("services");
-		}
-		
-		if(services!=null && services.size()>3) {
-			if(errorFields==null) {
-				errorFields = new ArrayList<String>();
-			}
-			errorFields.add("services");
-		}*/
-		
-		if(errorFields!=null) {
-			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
-			ex.setErrorFields(errorFields);
-			throw ex;
-			
-		}
-		
-		
-
+		//nothing to do
+		return null;
 	}
 
 	@Override
@@ -603,7 +554,6 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 			// Map serviceMap =
 			// com.salesmanager.core.util.ShippingUtil.buildServiceMap("usps",locale);
 		
-			@SuppressWarnings("unchecked")
 			List<ShippingOption> shippingOptions = parsed.getOptions();
 		
 /*			List<ShippingOption> returnOptions = null;
@@ -693,10 +643,59 @@ public class USPSShippingQuote implements ShippingQuoteModule {
 
 
 	@Override
-	public CustomIntegrationConfiguration getCustomModuleConfiguration(
+	public void validateModuleConfiguration(
+			IntegrationConfiguration integrationConfiguration,
 			MerchantStore store) throws IntegrationException {
-		//nothing to do
-		return null;
+		
+		
+		List<String> errorFields = null;
+		
+		//validate integrationKeys['account']
+		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
+		if(keys==null || StringUtils.isBlank(keys.get("account"))) {
+			errorFields = new ArrayList<String>();
+			errorFields.add("identifier");
+		}
+
+		//validate at least one integrationOptions['packages']
+		Map<String,List<String>> options = integrationConfiguration.getIntegrationOptions();
+		if(options==null) {
+			errorFields = new ArrayList<String>();
+			errorFields.add("identifier");
+		}
+		
+		List<String> packages = options.get("packages");
+		if(packages==null || packages.size()==0) {
+			if(errorFields==null) {
+				errorFields = new ArrayList<String>();
+			}
+			errorFields.add("packages");
+		}
+		
+/*		List<String> services = options.get("services");
+		if(services==null || services.size()==0) {
+			if(errorFields==null) {
+				errorFields = new ArrayList<String>();
+			}
+			errorFields.add("services");
+		}
+		
+		if(services!=null && services.size()>3) {
+			if(errorFields==null) {
+				errorFields = new ArrayList<String>();
+			}
+			errorFields.add("services");
+		}*/
+		
+		if(errorFields!=null) {
+			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
+			ex.setErrorFields(errorFields);
+			throw ex;
+			
+		}
+		
+		
+
 	}
 
 }
@@ -714,7 +713,15 @@ class USPSParsedElements {
 		options.add(option);
 	}
 
-	public List getOptions() {
+	public String getError() {
+		return error;
+	}
+
+	public String getErrorCode() {
+		return errorCode;
+	}
+
+	public List<ShippingOption> getOptions() {
 		return options;
 	}
 
@@ -722,32 +729,24 @@ class USPSParsedElements {
 		return statusCode;
 	}
 
-	public void setStatusCode(String statusCode) {
-		this.statusCode = statusCode;
-	}
-
 	public String getStatusMessage() {
 		return statusMessage;
-	}
-
-	public void setStatusMessage(String statusMessage) {
-		this.statusMessage = statusMessage;
-	}
-
-	public String getError() {
-		return error;
 	}
 
 	public void setError(String error) {
 		this.error = error;
 	}
 
-	public String getErrorCode() {
-		return errorCode;
-	}
-
 	public void setErrorCode(String errorCode) {
 		this.errorCode = errorCode;
+	}
+
+	public void setStatusCode(String statusCode) {
+		this.statusCode = statusCode;
+	}
+
+	public void setStatusMessage(String statusMessage) {
+		this.statusMessage = statusMessage;
 	}
 
 }

@@ -1,5 +1,22 @@
 package com.salesmanager.shop.store.controller.customer;
 
+import javax.inject.Inject;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.services.catalog.product.PricingService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartCalculationService;
@@ -16,19 +33,6 @@ import com.salesmanager.shop.populator.shoppingCart.ShoppingCartDataPopulator;
 import com.salesmanager.shop.store.controller.AbstractController;
 import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
 import com.salesmanager.shop.utils.ImageFilePath;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import javax.inject.Inject;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Custom Spring Security authentication
@@ -39,30 +43,55 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/shop/customer")
 public class CustomerLoginController extends AbstractController {
 	
-	@Inject
-    private AuthenticationManager customerAuthenticationManager;
+	private static final Logger LOG = LoggerFactory.getLogger(CustomerLoginController.class);
 	
+
+//    @Inject
+//    private AuthenticationManager customerAuthenticationManager;
 
     @Inject
     private  CustomerFacade customerFacade;
-
+    
     @Inject
     private ShoppingCartService shoppingCartService;
     
     @Inject
     private ShoppingCartCalculationService shoppingCartCalculationService;
-    
-    @Inject
-    private PricingService pricingService;
 
     
 	 @Inject
+    private PricingService pricingService;
+	
+	
+	@Inject
 	 @Qualifier("img")
 	 private ImageFilePath imageUtils;
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CustomerLoginController.class);
+	//http://localhost:8080/sm-shop/shop/customer/authenticate.html?userName=shopizer&password=password&storeCode=DEFAULT
+	@RequestMapping(value="/authenticate.html", method=RequestMethod.GET)
+	public @ResponseBody String basicLogon(@RequestParam String userName, @RequestParam String password, @RequestParam String storeCode, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		AjaxResponse jsonObject = this.logon(userName, password, storeCode, request, response);
+		return jsonObject.toJSONString();
+		
+	}
+	/**
+	 * Customer login entry point
+	 * @param securedCustomer
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/logon.html", method=RequestMethod.POST)
+	public @ResponseBody String jsonLogon(@ModelAttribute SecuredCustomer securedCustomer, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+        AjaxResponse jsonObject = this.logon(securedCustomer.getUserName(), securedCustomer.getPassword(), securedCustomer.getStoreCode(), request, response);
+        return jsonObject.toJSONString();
+        
 	
+	}
 	
 	private AjaxResponse logon(String userName, String password, String storeCode, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -161,31 +190,6 @@ public class CustomerLoginController extends AbstractController {
         return jsonObject;
 		
 		
-	}
-	//http://localhost:8080/sm-shop/shop/customer/authenticate.html?userName=shopizer&password=password&storeCode=DEFAULT
-	@RequestMapping(value="/authenticate.html", method=RequestMethod.GET)
-	public @ResponseBody String basicLogon(@RequestParam String userName, @RequestParam String password, @RequestParam String storeCode, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		AjaxResponse jsonObject = this.logon(userName, password, storeCode, request, response);
-		return jsonObject.toJSONString();
-		
-	}
-	
-	/**
-	 * Customer login entry point
-	 * @param securedCustomer
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value="/logon.html", method=RequestMethod.POST)
-	public @ResponseBody String jsonLogon(@ModelAttribute SecuredCustomer securedCustomer, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-        AjaxResponse jsonObject = this.logon(securedCustomer.getUserName(), securedCustomer.getPassword(), securedCustomer.getStoreCode(), request, response);
-        return jsonObject.toJSONString();
-        
-	
 	}
 	
 

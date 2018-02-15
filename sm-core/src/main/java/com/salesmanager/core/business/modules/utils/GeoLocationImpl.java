@@ -18,8 +18,8 @@ import com.salesmanager.core.modules.utils.GeoLocation;
  */
 public class GeoLocationImpl implements GeoLocation {
 	
-	private DatabaseReader reader = null;
 	private static final Logger LOGGER = LoggerFactory.getLogger( GeoLocationImpl.class );
+	private DatabaseReader reader = null;
 
 
 	@Override

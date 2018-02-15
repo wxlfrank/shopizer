@@ -13,7 +13,6 @@ import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
 import com.salesmanager.core.business.services.catalog.product.file.DigitalProductService;
 import com.salesmanager.core.business.services.customer.CustomerService;
-import com.salesmanager.core.business.services.order.OrderService;
 import com.salesmanager.core.business.services.reference.currency.CurrencyService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
 import com.salesmanager.core.business.utils.AbstractDataPopulator;
@@ -44,6 +43,31 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 
 	
 
+
+	public CurrencyService getCurrencyService() {
+		return currencyService;
+	}
+
+	public CustomerService getCustomerService() {
+		return customerService;
+	}
+
+
+	public DigitalProductService getDigitalProductService() {
+		return digitalProductService;
+	}
+
+	public ProductAttributeService getProductAttributeService() {
+		return productAttributeService;
+	}
+
+	public ProductService getProductService() {
+		return productService;
+	}
+
+	public ShoppingCartService getShoppingCartService() {
+		return shoppingCartService;
+	}
 
 	@Override
 	public Order populate(PersistableOrderApi source, Order target, MerchantStore store, Language language)
@@ -138,59 +162,34 @@ public class PersistableOrderApiPopulator extends AbstractDataPopulator<Persista
 		}
 	}
 
-	@Override
-	protected Order createTarget() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	public CurrencyService getCurrencyService() {
-		return currencyService;
-	}
-
 	public void setCurrencyService(CurrencyService currencyService) {
 		this.currencyService = currencyService;
-	}
-
-	public CustomerService getCustomerService() {
-		return customerService;
 	}
 
 	public void setCustomerService(CustomerService customerService) {
 		this.customerService = customerService;
 	}
 
-	public ShoppingCartService getShoppingCartService() {
-		return shoppingCartService;
-	}
-
-	public void setShoppingCartService(ShoppingCartService shoppingCartService) {
-		this.shoppingCartService = shoppingCartService;
-	}
-
-	public ProductService getProductService() {
-		return productService;
-	}
-
-	public void setProductService(ProductService productService) {
-		this.productService = productService;
-	}
-
-	public ProductAttributeService getProductAttributeService() {
-		return productAttributeService;
+	public void setDigitalProductService(DigitalProductService digitalProductService) {
+		this.digitalProductService = digitalProductService;
 	}
 
 	public void setProductAttributeService(ProductAttributeService productAttributeService) {
 		this.productAttributeService = productAttributeService;
 	}
 
-	public DigitalProductService getDigitalProductService() {
-		return digitalProductService;
+	public void setProductService(ProductService productService) {
+		this.productService = productService;
 	}
 
-	public void setDigitalProductService(DigitalProductService digitalProductService) {
-		this.digitalProductService = digitalProductService;
+	public void setShoppingCartService(ShoppingCartService shoppingCartService) {
+		this.shoppingCartService = shoppingCartService;
+	}
+
+	@Override
+	protected Order createTarget() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

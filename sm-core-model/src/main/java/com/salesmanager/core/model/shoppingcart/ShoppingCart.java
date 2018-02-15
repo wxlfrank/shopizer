@@ -82,10 +82,8 @@ public class ShoppingCart extends SalesManagerEntity<Long, ShoppingCart> impleme
 		return auditSection;
 	}
 
-	@Override
-	public void setAuditSection(AuditSection audit) {
-		this.auditSection = audit;
-		
+	public Long getCustomerId() {
+		return customerId;
 	}
 	
 	@Override
@@ -93,55 +91,57 @@ public class ShoppingCart extends SalesManagerEntity<Long, ShoppingCart> impleme
 		return id;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-		
+	public Set<ShoppingCartItem> getLineItems() {
+		return lineItems;
 	}
 	
+
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
+	}
+
+	public String getShoppingCartCode()
+    {
+        return shoppingCartCode;
+    }
 
 	public boolean isObsolete() {
 		return obsolete;
 	}
 
-	public void setObsolete(boolean obsolete) {
-		this.obsolete = obsolete;
+	@Override
+	public void setAuditSection(AuditSection audit) {
+		this.auditSection = audit;
+		
 	}
 
-	public Set<ShoppingCartItem> getLineItems() {
-		return lineItems;
-	}
-
-	public void setLineItems(Set<ShoppingCartItem> lineItems) {
-		this.lineItems = lineItems;
-	}
-
-    public String getShoppingCartCode()
-    {
-        return shoppingCartCode;
-    }
-
-    public void setShoppingCartCode( String shoppingCartCode )
-    {
-        this.shoppingCartCode = shoppingCartCode;
-    }
-
-
-	public void setCustomerId(Long customerId) {
+    public void setCustomerId(Long customerId) {
 		this.customerId = customerId;
 	}
 
-	public Long getCustomerId() {
-		return customerId;
+    @Override
+	public void setId(Long id) {
+		this.id = id;
+		
+	}
+
+
+	public void setLineItems(Set<ShoppingCartItem> lineItems) {
+		this.lineItems = lineItems;
 	}
 
 	public void setMerchantStore(MerchantStore merchantStore) {
 		this.merchantStore = merchantStore;
 	}
 
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
+	public void setObsolete(boolean obsolete) {
+		this.obsolete = obsolete;
 	}
+
+	public void setShoppingCartCode( String shoppingCartCode )
+    {
+        this.shoppingCartCode = shoppingCartCode;
+    }
 
 
 

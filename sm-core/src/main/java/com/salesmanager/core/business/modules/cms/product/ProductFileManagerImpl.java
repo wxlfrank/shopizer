@@ -34,35 +34,15 @@ public class ProductFileManagerImpl extends ProductFileManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProductFileManagerImpl.class);
 	
 
-	private ProductImagePut uploadImage;
-	private ProductImageGet getImage;
-	private ProductImageRemove removeImage;
-	
-	private CoreConfiguration configuration;
-	
 	private final static String PRODUCT_IMAGE_HEIGHT_SIZE = "PRODUCT_IMAGE_HEIGHT_SIZE";
 	private final static String PRODUCT_IMAGE_WIDTH_SIZE = "PRODUCT_IMAGE_WIDTH_SIZE";
 	private final static String CROP_UPLOADED_IMAGES ="CROP_UPLOADED_IMAGES";
-
-
-	public CoreConfiguration getConfiguration() {
-		return configuration;
-	}
-
-
-	public void setConfiguration(CoreConfiguration configuration) {
-		this.configuration = configuration;
-	}
-
-
-	public ProductImageRemove getRemoveImage() {
-		return removeImage;
-	}
-
-
-	public void setRemoveImage(ProductImageRemove removeImage) {
-		this.removeImage = removeImage;
-	}
+	
+	private ProductImagePut uploadImage;
+	
+	private ProductImageGet getImage;
+	private ProductImageRemove removeImage;
+	private CoreConfiguration configuration;
 
 
 	public void addProductImage(ProductImage productImage, ImageContentFile contentImage)
@@ -257,6 +237,31 @@ public class ProductFileManagerImpl extends ProductFileManager {
 
 }
 
+
+	public CoreConfiguration getConfiguration() {
+		return configuration;
+	}
+
+
+	public ProductImageGet getGetImage() {
+		return getImage;
+	}
+
+
+	@Override
+	public List<OutputContentFile> getImages(Product product)
+			throws ServiceException {
+		return getImage.getImages(product);
+	}
+
+
+	@Override
+	public List<OutputContentFile> getImages(final String merchantStoreCode, FileContentType imageContentType)
+			throws ServiceException {
+		//will return original
+		return getImage.getImages(merchantStoreCode,FileContentType.PRODUCT);
+	}
+
 	
 	public OutputContentFile getProductImage(ProductImage productImage) throws ServiceException {
 		//will return original
@@ -265,21 +270,39 @@ public class ProductFileManagerImpl extends ProductFileManager {
 
 	
 	@Override
-	public List<OutputContentFile> getImages(final String merchantStoreCode, FileContentType imageContentType)
-			throws ServiceException {
-		//will return original
-		return getImage.getImages(merchantStoreCode,FileContentType.PRODUCT);
+	public OutputContentFile getProductImage(String merchantStoreCode,
+			String productCode, String imageName) throws ServiceException {
+		return getImage.getProductImage(merchantStoreCode, productCode, imageName);
 	}
 	
 	@Override
-	public List<OutputContentFile> getImages(Product product)
+	public OutputContentFile getProductImage(String merchantStoreCode,
+			String productCode, String imageName, ProductImageSize size)
 			throws ServiceException {
-		return getImage.getImages(product);
+		return getImage.getProductImage(merchantStoreCode, productCode, imageName, size);
 	}
 
 
 
 
+
+
+	public ProductImageRemove getRemoveImage() {
+		return removeImage;
+	}
+
+
+	public ProductImagePut getUploadImage() {
+		return uploadImage;
+	}
+
+
+	@Override
+	public void removeImages(final String merchantStoreCode) throws ServiceException {
+		
+		this.removeImage.removeImages(merchantStoreCode);
+		
+	}
 
 
 	@Override
@@ -311,28 +334,10 @@ public class ProductFileManagerImpl extends ProductFileManager {
 	}
 
 
-	@Override
-	public void removeImages(final String merchantStoreCode) throws ServiceException {
-		
-		this.removeImage.removeImages(merchantStoreCode);
-		
-	}
-
-
-	public ProductImagePut getUploadImage() {
-		return uploadImage;
-	}
-
-
-	public void setUploadImage(ProductImagePut uploadImage) {
-		this.uploadImage = uploadImage;
-	}
-
-
 	
 
-	public ProductImageGet getGetImage() {
-		return getImage;
+	public void setConfiguration(CoreConfiguration configuration) {
+		this.configuration = configuration;
 	}
 
 
@@ -341,19 +346,14 @@ public class ProductFileManagerImpl extends ProductFileManager {
 	}
 
 
-	@Override
-	public OutputContentFile getProductImage(String merchantStoreCode,
-			String productCode, String imageName) throws ServiceException {
-		return getImage.getProductImage(merchantStoreCode, productCode, imageName);
+	public void setRemoveImage(ProductImageRemove removeImage) {
+		this.removeImage = removeImage;
 	}
 
 
 
-	@Override
-	public OutputContentFile getProductImage(String merchantStoreCode,
-			String productCode, String imageName, ProductImageSize size)
-			throws ServiceException {
-		return getImage.getProductImage(merchantStoreCode, productCode, imageName, size);
+	public void setUploadImage(ProductImagePut uploadImage) {
+		this.uploadImage = uploadImage;
 	}
 
 

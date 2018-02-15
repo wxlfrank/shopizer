@@ -21,7 +21,8 @@ public class PaginationData implements Serializable
     private int currentPage;
     private int offset ;
     private int totalCount;
-    private int totalPages;
+    @SuppressWarnings("unused")
+	private int totalPages;
     private int countByPage;
 
     
@@ -35,11 +36,37 @@ public class PaginationData implements Serializable
     }
     
     
-    public int getPageSize()
-    {
-        return pageSize;
-    }
+    public int getCountByPage() {
+		return countByPage;
+	}
 
+    
+    public int getCurrentPage()
+    {
+        return currentPage;
+    }
+    
+    
+    /**
+     * Creates a new pagination object representing the next page
+     * 
+     * @return new pagination object with offset shifted by offset+limit
+     */
+    public PaginationData getNext()
+    {
+        return new PaginationData( offset + pageSize, pageSize );
+    }
+        
+     
+    /**
+    * The offset for this pagination object. The offset determines what index (0 index) to start retrieving results from.
+    *
+    * @return the offset
+    */
+        public int getOffset() {
+            return (currentPage - 1) * pageSize + 1;
+        }
+    
     
     /**
     * The current page number this pagination object represents
@@ -52,29 +79,14 @@ public class PaginationData implements Serializable
 
         return (offset / pageSize) + 1;
     }
-    
-    
-    /**
-    * The offset for this pagination object. The offset determines what index (0 index) to start retrieving results from.
-    *
-    * @return the offset
-    */
-        public int getOffset() {
-            return (currentPage - 1) * pageSize + 1;
-        }
-        
-     
-    /**
-     * Creates a new pagination object representing the next page
-     * 
-     * @return new pagination object with offset shifted by offset+limit
-     */
-    public PaginationData getNext()
+
+
+    public int getPageSize()
     {
-        return new PaginationData( offset + pageSize, pageSize );
+        return pageSize;
     }
-    
-    
+
+
     /**
     * Creates a new pagination object representing the previous page
     *
@@ -89,27 +101,9 @@ public class PaginationData implements Serializable
         }
 
 
-    public int getCurrentPage()
-    {
-        return currentPage;
-    }
-
-
-    public void setCurrentPage( int currentPage )
-    {
-        this.currentPage = currentPage;
-    }
-
-
     public int getTotalCount()
     {
         return totalCount;
-    }
-
-
-    public void setTotalCount( int totalCount )
-    {
-        this.totalCount = totalCount;
     }
 
 
@@ -121,14 +115,21 @@ public class PaginationData implements Serializable
     }
 
 
-	public int getCountByPage() {
-		return countByPage;
-	}
-
-
-	public void setCountByPage(int countByPage) {
+    public void setCountByPage(int countByPage) {
 		this.countByPage = countByPage;
 	}
+
+
+	public void setCurrentPage( int currentPage )
+    {
+        this.currentPage = currentPage;
+    }
+
+
+	public void setTotalCount( int totalCount )
+    {
+        this.totalCount = totalCount;
+    }
 
 
 	public void setTotalPages(int totalPages) {

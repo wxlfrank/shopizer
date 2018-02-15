@@ -21,47 +21,6 @@ public class ContentRepositoryImpl implements ContentRepositoryCustom {
     private EntityManager em;
     
 	@Override
-	public List<ContentDescription> listNameByType(List<ContentType> contentType, MerchantStore store, Language language) {
-		
-
-
-			StringBuilder qs = new StringBuilder();
-
-			qs.append("select c from Content c ");
-			qs.append("left join fetch c.descriptions cd join fetch c.merchantStore cm ");
-			qs.append("where c.contentType in (:ct) ");
-			qs.append("and cm.id =:cm ");
-			qs.append("and cd.language.id =:cl ");
-			qs.append("order by c.sortOrder");
-
-			String hql = qs.toString();
-			Query q = this.em.createQuery(hql);
-
-	    	q.setParameter("ct", contentType);
-	    	q.setParameter("cm", store.getId());
-	    	q.setParameter("cl", language.getId());
-	
-
-			@SuppressWarnings("unchecked")
-			List<Content> contents = q.getResultList();
-			
-			List<ContentDescription> descriptions = new ArrayList<ContentDescription>();
-			for(Content c : contents) {
-					String name = c.getDescription().getName();
-					String url = c.getDescription().getSeUrl();
-					ContentDescription contentDescription = new ContentDescription();
-					contentDescription.setName(name);
-					contentDescription.setSeUrl(url);
-					contentDescription.setContent(c);
-					descriptions.add(contentDescription);
-					
-			}
-			
-			return descriptions;
-
-	}
-	
-	@Override
 	public ContentDescription getBySeUrl(MerchantStore store,String seUrl) {
 
 			StringBuilder qs = new StringBuilder();
@@ -100,6 +59,47 @@ public class ContentRepositoryImpl implements ContentRepositoryCustom {
 	        
 			
 			return null;
+
+	}
+	
+	@Override
+	public List<ContentDescription> listNameByType(List<ContentType> contentType, MerchantStore store, Language language) {
+		
+
+
+			StringBuilder qs = new StringBuilder();
+
+			qs.append("select c from Content c ");
+			qs.append("left join fetch c.descriptions cd join fetch c.merchantStore cm ");
+			qs.append("where c.contentType in (:ct) ");
+			qs.append("and cm.id =:cm ");
+			qs.append("and cd.language.id =:cl ");
+			qs.append("order by c.sortOrder");
+
+			String hql = qs.toString();
+			Query q = this.em.createQuery(hql);
+
+	    	q.setParameter("ct", contentType);
+	    	q.setParameter("cm", store.getId());
+	    	q.setParameter("cl", language.getId());
+	
+
+			@SuppressWarnings("unchecked")
+			List<Content> contents = q.getResultList();
+			
+			List<ContentDescription> descriptions = new ArrayList<ContentDescription>();
+			for(Content c : contents) {
+					String name = c.getDescription().getName();
+					String url = c.getDescription().getSeUrl();
+					ContentDescription contentDescription = new ContentDescription();
+					contentDescription.setName(name);
+					contentDescription.setSeUrl(url);
+					contentDescription.setContent(c);
+					descriptions.add(contentDescription);
+					
+			}
+			
+			return descriptions;
 
 	}
     

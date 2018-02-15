@@ -34,20 +34,20 @@ public class AuditSection implements Serializable {
 		return CloneUtils.clone(dateCreated);
 	}
 
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = CloneUtils.clone(dateCreated);
-	}
-
 	public Date getDateModified() {
 		return CloneUtils.clone(dateModified);
 	}
 
-	public void setDateModified(Date dateModified) {
-		this.dateModified = CloneUtils.clone(dateModified);
-	}
-
 	public String getModifiedBy() {
 		return modifiedBy;
+	}
+
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = CloneUtils.clone(dateCreated);
+	}
+
+	public void setDateModified(Date dateModified) {
+		this.dateModified = CloneUtils.clone(dateModified);
 	}
 
 	public void setModifiedBy(String modifiedBy) {

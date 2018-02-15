@@ -1,10 +1,10 @@
 package com.salesmanager.shop.admin.model.merchant;
 
-import com.salesmanager.core.model.reference.language.Language;
-
 import java.io.Serializable;
 
 import org.hibernate.validator.constraints.NotEmpty;
+
+import com.salesmanager.core.model.reference.language.Language;
 
 public class StoreLandingDescription implements Serializable {
 	
@@ -25,44 +25,44 @@ public class StoreLandingDescription implements Serializable {
 	
 	
 	
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
 	public String getDescription() {
 		return description;
-	}
-
-	public void setHomePageContent(String homePageContent) {
-		this.homePageContent = homePageContent;
 	}
 
 	public String getHomePageContent() {
 		return homePageContent;
 	}
 
-	public void setKeywords(String keywords) {
-		this.keywords = keywords;
-	}
-
 	public String getKeywords() {
 		return keywords;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public Language getLanguage() {
+		return language;
 	}
 
 	public String getTitle() {
 		return title;
 	}
 
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setHomePageContent(String homePageContent) {
+		this.homePageContent = homePageContent;
+	}
+
+	public void setKeywords(String keywords) {
+		this.keywords = keywords;
+	}
+
 	public void setLanguage(Language language) {
 		this.language = language;
 	}
 
-	public Language getLanguage() {
-		return language;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 }

@@ -5,8 +5,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.salesmanager.core.business.exception.ServiceException;
@@ -21,7 +19,7 @@ import com.salesmanager.core.model.shipping.ShippingSummary;
 public class ShippingQuoteServiceImpl extends SalesManagerEntityServiceImpl<Long, Quote> implements ShippingQuoteService {
 
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ShippingQuoteServiceImpl.class);
+//	private static final Logger LOGGER = LoggerFactory.getLogger(ShippingQuoteServiceImpl.class);
 	
 	private ShippingQuoteRepository shippingQuoteRepository;
 	

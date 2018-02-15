@@ -47,13 +47,28 @@ public class ShopProductPriceFormatTag extends RequestContextAwareTag  {
 	
 
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
+
 	public Currency getCurrency() {
 		return currency;
 	}
 
 
+	public BigDecimal getValue() {
+		return value;
+	}
+
+
 	public void setCurrency(Currency currency) {
 		this.currency = currency;
+	}
+
+
+	public void setValue(BigDecimal value) {
+		this.value = value;
 	}
 
 
@@ -83,21 +98,6 @@ public class ShopProductPriceFormatTag extends RequestContextAwareTag  {
 		
 		return SKIP_BODY;
 
-	}
-
-
-	public int doEndTag() {
-		return EVAL_PAGE;
-	}
-
-
-	public void setValue(BigDecimal value) {
-		this.value = value;
-	}
-
-
-	public BigDecimal getValue() {
-		return value;
 	}
 
 

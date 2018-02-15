@@ -44,24 +44,15 @@ import com.salesmanager.core.modules.integration.payment.model.PaymentModule;
 
 public class BeanStreamPayment implements PaymentModule {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(BeanStreamPayment.class);
+	
 	@Inject
 	private ProductPriceUtils productPriceUtils;
 	
+
+	
 	@Inject
 	private MerchantLogService merchantLogService;
-	
-
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(BeanStreamPayment.class);
-
-	@Override
-	public Transaction initTransaction(MerchantStore store, Customer customer,
-			BigDecimal amount, Payment payment,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public Transaction authorize(MerchantStore store, Customer customer,
@@ -69,6 +60,21 @@ public class BeanStreamPayment implements PaymentModule {
 			IntegrationConfiguration configuration, IntegrationModule module)
 			throws IntegrationException {
 		return processTransaction(store, customer, TransactionType.AUTHORIZE,
+				amount,
+				payment,
+				configuration,
+				module);
+	}
+
+	@Override
+	public Transaction authorizeAndCapture(MerchantStore store, Customer customer,
+			List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		return processTransaction(
+				store,
+				customer,
+				TransactionType.AUTHORIZECAPTURE,
 				amount,
 				payment,
 				configuration,
@@ -128,18 +134,12 @@ public class BeanStreamPayment implements PaymentModule {
 	}
 
 	@Override
-	public Transaction authorizeAndCapture(MerchantStore store, Customer customer,
-			List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
+	public Transaction initTransaction(MerchantStore store, Customer customer,
+			BigDecimal amount, Payment payment,
 			IntegrationConfiguration configuration, IntegrationModule module)
 			throws IntegrationException {
-		return processTransaction(
-				store,
-				customer,
-				TransactionType.AUTHORIZECAPTURE,
-				amount,
-				payment,
-				configuration,
-				module);
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -244,226 +244,96 @@ public class BeanStreamPayment implements PaymentModule {
 	}
 	
 	
-	private Transaction sendTransaction(
-			String orderNumber,
-			MerchantStore store,
-			String transaction, 
-			String beanstreamType, 
-			TransactionType transactionType,
-			PaymentType paymentType,
-			BigDecimal amount,
-			IntegrationConfiguration configuration,
-			IntegrationModule module
-			) throws IntegrationException {
+	@Override
+	public void validateModuleConfiguration(
+			IntegrationConfiguration integrationConfiguration,
+			MerchantStore store) throws IntegrationException {
 		
-		String agent = "Mozilla/4.0";
-		String respText = "";
-		Map<String,String> nvp = null;
-		DataOutputStream output = null;
-		DataInputStream in = null;
-		BufferedReader is = null;
-		HttpURLConnection conn =null;
-		try {
-			
-			//transaction = "requestType=BACKEND&merchant_id=300200260&trnType=P&username=carlito&password=shopizer001&orderNumber=caa71106-7e3f-4975-a657-a35904dc32a0&trnCardOwner=Carl Samson&trnCardNumber=5100000020002000&trnExpMonth=10&trnExpYear=14&trnCardCvd=123&trnAmount=77.01&ordName=Carl S&ordAddress1=358 Du Languedoc&ordCity=Victoria&ordProvince=BC&ordPostalCode=V8T2E7&ordCountry=CA&ordPhoneNumber=(444) 555-6666&ordEmailAddress=csamson777@yahoo.com";
-			/**
-			requestType=BACKEND&merchant_id=300200260
-			&trnType=P
-			&username=carlito&password=shopizer001
-			&orderNumber=caa71106-7e3f-4975-a657-a35904dc32a0
-			&trnCardOwner=Carl Samson
-			&trnCardNumber=5100000020002000
-			&trnExpMonth=10
-			&trnExpYear=14
-			&trnCardCvd=123
-			&trnAmount=77.01
-			&ordName=Carl S
-			&ordAddress1=378 Du Languedoc
-			&ordCity=Boucherville
-			&ordProvince=QC
-			&ordPostalCode=J4B8J9
-			&ordCountry=CA
-			&ordPhoneNumber=(444) 555-6666
-			&ordEmailAddress=test@yahoo.com
-			**/
-			
-			/**
-			merchant_id=123456789&requestType=BACKEND
-			&trnType=P&trnOrderNumber=1234TEST&trnAmount=5.00&trnCardOwner=Joe+Test
-					&trnCardNumber=4030000010001234
-					&trnExpMonth=10
-					&trnExpYear=16
-					&ordName=Joe+Test
-					&ordAddress1=123+Test+Street
-					&ordCity=Victoria
-					&ordProvince=BC
-					&ordCountry=CA
-					&ordPostalCode=V8T2E7
-					&ordPhoneNumber=5555555555
-					&ordEmailAddress=joe%40testemail.com
-			**/
-			
-			
-			
-			boolean bSandbox = false;
-			if (configuration.getEnvironment().equals("TEST")) {// sandbox
-				bSandbox = true;
+		
+		List<String> errorFields = null;
+		
+		
+		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
+		
+		//validate integrationKeys['merchantid']
+		if(keys==null || StringUtils.isBlank(keys.get("merchantid"))) {
+			errorFields = new ArrayList<String>();
+			errorFields.add("merchantid");
+		}
+		
+		//validate integrationKeys['username']
+		if(keys==null || StringUtils.isBlank(keys.get("username"))) {
+			if(errorFields==null) {
+				errorFields = new ArrayList<String>();
 			}
-
-			String server = "";
-			
-			ModuleConfig configs = module.getModuleConfigs().get("PROD");
-
-			if (bSandbox == true) {
-				configs = module.getModuleConfigs().get("TEST");
-			} 
-			
-			if(configs==null) {
-				throw new IntegrationException("Module not configured for TEST or PROD");
+			errorFields.add("username");
+		}
+		
+		
+		//validate integrationKeys['password']
+		if(keys==null || StringUtils.isBlank(keys.get("password"))) {
+			if(errorFields==null) {
+				errorFields = new ArrayList<String>();
 			}
-			
-
-			server = new StringBuffer().append(
-					
-					configs.getScheme()).append("://")
-					.append(configs.getHost())
-							.append(":")
-							.append(configs.getPort())
-							.append(configs.getUri()).toString();
-			
-	
-			
-			URL postURL = new URL(server.toString());
-			conn = (HttpURLConnection) postURL.openConnection();
-			
-
-			// Set connection parameters. We need to perform input and output,
-			// so set both as true.
-			conn.setDoInput(true);
-			conn.setDoOutput(true);
-
-			// Set the content type we are POSTing. We impersonate it as
-			// encoded form data
-			conn.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
-			conn.setRequestProperty("User-Agent", agent);
-
-			conn.setRequestProperty("Content-Length", String
-					.valueOf(transaction.length()));
-			conn.setRequestMethod("POST");
-
-			// get the output stream to POST to.
-			output = new DataOutputStream(conn.getOutputStream());
-			output.writeBytes(transaction);
-			output.flush();
-
-
-			// Read input from the input stream.
-			in = new DataInputStream(conn.getInputStream());
-			int rc = conn.getResponseCode();
-			if (rc != -1) {
-				is = new BufferedReader(new InputStreamReader(conn
-						.getInputStream()));
-				String _line = null;
-				while (((_line = is.readLine()) != null)) {
-					respText = respText + _line;
-				}
-				
-				LOGGER.debug("BeanStream response -> " + respText.trim());
-				
-				nvp = formatUrlResponse(respText.trim());
-			} else {
-				throw new IntegrationException("Invalid response from BeanStream, return code is " + rc);
-			}
-			
-			//check
-			//trnApproved=1&trnId=10003067&messageId=1&messageText=Approved&trnOrderNumber=E40089&authCode=TEST&errorType=N&errorFields=
-
-			String transactionApproved = (String)nvp.get("TRNAPPROVED");
-			String transactionId = (String)nvp.get("TRNID");
-			String messageId = (String)nvp.get("MESSAGEID");
-			String messageText = (String)nvp.get("MESSAGETEXT");
-			String orderId = (String)nvp.get("TRNORDERNUMBER");
-			String authCode = (String)nvp.get("AUTHCODE");
-			String errorType = (String)nvp.get("ERRORTYPE");
-			String errorFields = (String)nvp.get("ERRORFIELDS");
-			if(!StringUtils.isBlank(orderNumber)) {
-				nvp.put("INTERNALORDERID", orderNumber);
-			}
-			
-			if(StringUtils.isBlank(transactionApproved)) {
-				throw new IntegrationException("Required field transactionApproved missing from BeanStream response");
-			}
-			
-			//errors
-			if(transactionApproved.equals("0")) {
-
-				merchantLogService.save(
-						new MerchantLog(store,
-						"Can't process BeanStream message "
-								 + messageText + " return code id " + messageId));
-	
-				IntegrationException te = new IntegrationException(
-						"Can't process BeanStream message " + messageText);
-				te.setExceptionType(IntegrationException.EXCEPTION_PAYMENT_DECLINED);
-				te.setMessageCode("message.payment.beanstream." + messageId);
-				te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
-				throw te;
-			}
-			
-			//create transaction object
-
-			//return parseResponse(type,transaction,respText,nvp,order);
-			return this.parseResponse(transactionType, paymentType, nvp, amount);
-			
-			
-		} catch(Exception e) {
-			if(e instanceof IntegrationException) {
-				throw (IntegrationException)e;
-			}
-			
-			throw new IntegrationException("Error while processing BeanStream transaction",e);
-
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (Exception ignore) {
-					// TODO: handle exception
-				}
-			}
-
-			if (in != null) {
-				try {
-					in.close();
-				} catch (Exception ignore) {
-					// TODO: handle exception
-				}
-			}
-
-			if (output != null) {
-				try {
-					output.close();
-				} catch (Exception ignore) {
-					// TODO: handle exception
-				}
-			}
-			
-			if (conn != null) {
-				try {
-					conn.disconnect();
-				} catch (Exception ignore) {
-					// TODO: handle exception
-				}
-			}
-
+			errorFields.add("password");
 		}
 
+
+		
+		if(errorFields!=null) {
+			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
+			ex.setErrorFields(errorFields);
+			throw ex;
+			
+		}
+		
+		
 		
 	}
 	
 	
 	
+	private Map<String,String> formatUrlResponse(String payload) throws Exception {
+		HashMap<String,String> nvp = new HashMap<String,String> ();
+		StringTokenizer stTok = new StringTokenizer(payload, "&");
+		while (stTok.hasMoreTokens()) {
+			StringTokenizer stInternalTokenizer = new StringTokenizer(stTok
+					.nextToken(), "=");
+			if (stInternalTokenizer.countTokens() == 2) {
+				String key = URLDecoder.decode(stInternalTokenizer.nextToken(),
+						"UTF-8");
+				String value = URLDecoder.decode(stInternalTokenizer
+						.nextToken(), "UTF-8");
+				nvp.put(key.toUpperCase(), value);
+			}
+		}
+		return nvp;
+	}
+	
+	
+	
+	private Transaction parseResponse(TransactionType transactionType,
+			PaymentType paymentType, Map<String,String> nvp,
+			BigDecimal amount) throws Exception {
+		
+		
+		Transaction transaction = new Transaction();
+		transaction.setAmount(amount);
+		//transaction.setOrder(order);
+		transaction.setTransactionDate(new Date());
+		transaction.setTransactionType(transactionType);
+		transaction.setPaymentType(PaymentType.CREDITCARD);
+		transaction.getTransactionDetails().put("TRANSACTIONID", (String)nvp.get("TRNID"));
+		transaction.getTransactionDetails().put("TRNAPPROVED", (String)nvp.get("TRNAPPROVED"));
+		transaction.getTransactionDetails().put("TRNORDERNUMBER", (String)nvp.get("TRNORDERNUMBER"));
+		transaction.getTransactionDetails().put("MESSAGETEXT", (String)nvp.get("MESSAGETEXT"));
+		if(nvp.get("INTERNALORDERID")!=null) {
+			transaction.getTransactionDetails().put("INTERNALORDERID", (String)nvp.get("INTERNALORDERID"));
+		}
+		return transaction;
+		
+	}
+
 	private Transaction processTransaction(MerchantStore store, Customer customer, TransactionType type,
 			BigDecimal amount, Payment payment,
 			IntegrationConfiguration configuration, IntegrationModule module) throws IntegrationException {
@@ -657,92 +527,222 @@ public class BeanStreamPayment implements PaymentModule {
 		}
 
 	}
-	
-	
-	
-	private Transaction parseResponse(TransactionType transactionType,
-			PaymentType paymentType, Map<String,String> nvp,
-			BigDecimal amount) throws Exception {
-		
-		
-		Transaction transaction = new Transaction();
-		transaction.setAmount(amount);
-		//transaction.setOrder(order);
-		transaction.setTransactionDate(new Date());
-		transaction.setTransactionType(transactionType);
-		transaction.setPaymentType(PaymentType.CREDITCARD);
-		transaction.getTransactionDetails().put("TRANSACTIONID", (String)nvp.get("TRNID"));
-		transaction.getTransactionDetails().put("TRNAPPROVED", (String)nvp.get("TRNAPPROVED"));
-		transaction.getTransactionDetails().put("TRNORDERNUMBER", (String)nvp.get("TRNORDERNUMBER"));
-		transaction.getTransactionDetails().put("MESSAGETEXT", (String)nvp.get("MESSAGETEXT"));
-		if(nvp.get("INTERNALORDERID")!=null) {
-			transaction.getTransactionDetails().put("INTERNALORDERID", (String)nvp.get("INTERNALORDERID"));
-		}
-		return transaction;
-		
-	}
 
-	private Map formatUrlResponse(String payload) throws Exception {
-		HashMap<String,String> nvp = new HashMap<String,String> ();
-		StringTokenizer stTok = new StringTokenizer(payload, "&");
-		while (stTok.hasMoreTokens()) {
-			StringTokenizer stInternalTokenizer = new StringTokenizer(stTok
-					.nextToken(), "=");
-			if (stInternalTokenizer.countTokens() == 2) {
-				String key = URLDecoder.decode(stInternalTokenizer.nextToken(),
-						"UTF-8");
-				String value = URLDecoder.decode(stInternalTokenizer
-						.nextToken(), "UTF-8");
-				nvp.put(key.toUpperCase(), value);
-			}
-		}
-		return nvp;
-	}
-
-	@Override
-	public void validateModuleConfiguration(
-			IntegrationConfiguration integrationConfiguration,
-			MerchantStore store) throws IntegrationException {
+	private Transaction sendTransaction(
+			String orderNumber,
+			MerchantStore store,
+			String transaction, 
+			String beanstreamType, 
+			TransactionType transactionType,
+			PaymentType paymentType,
+			BigDecimal amount,
+			IntegrationConfiguration configuration,
+			IntegrationModule module
+			) throws IntegrationException {
 		
-		
-		List<String> errorFields = null;
-		
-		
-		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
-		
-		//validate integrationKeys['merchantid']
-		if(keys==null || StringUtils.isBlank(keys.get("merchantid"))) {
-			errorFields = new ArrayList<String>();
-			errorFields.add("merchantid");
-		}
-		
-		//validate integrationKeys['username']
-		if(keys==null || StringUtils.isBlank(keys.get("username"))) {
-			if(errorFields==null) {
-				errorFields = new ArrayList<String>();
-			}
-			errorFields.add("username");
-		}
-		
-		
-		//validate integrationKeys['password']
-		if(keys==null || StringUtils.isBlank(keys.get("password"))) {
-			if(errorFields==null) {
-				errorFields = new ArrayList<String>();
-			}
-			errorFields.add("password");
-		}
-
-
-		
-		if(errorFields!=null) {
-			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
-			ex.setErrorFields(errorFields);
-			throw ex;
+		String agent = "Mozilla/4.0";
+		String respText = "";
+		Map<String,String> nvp = null;
+		DataOutputStream output = null;
+		DataInputStream in = null;
+		BufferedReader is = null;
+		HttpURLConnection conn =null;
+		try {
 			
+			//transaction = "requestType=BACKEND&merchant_id=300200260&trnType=P&username=carlito&password=shopizer001&orderNumber=caa71106-7e3f-4975-a657-a35904dc32a0&trnCardOwner=Carl Samson&trnCardNumber=5100000020002000&trnExpMonth=10&trnExpYear=14&trnCardCvd=123&trnAmount=77.01&ordName=Carl S&ordAddress1=358 Du Languedoc&ordCity=Victoria&ordProvince=BC&ordPostalCode=V8T2E7&ordCountry=CA&ordPhoneNumber=(444) 555-6666&ordEmailAddress=csamson777@yahoo.com";
+			/**
+			requestType=BACKEND&merchant_id=300200260
+			&trnType=P
+			&username=carlito&password=shopizer001
+			&orderNumber=caa71106-7e3f-4975-a657-a35904dc32a0
+			&trnCardOwner=Carl Samson
+			&trnCardNumber=5100000020002000
+			&trnExpMonth=10
+			&trnExpYear=14
+			&trnCardCvd=123
+			&trnAmount=77.01
+			&ordName=Carl S
+			&ordAddress1=378 Du Languedoc
+			&ordCity=Boucherville
+			&ordProvince=QC
+			&ordPostalCode=J4B8J9
+			&ordCountry=CA
+			&ordPhoneNumber=(444) 555-6666
+			&ordEmailAddress=test@yahoo.com
+			**/
+			
+			/**
+			merchant_id=123456789&requestType=BACKEND
+			&trnType=P&trnOrderNumber=1234TEST&trnAmount=5.00&trnCardOwner=Joe+Test
+					&trnCardNumber=4030000010001234
+					&trnExpMonth=10
+					&trnExpYear=16
+					&ordName=Joe+Test
+					&ordAddress1=123+Test+Street
+					&ordCity=Victoria
+					&ordProvince=BC
+					&ordCountry=CA
+					&ordPostalCode=V8T2E7
+					&ordPhoneNumber=5555555555
+					&ordEmailAddress=joe%40testemail.com
+			**/
+			
+			
+			
+			boolean bSandbox = false;
+			if (configuration.getEnvironment().equals("TEST")) {// sandbox
+				bSandbox = true;
+			}
+
+			String server = "";
+			
+			ModuleConfig configs = module.getModuleConfigs().get("PROD");
+
+			if (bSandbox == true) {
+				configs = module.getModuleConfigs().get("TEST");
+			} 
+			
+			if(configs==null) {
+				throw new IntegrationException("Module not configured for TEST or PROD");
+			}
+			
+
+			server = new StringBuffer().append(
+					
+					configs.getScheme()).append("://")
+					.append(configs.getHost())
+							.append(":")
+							.append(configs.getPort())
+							.append(configs.getUri()).toString();
+			
+	
+			
+			URL postURL = new URL(server.toString());
+			conn = (HttpURLConnection) postURL.openConnection();
+			
+
+			// Set connection parameters. We need to perform input and output,
+			// so set both as true.
+			conn.setDoInput(true);
+			conn.setDoOutput(true);
+
+			// Set the content type we are POSTing. We impersonate it as
+			// encoded form data
+			conn.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded");
+			conn.setRequestProperty("User-Agent", agent);
+
+			conn.setRequestProperty("Content-Length", String
+					.valueOf(transaction.length()));
+			conn.setRequestMethod("POST");
+
+			// get the output stream to POST to.
+			output = new DataOutputStream(conn.getOutputStream());
+			output.writeBytes(transaction);
+			output.flush();
+
+
+			// Read input from the input stream.
+			in = new DataInputStream(conn.getInputStream());
+			int rc = conn.getResponseCode();
+			if (rc != -1) {
+				is = new BufferedReader(new InputStreamReader(conn
+						.getInputStream()));
+				String _line = null;
+				while (((_line = is.readLine()) != null)) {
+					respText = respText + _line;
+				}
+				
+				LOGGER.debug("BeanStream response -> " + respText.trim());
+				
+				nvp = formatUrlResponse(respText.trim());
+			} else {
+				throw new IntegrationException("Invalid response from BeanStream, return code is " + rc);
+			}
+			
+			//check
+			//trnApproved=1&trnId=10003067&messageId=1&messageText=Approved&trnOrderNumber=E40089&authCode=TEST&errorType=N&errorFields=
+
+			String transactionApproved = (String)nvp.get("TRNAPPROVED");
+//			String transactionId = (String)nvp.get("TRNID");
+			String messageId = (String)nvp.get("MESSAGEID");
+			String messageText = (String)nvp.get("MESSAGETEXT");
+//			String orderId = (String)nvp.get("TRNORDERNUMBER");
+//			String authCode = (String)nvp.get("AUTHCODE");
+//			String errorType = (String)nvp.get("ERRORTYPE");
+//			String errorFields = (String)nvp.get("ERRORFIELDS");
+			if(!StringUtils.isBlank(orderNumber)) {
+				nvp.put("INTERNALORDERID", orderNumber);
+			}
+			
+			if(StringUtils.isBlank(transactionApproved)) {
+				throw new IntegrationException("Required field transactionApproved missing from BeanStream response");
+			}
+			
+			//errors
+			if(transactionApproved.equals("0")) {
+
+				merchantLogService.save(
+						new MerchantLog(store,
+						"Can't process BeanStream message "
+								 + messageText + " return code id " + messageId));
+	
+				IntegrationException te = new IntegrationException(
+						"Can't process BeanStream message " + messageText);
+				te.setExceptionType(IntegrationException.EXCEPTION_PAYMENT_DECLINED);
+				te.setMessageCode("message.payment.beanstream." + messageId);
+				te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
+				throw te;
+			}
+			
+			//create transaction object
+
+			//return parseResponse(type,transaction,respText,nvp,order);
+			return this.parseResponse(transactionType, paymentType, nvp, amount);
+			
+			
+		} catch(Exception e) {
+			if(e instanceof IntegrationException) {
+				throw (IntegrationException)e;
+			}
+			
+			throw new IntegrationException("Error while processing BeanStream transaction",e);
+
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (Exception ignore) {
+					// TODO: handle exception
+				}
+			}
+
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception ignore) {
+					// TODO: handle exception
+				}
+			}
+
+			if (output != null) {
+				try {
+					output.close();
+				} catch (Exception ignore) {
+					// TODO: handle exception
+				}
+			}
+			
+			if (conn != null) {
+				try {
+					conn.disconnect();
+				} catch (Exception ignore) {
+					// TODO: handle exception
+				}
+			}
+
 		}
-		
-		
+
 		
 	}
 

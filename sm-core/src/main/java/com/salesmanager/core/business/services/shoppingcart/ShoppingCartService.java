@@ -13,50 +13,6 @@ import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
 
 public interface ShoppingCartService extends SalesManagerEntityService<Long, ShoppingCart> {
 
-	ShoppingCart getShoppingCart(Customer customer) throws ServiceException;
-
-	void saveOrUpdate(ShoppingCart shoppingCart) throws ServiceException;
-
-	ShoppingCart getById(Long id, MerchantStore store) throws ServiceException;
-
-	ShoppingCart getByCode(String code, MerchantStore store) throws ServiceException;
-
-	ShoppingCart getByCustomer(Customer customer) throws ServiceException;
-
-	/**
-	 * Creates a list of ShippingProduct based on the ShoppingCart if items are
-	 * virtual return list will be null
-	 * 
-	 * @param cart
-	 * @return
-	 * @throws ServiceException
-	 */
-	List<ShippingProduct> createShippingProduct(ShoppingCart cart) throws ServiceException;
-
-	/**
-	 * Looks if the items in the ShoppingCart are free of charges
-	 * 
-	 * @param cart
-	 * @return
-	 * @throws ServiceException
-	 */
-	boolean isFreeShoppingCart(ShoppingCart cart) throws ServiceException;
-
-	boolean isFreeShoppingCart(List<ShoppingCartItem> items) throws ServiceException;
-
-	/**
-	 * Populates a ShoppingCartItem from a Product and attributes if any
-	 * 
-	 * @param product
-	 * @return
-	 * @throws ServiceException
-	 */
-	ShoppingCartItem populateShoppingCartItem(Product product) throws ServiceException;
-
-	void deleteCart(ShoppingCart cart) throws ServiceException;
-
-	void removeShoppingCart(ShoppingCart cart) throws ServiceException;
-
 	/**
 	 *
 	 * @param userShoppingModel
@@ -69,6 +25,54 @@ public interface ShoppingCartService extends SalesManagerEntityService<Long, Sho
 			final MerchantStore store) throws Exception;
 
 	/**
+	 * Creates a list of ShippingProduct based on the ShoppingCart if items are
+	 * virtual return list will be null
+	 * 
+	 * @param cart
+	 * @return
+	 * @throws ServiceException
+	 */
+	List<ShippingProduct> createShippingProduct(ShoppingCart cart) throws ServiceException;
+
+	void deleteCart(ShoppingCart cart) throws ServiceException;
+
+	/**
+	 * Removes a shopping cart item
+	 * @param item
+	 */
+	void deleteShoppingCartItem(Long id);
+
+	ShoppingCart getByCode(String code, MerchantStore store) throws ServiceException;
+
+	ShoppingCart getByCustomer(Customer customer) throws ServiceException;
+
+	ShoppingCart getById(Long id, MerchantStore store) throws ServiceException;
+
+	ShoppingCart getShoppingCart(Customer customer) throws ServiceException;
+
+	boolean isFreeShoppingCart(List<ShoppingCartItem> items) throws ServiceException;
+
+	/**
+	 * Looks if the items in the ShoppingCart are free of charges
+	 * 
+	 * @param cart
+	 * @return
+	 * @throws ServiceException
+	 */
+	boolean isFreeShoppingCart(ShoppingCart cart) throws ServiceException;
+
+	/**
+	 * Populates a ShoppingCartItem from a Product and attributes if any
+	 * 
+	 * @param product
+	 * @return
+	 * @throws ServiceException
+	 */
+	ShoppingCartItem populateShoppingCartItem(Product product) throws ServiceException;
+
+	void removeShoppingCart(ShoppingCart cart) throws ServiceException;
+
+	/**
 	 * Determines if the shopping cart requires shipping
 	 * 
 	 * @param cart
@@ -77,10 +81,6 @@ public interface ShoppingCartService extends SalesManagerEntityService<Long, Sho
 	 */
 	boolean requiresShipping(ShoppingCart cart) throws ServiceException;
 	
-	/**
-	 * Removes a shopping cart item
-	 * @param item
-	 */
-	void deleteShoppingCartItem(Long id);
+	void saveOrUpdate(ShoppingCart shoppingCart) throws ServiceException;
 
 }

@@ -31,65 +31,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     private EntityManager em;
     
 	@Override
-	public Product getById(Long productId) {
-		
-		try {
-			
-
-
-			StringBuilder qs = new StringBuilder();
-			qs.append("select distinct p from Product as p ");
-			qs.append("join fetch p.availabilities pa ");
-			qs.append("join fetch p.merchantStore merch ");
-			qs.append("join fetch p.descriptions pd ");
-			
-			qs.append("left join fetch p.categories categs ");
-			qs.append("left join fetch categs.descriptions categsd ");
-			
-			qs.append("left join fetch pa.prices pap ");
-			qs.append("left join fetch pap.descriptions papd ");
-			
-			
-			//images
-			qs.append("left join fetch p.images images ");
-			//options
-			qs.append("left join fetch p.attributes pattr ");
-			qs.append("left join fetch pattr.productOption po ");
-			qs.append("left join fetch po.descriptions pod ");
-			qs.append("left join fetch pattr.productOptionValue pov ");
-			qs.append("left join fetch pov.descriptions povd ");
-			qs.append("left join fetch p.relationships pr ");
-			//other lefts
-			qs.append("left join fetch p.manufacturer manuf ");
-			qs.append("left join fetch manuf.descriptions manufd ");
-			qs.append("left join fetch p.type type ");
-			qs.append("left join fetch p.taxClass tx ");
-			
-			//RENTAL
-			qs.append("left join fetch p.owner owner ");
-			
-			qs.append("where p.id=:pid");
-	
-	
-	    	String hql = qs.toString();
-			Query q = this.em.createQuery(hql);
-	
-	    	q.setParameter("pid", productId);
-	
-	
-	    	Product p = (Product)q.getSingleResult();
-	
-	
-			return p;
-		
-		} catch(javax.persistence.NoResultException ers) {
-			return null;
-		}
-		
-	}
-    
-	
-	@Override
 	public Product getByCode(String productCode, Language language) {
 		
 		try {
@@ -147,11 +88,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		}
 		
 	}
+    
 	
-    public Product getByFriendlyUrl(MerchantStore store,String seUrl, Locale locale) {
+	public Product getByFriendlyUrl(MerchantStore store,String seUrl, Locale locale) {
 		
 		
-		List regionList = new ArrayList();
+		List<String> regionList = new ArrayList<String>();
 		regionList.add("*");
 		regionList.add(locale.getCountry());
 		
@@ -214,21 +156,71 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		return p;
 		
 	}
+	
+    @Override
+	public Product getById(Long productId) {
+		
+		try {
+			
+
+
+			StringBuilder qs = new StringBuilder();
+			qs.append("select distinct p from Product as p ");
+			qs.append("join fetch p.availabilities pa ");
+			qs.append("join fetch p.merchantStore merch ");
+			qs.append("join fetch p.descriptions pd ");
+			
+			qs.append("left join fetch p.categories categs ");
+			qs.append("left join fetch categs.descriptions categsd ");
+			
+			qs.append("left join fetch pa.prices pap ");
+			qs.append("left join fetch pap.descriptions papd ");
+			
+			
+			//images
+			qs.append("left join fetch p.images images ");
+			//options
+			qs.append("left join fetch p.attributes pattr ");
+			qs.append("left join fetch pattr.productOption po ");
+			qs.append("left join fetch po.descriptions pod ");
+			qs.append("left join fetch pattr.productOptionValue pov ");
+			qs.append("left join fetch pov.descriptions povd ");
+			qs.append("left join fetch p.relationships pr ");
+			//other lefts
+			qs.append("left join fetch p.manufacturer manuf ");
+			qs.append("left join fetch manuf.descriptions manufd ");
+			qs.append("left join fetch p.type type ");
+			qs.append("left join fetch p.taxClass tx ");
+			
+			//RENTAL
+			qs.append("left join fetch p.owner owner ");
+			
+			qs.append("where p.id=:pid");
+	
+	
+	    	String hql = qs.toString();
+			Query q = this.em.createQuery(hql);
+	
+	    	q.setParameter("pid", productId);
+	
+	
+	    	Product p = (Product)q.getSingleResult();
+	
+	
+			return p;
+		
+		} catch(javax.persistence.NoResultException ers) {
+			return null;
+		}
+		
+	}
 
     @Override
-	public List<Product> getProductsForLocale(MerchantStore store, Set<Long> categoryIds, Language language, Locale locale) {
-		
-		ProductList products = this.getProductsListForLocale(store, categoryIds, language, locale, 0, -1);
-		
-		return products.getProducts();
-	}
-    
-	@Override
 	public Product getProductForLocale(long productId, Language language, Locale locale) {
 
 
 				
-				List regionList = new ArrayList();
+				List<String> regionList = new ArrayList<String>();
 				regionList.add("*");
 				regionList.add(locale.getCountry());
 				
@@ -283,6 +275,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		        throw new NonUniqueResultException();
 
 				
+	}
+    
+	@Override
+	public List<Product> getProductsForLocale(MerchantStore store, Set<Long> categoryIds, Language language, Locale locale) {
+		
+		ProductList products = this.getProductsListForLocale(store, categoryIds, language, locale, 0, -1);
+		
+		return products.getProducts();
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -429,109 +429,67 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 	}
 	
-	/**
-	 * This query is used for category listings. All collections are not fully loaded, only the required objects
-	 * so the listing page can display everything related to all products
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
-	private ProductList getProductsListForLocale(MerchantStore store, Set categoryIds, Language language, Locale locale, int first, int max) {
+	@Override
+	public List<Product> listByStore(MerchantStore store) {
+
 		
+		/**
+		 * Testing in debug mode takes a long time with this query
+		 * running in normal mode is fine
+		 */
 
-				List regionList = new ArrayList();
-				regionList.add(Constants.ALL_REGIONS);
-				if(locale!=null) {
-					regionList.add(locale.getCountry());
-				}
-				
-				ProductList productList = new ProductList();
-
-		        
-				Query countQ = this.em.createQuery(
-							"select count(p) from Product as p INNER JOIN p.availabilities pa INNER JOIN p.categories categs where p.merchantStore.id=:mId and categs.id in (:cid) and pa.region in (:lid) and p.available=1 and p.dateAvailable<=:dt");
-
-				countQ.setParameter("cid", categoryIds);
-				countQ.setParameter("lid", regionList);
-				countQ.setParameter("dt", new Date());
-				countQ.setParameter("mId", store.getId());
-
-				Number count = (Number) countQ.getSingleResult ();
-
-				
-				productList.setTotalCount(count.intValue());
-				
-				if(count.intValue()==0)
-		        	return productList;
-		        
-		        
-
-				
-				StringBuilder qs = new StringBuilder();
-				qs.append("select p from Product as p ");
-				qs.append("join fetch p.merchantStore merch ");
-				qs.append("join fetch p.availabilities pa ");
-				qs.append("left join fetch pa.prices pap ");
-				
-				qs.append("join fetch p.descriptions pd ");
-				qs.append("join fetch p.categories categs ");
-			
-				
-				
-				//not necessary
-				//qs.append("join fetch pap.descriptions papd ");
-				
-				
-				//images
-				qs.append("left join fetch p.images images ");
-				
-				//options (do not need attributes for listings)
-				//qs.append("left join fetch p.attributes pattr ");
-				//qs.append("left join fetch pattr.productOption po ");
-				//qs.append("left join fetch po.descriptions pod ");
-				//qs.append("left join fetch pattr.productOptionValue pov ");
-				//qs.append("left join fetch pov.descriptions povd ");
-				
-				//other lefts
-				qs.append("left join fetch p.manufacturer manuf ");
-				qs.append("left join fetch manuf.descriptions manufd ");
-				qs.append("left join fetch p.type type ");
-				qs.append("left join fetch p.taxClass tx ");
-				
-				//RENTAL
-				qs.append("left join fetch p.owner owner ");
-				
-				//qs.append("where pa.region in (:lid) ");
-				qs.append("where p.merchantStore.id=mId and categs.id in (:cid) and pa.region in (:lid) ");
-				//qs.append("and p.available=true and p.dateAvailable<=:dt and pd.language.id=:lang and manufd.language.id=:lang");
-				qs.append("and p.available=true and p.dateAvailable<=:dt and pd.language.id=:lang");
-				qs.append(" order by p.sortOrder asc");
+		
+		StringBuilder qs = new StringBuilder();
+		qs.append("select p from Product as p ");
+		qs.append("join fetch p.merchantStore merch ");
+		qs.append("join fetch p.availabilities pa ");
+		qs.append("left join fetch pa.prices pap ");
+		
+		qs.append("join fetch p.descriptions pd ");
+		qs.append("left join fetch p.categories categs ");
+		
+		
+		
+		qs.append("left join fetch pap.descriptions papd ");
+		
+		
+		//images
+		qs.append("left join fetch p.images images ");
+		
+		//options (do not need attributes for listings)
+		qs.append("left join fetch p.attributes pattr ");
+		qs.append("left join fetch pattr.productOption po ");
+		qs.append("left join fetch po.descriptions pod ");
+		qs.append("left join fetch pattr.productOptionValue pov ");
+		qs.append("left join fetch pov.descriptions povd ");
+		
+		//other lefts
+		qs.append("left join fetch p.manufacturer manuf ");
+		qs.append("left join fetch manuf.descriptions manufd ");
+		qs.append("left join fetch p.type type ");
+		qs.append("left join fetch p.taxClass tx ");
+		
+		//RENTAL
+		qs.append("left join fetch p.owner owner ");
+		
+		//qs.append("where pa.region in (:lid) ");
+		qs.append("where merch.id=:mid");
 
 
-		    	String hql = qs.toString();
-				Query q = this.em.createQuery(hql);
 
-		    	q.setParameter("cid", categoryIds);
-		    	q.setParameter("lid", regionList);
-		    	q.setParameter("dt", new Date());
-		    	q.setParameter("lang", language.getId());
-		    	q.setParameter("mId", store.getId());
-		    	
-		    	
-		    	q.setFirstResult(first);
-		    	if(max>0) {
-		    			int maxCount = first + max;
+    	String hql = qs.toString();
+		Query q = this.em.createQuery(hql);
 
-		    			if(maxCount < count.intValue()) {
-		    				q.setMaxResults(maxCount);
-		    			} else {
-		    				q.setMaxResults(count.intValue());
-		    			}
-		    	}
-		    	
-		    	List<Product> products =  q.getResultList();
-		    	productList.setProducts(products);
-		    	
-		    	return productList;
+    	q.setParameter("mid", store.getId());
 
+
+    	
+    	@SuppressWarnings("unchecked")
+		List<Product> products =  q.getResultList();
+
+    	
+    	return products;
+		
 		
 	}
 
@@ -846,71 +804,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	}
 
 	@Override
-	public List<Product> listByStore(MerchantStore store) {
-
-		
-		/**
-		 * Testing in debug mode takes a long time with this query
-		 * running in normal mode is fine
-		 */
-
-		
-		StringBuilder qs = new StringBuilder();
-		qs.append("select p from Product as p ");
-		qs.append("join fetch p.merchantStore merch ");
-		qs.append("join fetch p.availabilities pa ");
-		qs.append("left join fetch pa.prices pap ");
-		
-		qs.append("join fetch p.descriptions pd ");
-		qs.append("left join fetch p.categories categs ");
-		
-		
-		
-		qs.append("left join fetch pap.descriptions papd ");
-		
-		
-		//images
-		qs.append("left join fetch p.images images ");
-		
-		//options (do not need attributes for listings)
-		qs.append("left join fetch p.attributes pattr ");
-		qs.append("left join fetch pattr.productOption po ");
-		qs.append("left join fetch po.descriptions pod ");
-		qs.append("left join fetch pattr.productOptionValue pov ");
-		qs.append("left join fetch pov.descriptions povd ");
-		
-		//other lefts
-		qs.append("left join fetch p.manufacturer manuf ");
-		qs.append("left join fetch manuf.descriptions manufd ");
-		qs.append("left join fetch p.type type ");
-		qs.append("left join fetch p.taxClass tx ");
-		
-		//RENTAL
-		qs.append("left join fetch p.owner owner ");
-		
-		//qs.append("where pa.region in (:lid) ");
-		qs.append("where merch.id=:mid");
-
-
-
-    	String hql = qs.toString();
-		Query q = this.em.createQuery(hql);
-
-    	q.setParameter("mid", store.getId());
-
-
-    	
-    	@SuppressWarnings("unchecked")
-		List<Product> products =  q.getResultList();
-
-    	
-    	return products;
-		
-		
-	}
-	
-	
-	@Override
 	public List<Product> listByTaxClass(TaxClass taxClass) {
 
 		
@@ -971,6 +864,113 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     	
     	return products;
 		
+		
+	}
+	
+	
+	/**
+	 * This query is used for category listings. All collections are not fully loaded, only the required objects
+	 * so the listing page can display everything related to all products
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
+	private ProductList getProductsListForLocale(MerchantStore store, Set categoryIds, Language language, Locale locale, int first, int max) {
+		
+
+				List regionList = new ArrayList();
+				regionList.add(Constants.ALL_REGIONS);
+				if(locale!=null) {
+					regionList.add(locale.getCountry());
+				}
+				
+				ProductList productList = new ProductList();
+
+		        
+				Query countQ = this.em.createQuery(
+							"select count(p) from Product as p INNER JOIN p.availabilities pa INNER JOIN p.categories categs where p.merchantStore.id=:mId and categs.id in (:cid) and pa.region in (:lid) and p.available=1 and p.dateAvailable<=:dt");
+
+				countQ.setParameter("cid", categoryIds);
+				countQ.setParameter("lid", regionList);
+				countQ.setParameter("dt", new Date());
+				countQ.setParameter("mId", store.getId());
+
+				Number count = (Number) countQ.getSingleResult ();
+
+				
+				productList.setTotalCount(count.intValue());
+				
+				if(count.intValue()==0)
+		        	return productList;
+		        
+		        
+
+				
+				StringBuilder qs = new StringBuilder();
+				qs.append("select p from Product as p ");
+				qs.append("join fetch p.merchantStore merch ");
+				qs.append("join fetch p.availabilities pa ");
+				qs.append("left join fetch pa.prices pap ");
+				
+				qs.append("join fetch p.descriptions pd ");
+				qs.append("join fetch p.categories categs ");
+			
+				
+				
+				//not necessary
+				//qs.append("join fetch pap.descriptions papd ");
+				
+				
+				//images
+				qs.append("left join fetch p.images images ");
+				
+				//options (do not need attributes for listings)
+				//qs.append("left join fetch p.attributes pattr ");
+				//qs.append("left join fetch pattr.productOption po ");
+				//qs.append("left join fetch po.descriptions pod ");
+				//qs.append("left join fetch pattr.productOptionValue pov ");
+				//qs.append("left join fetch pov.descriptions povd ");
+				
+				//other lefts
+				qs.append("left join fetch p.manufacturer manuf ");
+				qs.append("left join fetch manuf.descriptions manufd ");
+				qs.append("left join fetch p.type type ");
+				qs.append("left join fetch p.taxClass tx ");
+				
+				//RENTAL
+				qs.append("left join fetch p.owner owner ");
+				
+				//qs.append("where pa.region in (:lid) ");
+				qs.append("where p.merchantStore.id=mId and categs.id in (:cid) and pa.region in (:lid) ");
+				//qs.append("and p.available=true and p.dateAvailable<=:dt and pd.language.id=:lang and manufd.language.id=:lang");
+				qs.append("and p.available=true and p.dateAvailable<=:dt and pd.language.id=:lang");
+				qs.append(" order by p.sortOrder asc");
+
+
+		    	String hql = qs.toString();
+				Query q = this.em.createQuery(hql);
+
+		    	q.setParameter("cid", categoryIds);
+		    	q.setParameter("lid", regionList);
+		    	q.setParameter("dt", new Date());
+		    	q.setParameter("lang", language.getId());
+		    	q.setParameter("mId", store.getId());
+		    	
+		    	
+		    	q.setFirstResult(first);
+		    	if(max>0) {
+		    			int maxCount = first + max;
+
+		    			if(maxCount < count.intValue()) {
+		    				q.setMaxResults(maxCount);
+		    			} else {
+		    				q.setMaxResults(count.intValue());
+		    			}
+		    	}
+		    	
+		    	List<Product> products =  q.getResultList();
+		    	productList.setProducts(products);
+		    	
+		    	return productList;
+
 		
 	}
 	

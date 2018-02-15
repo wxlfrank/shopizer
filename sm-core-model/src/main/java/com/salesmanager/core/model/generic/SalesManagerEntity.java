@@ -23,30 +23,13 @@ public abstract class SalesManagerEntity<K extends Serializable & Comparable<K>,
 		DEFAULT_STRING_COLLATOR.setStrength(Collator.PRIMARY);
 	}
 	
-	/**
-	 * Retourne la valeur de l'identifiant unique.
-	 * 
-	 * @return id
-	 */
-	public abstract K getId();
-
-	/**
-	 * Définit la valeur de l'identifiant unique.
-	 * 
-	 * @param id id
-	 */
-	public abstract void setId(K id);
-	
-	/**
-	 * Indique si l'objet a déjà été persisté ou non
-	 * 
-	 * @return vrai si l'objet n'a pas encore été persisté
-	 */
-	public boolean isNew() {
-		return getId() == null;
+	public int compareTo(E o) {
+		if (this == o) {
+			return 0;
+		}
+		return this.getId().compareTo(o.getId());
 	}
 
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object object) {
@@ -71,7 +54,15 @@ public abstract class SalesManagerEntity<K extends Serializable & Comparable<K>,
 
 		return id.equals(entity.getId());
 	}
+	
+	/**
+	 * Retourne la valeur de l'identifiant unique.
+	 * 
+	 * @return id
+	 */
+	public abstract K getId();
 
+	
 	@Override
 	public int hashCode() {
 		int hash = 7;
@@ -82,12 +73,21 @@ public abstract class SalesManagerEntity<K extends Serializable & Comparable<K>,
 		return hash;
 	}
 
-	public int compareTo(E o) {
-		if (this == o) {
-			return 0;
-		}
-		return this.getId().compareTo(o.getId());
+	/**
+	 * Indique si l'objet a déjà été persisté ou non
+	 * 
+	 * @return vrai si l'objet n'a pas encore été persisté
+	 */
+	public boolean isNew() {
+		return getId() == null;
 	}
+
+	/**
+	 * Définit la valeur de l'identifiant unique.
+	 * 
+	 * @param id id
+	 */
+	public abstract void setId(K id);
 
 	@Override
 	public String toString() {

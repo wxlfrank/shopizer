@@ -19,6 +19,14 @@ public class ReadableTransactionPopulator extends AbstractDataPopulator<Transact
 	private OrderService orderService;
 	private PricingService pricingService;
 	
+	public OrderService getOrderService() {
+		return orderService;
+	}
+
+	public PricingService getPricingService() {
+		return pricingService;
+	}
+	
 	@Override
 	public ReadableTransaction populate(Transaction source, ReadableTransaction target, MerchantStore store,
 			Language language) throws ConversionException {
@@ -58,26 +66,18 @@ public class ReadableTransactionPopulator extends AbstractDataPopulator<Transact
 		
 	}
 
-	@Override
-	protected ReadableTransaction createTarget() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public OrderService getOrderService() {
-		return orderService;
-	}
-
 	public void setOrderService(OrderService orderService) {
 		this.orderService = orderService;
 	}
 
-	public PricingService getPricingService() {
-		return pricingService;
-	}
-
 	public void setPricingService(PricingService pricingService) {
 		this.pricingService = pricingService;
+	}
+
+	@Override
+	protected ReadableTransaction createTarget() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

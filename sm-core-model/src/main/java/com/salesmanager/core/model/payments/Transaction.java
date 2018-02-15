@@ -86,9 +86,46 @@ public class Transaction extends SalesManagerEntity<Long, Transaction> implement
 	@Transient
 	private Map<String,String> transactionDetails= new HashMap<String,String>();
 
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
 	@Override
 	public AuditSection getAuditSection() {
 		return this.auditSection;
+	}
+
+	public String getDetails() {
+		return details;
+	}
+
+	@Override
+	public Long getId() {
+		return this.id;
+	}
+
+	public Order getOrder() {
+		return order;
+	}
+
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public Date getTransactionDate() {
+		return transactionDate;
+	}
+
+	public Map<String, String> getTransactionDetails() {
+		return transactionDetails;
+	}
+
+	public TransactionType getTransactionType() {
+		return transactionType;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
 	}
 
 	@Override
@@ -97,9 +134,8 @@ public class Transaction extends SalesManagerEntity<Long, Transaction> implement
 		
 	}
 
-	@Override
-	public Long getId() {
-		return this.id;
+	public void setDetails(String details) {
+		this.details = details;
 	}
 
 	@Override
@@ -108,60 +144,24 @@ public class Transaction extends SalesManagerEntity<Long, Transaction> implement
 		
 	}
 
-	public Order getOrder() {
-		return order;
-	}
-
 	public void setOrder(Order order) {
 		this.order = order;
-	}
-
-	public BigDecimal getAmount() {
-		return amount;
-	}
-
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
-	}
-
-	public Date getTransactionDate() {
-		return transactionDate;
-	}
-
-	public void setTransactionDate(Date transactionDate) {
-		this.transactionDate = transactionDate;
-	}
-
-	public TransactionType getTransactionType() {
-		return transactionType;
-	}
-
-	public void setTransactionType(TransactionType transactionType) {
-		this.transactionType = transactionType;
-	}
-
-	public PaymentType getPaymentType() {
-		return paymentType;
 	}
 
 	public void setPaymentType(PaymentType paymentType) {
 		this.paymentType = paymentType;
 	}
 
-	public String getDetails() {
-		return details;
-	}
-
-	public void setDetails(String details) {
-		this.details = details;
-	}
-
-	public Map<String, String> getTransactionDetails() {
-		return transactionDetails;
+	public void setTransactionDate(Date transactionDate) {
+		this.transactionDate = transactionDate;
 	}
 
 	public void setTransactionDetails(Map<String, String> transactionDetails) {
 		this.transactionDetails = transactionDetails;
+	}
+
+	public void setTransactionType(TransactionType transactionType) {
+		this.transactionType = transactionType;
 	}
 
 	@Override

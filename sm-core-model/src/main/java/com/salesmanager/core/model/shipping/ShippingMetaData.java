@@ -22,29 +22,29 @@ public class ShippingMetaData {
 	public List<String> getModules() {
 		return modules;
 	}
-	public void setModules(List<String> modules) {
-		this.modules = modules;
+	public List<String> getPostProcessors() {
+		return postProcessors;
 	}
 	public List<String> getPreProcessors() {
 		return preProcessors;
 	}
-	public void setPreProcessors(List<String> preProcessors) {
-		this.preProcessors = preProcessors;
+	public List<Country> getShipToCountry() {
+		return shipToCountry;
 	}
-	public List<String> getPostProcessors() {
-		return postProcessors;
+	public boolean isUseDistanceModule() {
+		return useDistanceModule;
+	}
+	public void setModules(List<String> modules) {
+		this.modules = modules;
 	}
 	public void setPostProcessors(List<String> postProcessors) {
 		this.postProcessors = postProcessors;
 	}
-	public List<Country> getShipToCountry() {
-		return shipToCountry;
+	public void setPreProcessors(List<String> preProcessors) {
+		this.preProcessors = preProcessors;
 	}
 	public void setShipToCountry(List<Country> shipToCountry) {
 		this.shipToCountry = shipToCountry;
-	}
-	public boolean isUseDistanceModule() {
-		return useDistanceModule;
 	}
 	public void setUseDistanceModule(boolean useDistanceModule) {
 		this.useDistanceModule = useDistanceModule;

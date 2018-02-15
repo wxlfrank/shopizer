@@ -104,19 +104,41 @@ public class ProductAttribute extends SalesManagerEntity<Long, ProductAttribute>
 	@Transient
 	private String attributeAdditionalWeight = "0";
 	
+	@ManyToOne(targetEntity = Product.class)
+	@JoinColumn(name = "PRODUCT_ID", nullable = false)
+	private Product product;
+
+	public ProductAttribute() {
+	}
+
+	public String getAttributeAdditionalWeight() {
+		return attributeAdditionalWeight;
+	}
+	
+	public boolean getAttributeDefault() {
+		return attributeDefault;
+	}
+
+	public boolean getAttributeDiscounted() {
+		return attributeDiscounted;
+	}
+
+	public boolean getAttributeDisplayOnly() {
+		return attributeDisplayOnly;
+	}
+
+
+
 	public String getAttributePrice() {
 		return attributePrice;
 	}
 
-	public void setAttributePrice(String attributePrice) {
-		this.attributePrice = attributePrice;
+	public boolean getAttributeRequired() {
+		return attributeRequired;
 	}
 
-	@ManyToOne(targetEntity = Product.class)
-	@JoinColumn(name = "PRODUCT_ID", nullable = false)
-	private Product product;
-	
-	public ProductAttribute() {
+	public String getAttributeSortOrder() {
+		return attributeSortOrder;
 	}
 
 	@Override
@@ -124,87 +146,65 @@ public class ProductAttribute extends SalesManagerEntity<Long, ProductAttribute>
 		return id;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-
-
-	public Integer getProductOptionSortOrder() {
-		return productOptionSortOrder;
-	}
-
-	public void setProductOptionSortOrder(Integer productOptionSortOrder) {
-		this.productOptionSortOrder = productOptionSortOrder;
+	public Product getProduct() {
+		return product;
 	}
 
 	public boolean getProductAttributeIsFree() {
 		return productAttributeIsFree;
 	}
 
-	public void setProductAttributeIsFree(boolean productAttributeIsFree) {
-		this.productAttributeIsFree = productAttributeIsFree;
+	public BigDecimal getProductAttributePrice() {
+		return productAttributePrice;
 	}
 
 	public BigDecimal getProductAttributeWeight() {
 		return productAttributeWeight;
 	}
 
-	public void setProductAttributeWeight(BigDecimal productAttributeWeight) {
-		this.productAttributeWeight = productAttributeWeight;
-	}
-
-	public boolean getAttributeDefault() {
-		return attributeDefault;
-	}
-
-	public void setAttributeDefault(boolean attributeDefault) {
-		this.attributeDefault = attributeDefault;
-	}
-
-	public boolean getAttributeRequired() {
-		return attributeRequired;
-	}
-
-	public void setAttributeRequired(boolean attributeRequired) {
-		this.attributeRequired = attributeRequired;
-	}
-
-	public boolean getAttributeDisplayOnly() {
-		return attributeDisplayOnly;
-	}
-
-	public void setAttributeDisplayOnly(boolean attributeDisplayOnly) {
-		this.attributeDisplayOnly = attributeDisplayOnly;
-	}
-
-	public boolean getAttributeDiscounted() {
-		return attributeDiscounted;
-	}
-
-	public void setAttributeDiscounted(boolean attributeDiscounted) {
-		this.attributeDiscounted = attributeDiscounted;
-	}
-
 	public ProductOption getProductOption() {
 		return productOption;
 	}
 
-	public void setProductOption(ProductOption productOption) {
-		this.productOption = productOption;
+	public Integer getProductOptionSortOrder() {
+		return productOptionSortOrder;
 	}
 
 	public ProductOptionValue getProductOptionValue() {
 		return productOptionValue;
 	}
 
-	public void setProductOptionValue(ProductOptionValue productOptionValue) {
-		this.productOptionValue = productOptionValue;
+	public void setAttributeAdditionalWeight(String attributeAdditionalWeight) {
+		this.attributeAdditionalWeight = attributeAdditionalWeight;
 	}
 
-	public Product getProduct() {
-		return product;
+	public void setAttributeDefault(boolean attributeDefault) {
+		this.attributeDefault = attributeDefault;
+	}
+
+	public void setAttributeDiscounted(boolean attributeDiscounted) {
+		this.attributeDiscounted = attributeDiscounted;
+	}
+
+	public void setAttributeDisplayOnly(boolean attributeDisplayOnly) {
+		this.attributeDisplayOnly = attributeDisplayOnly;
+	}
+
+	public void setAttributePrice(String attributePrice) {
+		this.attributePrice = attributePrice;
+	}
+
+	public void setAttributeRequired(boolean attributeRequired) {
+		this.attributeRequired = attributeRequired;
+	}
+
+	public void setAttributeSortOrder(String attributeSortOrder) {
+		this.attributeSortOrder = attributeSortOrder;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public void setProduct(Product product) {
@@ -212,28 +212,28 @@ public class ProductAttribute extends SalesManagerEntity<Long, ProductAttribute>
 	}
 	
 	
-	public String getAttributeSortOrder() {
-		return attributeSortOrder;
-	}
-
-	public void setAttributeSortOrder(String attributeSortOrder) {
-		this.attributeSortOrder = attributeSortOrder;
-	}
-
-	public String getAttributeAdditionalWeight() {
-		return attributeAdditionalWeight;
-	}
-
-	public void setAttributeAdditionalWeight(String attributeAdditionalWeight) {
-		this.attributeAdditionalWeight = attributeAdditionalWeight;
-	}
-	
-	public BigDecimal getProductAttributePrice() {
-		return productAttributePrice;
+	public void setProductAttributeIsFree(boolean productAttributeIsFree) {
+		this.productAttributeIsFree = productAttributeIsFree;
 	}
 
 	public void setProductAttributePrice(BigDecimal productAttributePrice) {
 		this.productAttributePrice = productAttributePrice;
+	}
+
+	public void setProductAttributeWeight(BigDecimal productAttributeWeight) {
+		this.productAttributeWeight = productAttributeWeight;
+	}
+
+	public void setProductOption(ProductOption productOption) {
+		this.productOption = productOption;
+	}
+	
+	public void setProductOptionSortOrder(Integer productOptionSortOrder) {
+		this.productOptionSortOrder = productOptionSortOrder;
+	}
+
+	public void setProductOptionValue(ProductOptionValue productOptionValue) {
+		this.productOptionValue = productOptionValue;
 	}
 
 

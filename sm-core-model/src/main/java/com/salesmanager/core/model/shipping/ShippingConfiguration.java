@@ -48,13 +48,68 @@ public class ShippingConfiguration implements JSONAware {
 	private String handlingFeesText = null;
 	
 	
-	public String getShipType() {
-		return shipType;
+	public int getBoxHeight() {
+		return boxHeight;
+	}
+
+
+	public int getBoxLength() {
+		return boxLength;
+	}
+
+
+	public double getBoxWeight() {
+		return boxWeight;
+	}
+
+
+
+	public int getBoxWidth() {
+		return boxWidth;
+	}
+
+
+	public ShippingType getFreeShippingType() {
+		return freeShippingType;
+	}
+
+
+	public BigDecimal getHandlingFees() {
+		return handlingFees;
+	}
+
+
+	public String getHandlingFeesText() {
+		return handlingFeesText;
+	}
+
+
+	public double getMaxWeight() {
+		return maxWeight;
+	}
+
+
+	public BigDecimal getOrderTotalFreeShipping() {
+		return orderTotalFreeShipping;
+	}
+	
+	public String getOrderTotalFreeShippingText() {
+		return orderTotalFreeShippingText;
 	}
 
 
 	public String getShipBaseType() {
 		return shipBaseType;
+	}
+	
+	
+	public String getShipDescription() {
+		return shipDescription;
+	}
+
+	
+	public String getShipFreeType() {
+		return shipFreeType;
 	}
 
 
@@ -63,64 +118,135 @@ public class ShippingConfiguration implements JSONAware {
 	}
 
 
-
-	public void setShippingOptionPriceType(ShippingOptionPriceType shippingOptionPriceType) {
-		this.shippingOptionPriceType = shippingOptionPriceType;
-		this.shipOptionPriceType = this.shippingOptionPriceType.name();
+	public String getShipPackageType() {
+		return shipPackageType;
 	}
 
-
-	public ShippingOptionPriceType getShippingOptionPriceType() {
-		return shippingOptionPriceType;
-	}
-
-
-	public void setShippingBasisType(ShippingBasisType shippingBasisType) {
-		this.shippingBasisType = shippingBasisType;
-		this.shipBaseType = this.shippingBasisType.name();
-	}
 
 
 	public ShippingBasisType getShippingBasisType() {
 		return shippingBasisType;
 	}
+	
+	public ShippingDescription getShippingDescription() {
+		return shippingDescription;
+	}
+	
+	public ShippingOptionPriceType getShippingOptionPriceType() {
+		return shippingOptionPriceType;
+	}
 
-
-	public void setShippingType(ShippingType shippingType) {
-		this.shippingType = shippingType;
-		this.shipType = this.shippingType.name();
+	public ShippingPackageType getShippingPackageType() {
+		return shippingPackageType;
 	}
 
 
 	public ShippingType getShippingType() {
 		return shippingType;
 	}
-	
-	public ShippingPackageType getShippingPackageType() {
-		return shippingPackageType;
+
+
+	public String getShipType() {
+		return shipType;
 	}
 
 
-	public void setShippingPackageType(ShippingPackageType shippingPackageType) {
-		this.shippingPackageType = shippingPackageType;
-		this.shipPackageType = shippingPackageType.name();
-	}
-	
-	
-	public String getShipPackageType() {
-		return shipPackageType;
+	public boolean isFreeShippingEnabled() {
+		return freeShippingEnabled;
 	}
 
-	
-	/** JSON bindding **/
-	public void setShipType(String shipType) {
-		this.shipType = shipType;
+
+	public boolean isTaxOnShipping() {
+		return taxOnShipping;
+	}
+
+
+	public void setBoxHeight(int boxHeight) {
+		this.boxHeight = boxHeight;
+	}
+
+
+	public void setBoxLength(int boxLength) {
+		this.boxLength = boxLength;
+	}
+
+
+	public void setBoxWeight(double boxWeight) {
+		this.boxWeight = boxWeight;
+	}
+
+
+	public void setBoxWidth(int boxWidth) {
+		this.boxWidth = boxWidth;
+	}
+
+
+	public void setFreeShippingEnabled(boolean freeShippingEnabled) {
+		this.freeShippingEnabled = freeShippingEnabled;
+	}
+
+
+	public void setFreeShippingType(ShippingType freeShippingType) {
+		this.freeShippingType = freeShippingType;
+	}
+
+
+	public void setHandlingFees(BigDecimal handlingFees) {
+		this.handlingFees = handlingFees;
+	}
+
+
+	public void setHandlingFeesText(String handlingFeesText) {
+		this.handlingFeesText = handlingFeesText;
+	}
+
+
+	public void setMaxWeight(double maxWeight) {
+		this.maxWeight = maxWeight;
+	}
+
+
+	public void setOrderTotalFreeShipping(BigDecimal orderTotalFreeShipping) {
+		this.orderTotalFreeShipping = orderTotalFreeShipping;
+	}
+
+
+	public void setOrderTotalFreeShippingText(String orderTotalFreeShippingText) {
+		this.orderTotalFreeShippingText = orderTotalFreeShippingText;
+	}
+
+
+	public void setShipBaseType(String shipBaseType) {
+		this.shipBaseType = shipBaseType;
+		ShippingBasisType sType = ShippingBasisType.SHIPPING;
+		if(shipBaseType.equals(ShippingBasisType.BILLING.name())) {
+			sType = ShippingBasisType.BILLING;
+		}
+		setShippingBasisType(sType);
+	}
+
+
+	public void setShipDescription(String shipDescription) {
+		this.shipDescription = shipDescription;
+		ShippingDescription sType = ShippingDescription.SHORT_DESCRIPTION;
+		if(shipDescription.equals(ShippingDescription.LONG_DESCRIPTION.name())) {
+			sType = ShippingDescription.LONG_DESCRIPTION;
+		}
+		this.setShippingDescription(sType);
+	}
+
+
+	public void setShipFreeType(String shipFreeType) {
+		this.shipFreeType = shipFreeType;
 		ShippingType sType = ShippingType.NATIONAL;
-		if(shipType.equals(ShippingType.INTERNATIONAL.name())) {
+		if(shipFreeType.equals(ShippingType.INTERNATIONAL.name())) {
 			sType = ShippingType.INTERNATIONAL;
 		}
-		setShippingType(sType);
+		setFreeShippingType(sType);
 	}
+
+
+
 
 
 	public void setShipOptionPriceType(String shipOptionPriceType) {
@@ -136,17 +262,6 @@ public class ShippingConfiguration implements JSONAware {
 	}
 
 
-	public void setShipBaseType(String shipBaseType) {
-		this.shipBaseType = shipBaseType;
-		ShippingBasisType sType = ShippingBasisType.SHIPPING;
-		if(shipBaseType.equals(ShippingBasisType.BILLING.name())) {
-			sType = ShippingBasisType.BILLING;
-		}
-		setShippingBasisType(sType);
-	}
-
-
-
 	public void setShipPackageType(String shipPackageType) {
 		this.shipPackageType = shipPackageType;
 		ShippingPackageType sType = ShippingPackageType.ITEM;
@@ -155,24 +270,53 @@ public class ShippingConfiguration implements JSONAware {
 		}
 		this.setShippingPackageType(sType);
 	}
-	
-	public void setShipDescription(String shipDescription) {
-		this.shipDescription = shipDescription;
-		ShippingDescription sType = ShippingDescription.SHORT_DESCRIPTION;
-		if(shipDescription.equals(ShippingDescription.LONG_DESCRIPTION.name())) {
-			sType = ShippingDescription.LONG_DESCRIPTION;
-		}
-		this.setShippingDescription(sType);
+
+
+	public void setShippingBasisType(ShippingBasisType shippingBasisType) {
+		this.shippingBasisType = shippingBasisType;
+		this.shipBaseType = this.shippingBasisType.name();
 	}
-	
-	public void setShipFreeType(String shipFreeType) {
-		this.shipFreeType = shipFreeType;
+
+
+	public void setShippingDescription(ShippingDescription shippingDescription) {
+		this.shippingDescription = shippingDescription;
+	}
+
+
+	public void setShippingOptionPriceType(ShippingOptionPriceType shippingOptionPriceType) {
+		this.shippingOptionPriceType = shippingOptionPriceType;
+		this.shipOptionPriceType = this.shippingOptionPriceType.name();
+	}
+
+
+
+	public void setShippingPackageType(ShippingPackageType shippingPackageType) {
+		this.shippingPackageType = shippingPackageType;
+		this.shipPackageType = shippingPackageType.name();
+	}
+
+
+	public void setShippingType(ShippingType shippingType) {
+		this.shippingType = shippingType;
+		this.shipType = this.shippingType.name();
+	}
+
+
+	/** JSON bindding **/
+	public void setShipType(String shipType) {
+		this.shipType = shipType;
 		ShippingType sType = ShippingType.NATIONAL;
-		if(shipFreeType.equals(ShippingType.INTERNATIONAL.name())) {
+		if(shipType.equals(ShippingType.INTERNATIONAL.name())) {
 			sType = ShippingType.INTERNATIONAL;
 		}
-		setFreeShippingType(sType);
+		setShippingType(sType);
 	}
+
+
+	public void setTaxOnShipping(boolean taxOnShipping) {
+		this.taxOnShipping = taxOnShipping;
+	}
+
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -200,150 +344,6 @@ public class ShippingConfiguration implements JSONAware {
 		
 		
 		return data.toJSONString();
-	}
-
-
-	public int getBoxWidth() {
-		return boxWidth;
-	}
-
-
-	public void setBoxWidth(int boxWidth) {
-		this.boxWidth = boxWidth;
-	}
-
-
-	public int getBoxHeight() {
-		return boxHeight;
-	}
-
-
-	public void setBoxHeight(int boxHeight) {
-		this.boxHeight = boxHeight;
-	}
-
-
-	public int getBoxLength() {
-		return boxLength;
-	}
-
-
-	public void setBoxLength(int boxLength) {
-		this.boxLength = boxLength;
-	}
-
-
-	public double getBoxWeight() {
-		return boxWeight;
-	}
-
-
-	public void setBoxWeight(double boxWeight) {
-		this.boxWeight = boxWeight;
-	}
-
-
-	public double getMaxWeight() {
-		return maxWeight;
-	}
-
-
-	public void setMaxWeight(double maxWeight) {
-		this.maxWeight = maxWeight;
-	}
-
-
-	public boolean isFreeShippingEnabled() {
-		return freeShippingEnabled;
-	}
-
-
-	public void setFreeShippingEnabled(boolean freeShippingEnabled) {
-		this.freeShippingEnabled = freeShippingEnabled;
-	}
-
-
-	public BigDecimal getOrderTotalFreeShipping() {
-		return orderTotalFreeShipping;
-	}
-
-
-	public void setOrderTotalFreeShipping(BigDecimal orderTotalFreeShipping) {
-		this.orderTotalFreeShipping = orderTotalFreeShipping;
-	}
-
-
-	public void setHandlingFees(BigDecimal handlingFees) {
-		this.handlingFees = handlingFees;
-	}
-
-
-	public BigDecimal getHandlingFees() {
-		return handlingFees;
-	}
-
-
-	public void setTaxOnShipping(boolean taxOnShipping) {
-		this.taxOnShipping = taxOnShipping;
-	}
-
-
-	public boolean isTaxOnShipping() {
-		return taxOnShipping;
-	}
-
-
-
-
-
-	public String getShipDescription() {
-		return shipDescription;
-	}
-
-
-	public void setShippingDescription(ShippingDescription shippingDescription) {
-		this.shippingDescription = shippingDescription;
-	}
-
-
-	public ShippingDescription getShippingDescription() {
-		return shippingDescription;
-	}
-
-
-	public void setFreeShippingType(ShippingType freeShippingType) {
-		this.freeShippingType = freeShippingType;
-	}
-
-
-	public ShippingType getFreeShippingType() {
-		return freeShippingType;
-	}
-
-
-
-	public String getShipFreeType() {
-		return shipFreeType;
-	}
-
-
-	public void setOrderTotalFreeShippingText(String orderTotalFreeShippingText) {
-		this.orderTotalFreeShippingText = orderTotalFreeShippingText;
-	}
-
-
-	public String getOrderTotalFreeShippingText() {
-		return orderTotalFreeShippingText;
-	}
-
-
-	public void setHandlingFeesText(String handlingFeesText) {
-		this.handlingFeesText = handlingFeesText;
-	}
-
-
-	public String getHandlingFeesText() {
-		return handlingFeesText;
 	}
 
 

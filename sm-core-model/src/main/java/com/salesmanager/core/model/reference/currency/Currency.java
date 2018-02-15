@@ -41,50 +41,50 @@ public class Currency extends SalesManagerEntity<Long, Currency> implements Seri
 	public Currency() {
 	}
 	
-	@Override
-	public Long getId() {
-		return id;
-	}
-
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public java.util.Currency getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(java.util.Currency currency) {
-		this.currency = currency;
-		this.code = currency.getCurrencyCode();
-	}
-
-	public Boolean getSupported() {
-		return supported;
-	}
-
-	public void setSupported(Boolean supported) {
-		this.supported = supported;
-	}
-	
 	public String getCode() {
 		if (currency.getCurrencyCode() != code) {
 			return currency.getCurrencyCode();
 		}
 		return code;
 	}
-	
-	public String getSymbol() {
-		return currency.getSymbol();
+
+	public java.util.Currency getCurrency() {
+		return currency;
+	}
+
+	@Override
+	public Long getId() {
+		return id;
 	}
 
 	public String getName() {
 		return name;
 	}
 
+	public Boolean getSupported() {
+		return supported;
+	}
+
+	public String getSymbol() {
+		return currency.getSymbol();
+	}
+	
+	public void setCurrency(java.util.Currency currency) {
+		this.currency = currency;
+		this.code = currency.getCurrencyCode();
+	}
+	
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public void setSupported(Boolean supported) {
+		this.supported = supported;
 	}
 
 }

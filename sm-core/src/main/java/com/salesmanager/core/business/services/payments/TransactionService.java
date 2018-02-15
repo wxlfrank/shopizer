@@ -23,9 +23,9 @@ public interface TransactionService extends SalesManagerEntityService<Long, Tran
 
 	Transaction getRefundableTransaction(Order order) throws ServiceException;
 
-	List<Transaction> listTransactions(Order order) throws ServiceException;
-	
 	List<Transaction> listTransactions(Date startDate, Date endDate) throws ServiceException;
+	
+	List<Transaction> listTransactions(Order order) throws ServiceException;
 
 
 

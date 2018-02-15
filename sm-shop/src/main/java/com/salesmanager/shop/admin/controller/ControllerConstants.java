@@ -15,12 +15,16 @@ public interface ControllerConstants
 
     interface Tiles{
     	
-    	final String adminDashboard="admin-dashboard";
-        interface ContentImages{
-            final String addContentImages="admin-contentImages-add";
-            final String contentImages="admin-content-images";
-            final String fileBrowser="admin-content-filebrowser";
- 
+    	interface Configuration{
+            final String accounts="config-accounts";
+            final String email="config-email";
+            final String cache="admin-cache";
+            final String system="config-system";
+        }
+        interface Content{
+            final String contentPages="admin-content-pages";
+            final String contentPagesDetails="admin-content-pages-details";
+
         }
         
         interface ContentFiles{
@@ -30,10 +34,11 @@ public interface ControllerConstants
  
         }
         
-        interface Content{
-            final String contentPages="admin-content-pages";
-            final String contentPagesDetails="admin-content-pages-details";
-
+        interface ContentImages{
+            final String addContentImages="admin-contentImages-add";
+            final String contentImages="admin-content-images";
+            final String fileBrowser="admin-content-filebrowser";
+ 
         }
         
         interface Customer{
@@ -43,6 +48,17 @@ public interface ControllerConstants
             final String optionsValueDetails="admin-customer-options-values-details";
             final String optionsSet="admin-customer-options-set";
 
+        }
+        
+        interface Order{
+            final String orders="admin-orders";
+            final String ordersEdit="admin-orders-edit";
+            final String ordersTransactions="admin-orders-transactions";
+        }
+        
+        interface Payment{
+        	final String paymentMethods="payment-methods";
+        	final String paymentMethod="payment-method";
         }
         
         interface Product{
@@ -59,16 +75,6 @@ public interface ControllerConstants
             final String manufacturerList="admin-products-manufacturer";
             final String manufacturerDetails="admin-products-manufacturer-details";
         }
-        
-        interface User{
-            final String profile="admin-user-profile";
-            final String users="admin-users";
-            final String password="admin-user-password";
-        }
-        
-        interface Store{
-            final String stores="admin-stores";
-        }
 
 
         interface Shipping{
@@ -79,22 +85,8 @@ public interface ControllerConstants
             final String customShippingWeightBased="admin-shipping-custom";
         }
         
-        interface Payment{
-        	final String paymentMethods="payment-methods";
-        	final String paymentMethod="payment-method";
-        }
-        
-        interface Order{
-            final String orders="admin-orders";
-            final String ordersEdit="admin-orders-edit";
-            final String ordersTransactions="admin-orders-transactions";
-        }
-        
-        interface Configuration{
-            final String accounts="config-accounts";
-            final String email="config-email";
-            final String cache="admin-cache";
-            final String system="config-system";
+        interface Store{
+            final String stores="admin-stores";
         }
         
         interface Tax{
@@ -104,6 +96,14 @@ public interface ControllerConstants
             final String taxRates="tax-rates";
             final String taxRate="tax-rate";
         }
+        
+        interface User{
+            final String profile="admin-user-profile";
+            final String users="admin-users";
+            final String password="admin-user-password";
+        }
+        
+        final String adminDashboard="admin-dashboard";
         
     }
 }

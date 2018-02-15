@@ -65,40 +65,6 @@ public class GroupsController {
 
 
 	@PreAuthorize("hasRole('STORE_ADMIN')")
-	@RequestMapping(value = "/admin/groups/editGroup.html", method = RequestMethod.GET)
-	public String displayGroup(@RequestParam("id") Integer groupId, Model model,
-			Locale locale, HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
-		// display menu
-		setMenu(model, request);
-		
-		GroupType[] groupTypes = GroupType.values();
-		List<String> groups = new ArrayList<String>();
-
-		for(GroupType t : groupTypes) {
-			if(GroupType.ADMIN.name() != t.name()) {
-				groups.add(t.name());
-			}
-		}
-
-		Group group = groupService.getById(groupId);
-		
-		if(group == null) {
-			return "redirect://admin/groups/groups.html";
-			 
-		} 
-
-		GroupDetails groupDetails = new GroupDetails();
-		groupDetails.setGroup(group);
-		groupDetails.setTypes(groups);
-		
-
-		model.addAttribute("group", groupDetails);
-
-		return "admin-user-group";
-	}
-	
-	@PreAuthorize("hasRole('STORE_ADMIN')")
 	@RequestMapping(value = "/admin/groups/delete.html", method = RequestMethod.POST)
 	public @ResponseBody ResponseEntity<String> delete(Model model,
 			Locale locale, HttpServletRequest request, HttpServletResponse response)
@@ -158,6 +124,128 @@ public class GroupsController {
 	}
 	
 	@PreAuthorize("hasRole('STORE_ADMIN')")
+	@RequestMapping(value = "/admin/groups/editGroup.html", method = RequestMethod.GET)
+	public String displayGroup(@RequestParam("id") Integer groupId, Model model,
+			Locale locale, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		// display menu
+		setMenu(model, request);
+		
+		GroupType[] groupTypes = GroupType.values();
+		List<String> groups = new ArrayList<String>();
+
+		for(GroupType t : groupTypes) {
+			if(GroupType.ADMIN.name() != t.name()) {
+				groups.add(t.name());
+			}
+		}
+
+		Group group = groupService.getById(groupId);
+		
+		if(group == null) {
+			return "redirect://admin/groups/groups.html";
+			 
+		} 
+
+		GroupDetails groupDetails = new GroupDetails();
+		groupDetails.setGroup(group);
+		groupDetails.setTypes(groups);
+		
+
+		model.addAttribute("group", groupDetails);
+
+		return "admin-user-group";
+	}
+	
+	@PreAuthorize("hasRole('STORE_ADMIN')")
+	@RequestMapping(value = "/admin/groups/new.html", method = RequestMethod.GET)
+	public String displayGroup(Model model,
+			HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		// display menu
+		setMenu(model, request);
+		
+		GroupType[] groupTypes = GroupType.values();
+		List<String> groups = new ArrayList<String>();
+
+		for(GroupType t : groupTypes) {
+			if(GroupType.ADMIN.name() != t.name()) {
+				groups.add(t.name());
+			}
+		}
+		GroupDetails group = new GroupDetails();
+		Group g = new Group();
+		group.setGroup(g);
+		group.setTypes(groups);
+		model.addAttribute("group", group);
+		
+
+		return "admin-user-group";
+	}
+	
+	@PreAuthorize("hasRole('STORE_ADMIN')")
+	@RequestMapping(value = "/admin/groups/groups.html", method = RequestMethod.GET)
+	public String displayGroups(Model model, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+
+		setMenu(model, request);
+		List<Group> groups = groupService.listGroup(GroupType.ADMIN);
+		model.addAttribute("groups", groups);
+
+		return "admin-user-groups";
+	}
+
+
+
+	@PreAuthorize("hasRole('STORE_ADMIN')")
+	@RequestMapping(value = "/admin/groups/paging.html", method = RequestMethod.POST)
+	public @ResponseBody
+	ResponseEntity<String> pageGroups(HttpServletRequest request,
+			HttpServletResponse response, Locale locale) {
+
+		AjaxResponse resp = new AjaxResponse();
+		try {
+
+				List<Group> groups = groupService.list();
+
+				for(Group group : groups) {
+					Map<String, String> entry = new HashMap<String, String>();
+					entry.put("groupId", group.getId().toString());
+					entry.put("name", group.getGroupName());
+					entry.put("type", group.getGroupType().name());
+
+					StringBuilder key = new StringBuilder().append("security.group.description.").append(group.getGroupName());
+					try {
+					
+						String message =  messages.getMessage(key.toString(), locale);
+						entry.put("description",message);
+					
+					} catch(Exception noLabelException) {
+						LOGGER.error("No label found for key [" + key.toString() + "]");
+					}
+					
+					
+					
+
+					resp.addDataEntry(entry);
+				}
+
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while paging permissions", e);
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+
+	
+	@PreAuthorize("hasRole('STORE_ADMIN')")
 	@RequestMapping(value = "/admin/group/save.html", method = RequestMethod.POST)
 	public String save(@Valid @ModelAttribute("group") GroupDetails group, BindingResult result, Locale locale, Model model,
 			HttpServletRequest request, HttpServletResponse response)
@@ -202,94 +290,6 @@ public class GroupsController {
 		model.addAttribute("group", groupDetails);
 		
 		return "admin-user-group";
-	}
-	
-	@PreAuthorize("hasRole('STORE_ADMIN')")
-	@RequestMapping(value = "/admin/groups/new.html", method = RequestMethod.GET)
-	public String displayGroup(Model model,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
-		// display menu
-		setMenu(model, request);
-		
-		GroupType[] groupTypes = GroupType.values();
-		List<String> groups = new ArrayList<String>();
-
-		for(GroupType t : groupTypes) {
-			if(GroupType.ADMIN.name() != t.name()) {
-				groups.add(t.name());
-			}
-		}
-		GroupDetails group = new GroupDetails();
-		Group g = new Group();
-		group.setGroup(g);
-		group.setTypes(groups);
-		model.addAttribute("group", group);
-		
-
-		return "admin-user-group";
-	}
-
-
-
-	@PreAuthorize("hasRole('STORE_ADMIN')")
-	@RequestMapping(value = "/admin/groups/groups.html", method = RequestMethod.GET)
-	public String displayGroups(Model model, HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
-
-		setMenu(model, request);
-		List<Group> groups = groupService.listGroup(GroupType.ADMIN);
-		model.addAttribute("groups", groups);
-
-		return "admin-user-groups";
-	}
-
-	
-	@PreAuthorize("hasRole('STORE_ADMIN')")
-	@RequestMapping(value = "/admin/groups/paging.html", method = RequestMethod.POST)
-	public @ResponseBody
-	ResponseEntity<String> pageGroups(HttpServletRequest request,
-			HttpServletResponse response, Locale locale) {
-
-		AjaxResponse resp = new AjaxResponse();
-		try {
-
-				List<Group> groups = groupService.list();
-
-				for(Group group : groups) {
-					Map entry = new HashMap();
-					entry.put("groupId", group.getId());
-					entry.put("name", group.getGroupName());
-					entry.put("type", group.getGroupType().name());
-
-					StringBuilder key = new StringBuilder().append("security.group.description.").append(group.getGroupName());
-					try {
-					
-						String message =  messages.getMessage(key.toString(), locale);
-						entry.put("description",message);
-					
-					} catch(Exception noLabelException) {
-						LOGGER.error("No label found for key [" + key.toString() + "]");
-					}
-					
-					
-					
-
-					resp.addDataEntry(entry);
-				}
-
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while paging permissions", e);
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
 

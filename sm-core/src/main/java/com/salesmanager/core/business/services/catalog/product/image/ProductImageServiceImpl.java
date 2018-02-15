@@ -29,49 +29,15 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	private ProductImageRepository productImageRepository;
 
 	@Inject
+	private ProductFileManager productFileManager;
+	
+	@Inject
 	public ProductImageServiceImpl(ProductImageRepository productImageRepository) {
 		super(productImageRepository);
 		this.productImageRepository = productImageRepository;
 	}
 	
-	@Inject
-	private ProductFileManager productFileManager;
-	
 
-	
-	
-	public ProductImage getById(Long id) {
-		
-		
-		return productImageRepository.findOne(id);
-	}
-	
-	
-	@Override
-	public void addProductImages(Product product, List<ProductImage> productImages) throws ServiceException {
-		
-		try {
-			for(ProductImage productImage : productImages) {
-				
-				Assert.notNull(productImage.getImage());
-				
-		        InputStream inputStream = productImage.getImage();
-		        ImageContentFile cmsContentImage = new ImageContentFile();
-		        cmsContentImage.setFileName( productImage.getProductImage() );
-		        cmsContentImage.setFile( inputStream );
-		        cmsContentImage.setFileContentType(FileContentType.PRODUCT);
-		        
-
-		        
-	
-				addProductImage(product,productImage,cmsContentImage);			
-			}
-		
-		} catch (Exception e) {
-			throw new ServiceException(e);
-		}
-
-	}
 	
 	
 	@Override
@@ -112,13 +78,6 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		
 	}
 	
-	@Override
-	public void saveOrUpdate(ProductImage productImage) throws ServiceException {
-		
-				
-		super.save(productImage);
-		
-	}
 	
 	public void addProductImageDescription(ProductImage productImage, ProductImageDescription description)
 	throws ServiceException {
@@ -135,8 +94,38 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 
 	}
 	
-	//TODO get default product image
+	
+	@Override
+	public void addProductImages(Product product, List<ProductImage> productImages) throws ServiceException {
+		
+		try {
+			for(ProductImage productImage : productImages) {
+				
+				Assert.notNull(productImage.getImage());
+				
+		        InputStream inputStream = productImage.getImage();
+		        ImageContentFile cmsContentImage = new ImageContentFile();
+		        cmsContentImage.setFileName( productImage.getProductImage() );
+		        cmsContentImage.setFile( inputStream );
+		        cmsContentImage.setFileContentType(FileContentType.PRODUCT);
+		        
 
+		        
+	
+				addProductImage(product,productImage,cmsContentImage);			
+			}
+		
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		}
+
+	}
+	
+	public ProductImage getById(Long id) {
+		
+		
+		return productImageRepository.findOne(id);
+	}
 	
 	@Override
 	public OutputContentFile getProductImage(ProductImage productImage, ProductImageSize size) throws ServiceException {
@@ -161,6 +150,9 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		
 	}
 	
+	//TODO get default product image
+
+	
 	@Override
 	public OutputContentFile getProductImage(final String storeCode, final String productCode, final String fileName, final ProductImageSize size) throws ServiceException {
 		OutputContentFile outputImage = productFileManager.getProductImage(storeCode, productCode, fileName, size);
@@ -184,6 +176,14 @@ public class ProductImageServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		
 		
 		this.delete(p);
+		
+	}
+	
+	@Override
+	public void saveOrUpdate(ProductImage productImage) throws ServiceException {
+		
+				
+		super.save(productImage);
 		
 	}
 }

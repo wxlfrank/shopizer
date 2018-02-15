@@ -1,6 +1,31 @@
 package com.salesmanager.shop.store.controller.product;
 
-import com.salesmanager.core.business.services.catalog.category.CategoryService;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.services.catalog.product.PricingService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
@@ -32,21 +57,7 @@ import com.salesmanager.shop.store.model.catalog.Attribute;
 import com.salesmanager.shop.store.model.catalog.AttributeValue;
 import com.salesmanager.shop.utils.BreadcrumbsUtils;
 import com.salesmanager.shop.utils.ImageFilePath;
-import com.salesmanager.shop.utils.LabelUtils;
 import com.salesmanager.shop.utils.PageBuilderUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
 
 
 
@@ -58,6 +69,8 @@ import java.util.*;
 @Controller
 @RequestMapping("/shop/product")
 public class ShopProductController {
+	
+//	private static final Logger LOG = LoggerFactory.getLogger(ShopProductController.class);
 	
 	@Inject
 	private ProductService productService;
@@ -74,14 +87,14 @@ public class ShopProductController {
 	@Inject
 	private ProductReviewService productReviewService;
 	
-	@Inject
-	private LabelUtils messages;
+//	@Inject
+//	private LabelUtils messages;
 	
 	@Inject
 	private CacheUtils cache;
 	
-	@Inject
-	private CategoryService categoryService;
+//	@Inject
+//	private CategoryService categoryService;
 	
 	@Inject
 	private BreadcrumbsUtils breadcrumbsUtils;
@@ -90,42 +103,38 @@ public class ShopProductController {
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 	
-	private static final Logger LOG = LoggerFactory.getLogger(ShopProductController.class);
+
+	@RequestMapping(value={"/{productId}/calculatePrice.json"}, method=RequestMethod.POST)
+	public @ResponseBody
+	ReadableProductPrice calculatePrice(@RequestParam(value="attributeIds[]") Long[] attributeIds, @PathVariable final Long productId, final HttpServletRequest request, final HttpServletResponse response, final Locale locale) throws Exception {
+
+    	
+    	MerchantStore store = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
+		Language language = (Language)request.getAttribute("LANGUAGE");
+		
+		
+		Product product = productService.getById(productId);
+		
+		List<Long> ids = new ArrayList<Long>(Arrays.asList(attributeIds));
+		List<ProductAttribute> attributes = productAttributeService.getByAttributeIds(store, product, ids);      
+		
+		for(ProductAttribute attribute : attributes) {
+			if(attribute.getProduct().getId().longValue()!=productId.longValue()) {
+				return null;
+			}
+		}
+		
+		FinalPrice price = pricingService.calculateProductPrice(product, attributes);
+    	ReadableProductPrice readablePrice = new ReadableProductPrice();
+    	ReadableFinalPricePopulator populator = new ReadableFinalPricePopulator();
+    	populator.setPricingService(pricingService);
+    	populator.populate(price, readablePrice, store, language);
+    	return readablePrice;
+    	
+    }
 	
 
-	/**
-	 * Display product details with reference to caller page
-	 * @param friendlyUrl
-	 * @param ref
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/{friendlyUrl}.html/ref={ref}")
-	public String displayProductWithReference(@PathVariable final String friendlyUrl, @PathVariable final String ref, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		return display(ref, friendlyUrl, model, request, response, locale);
-	}
-	
-
-	/**
-	 * Display product details no reference
-	 * @param friendlyUrl
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/{friendlyUrl}.html")
-	public String displayProduct(@PathVariable final String friendlyUrl, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		return display(null, friendlyUrl, model, request, response, locale);
-	}
-
-
+	@SuppressWarnings("unchecked")
 	public String display(final String reference, final String friendlyUrl, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 		
 
@@ -330,36 +339,38 @@ public class ShopProductController {
 
 		return template.toString();
 	}
-	
-    @RequestMapping(value={"/{productId}/calculatePrice.json"}, method=RequestMethod.POST)
-	public @ResponseBody
-	ReadableProductPrice calculatePrice(@RequestParam(value="attributeIds[]") Long[] attributeIds, @PathVariable final Long productId, final HttpServletRequest request, final HttpServletResponse response, final Locale locale) throws Exception {
 
-    	
-    	MerchantStore store = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
-		Language language = (Language)request.getAttribute("LANGUAGE");
-		
-		
-		Product product = productService.getById(productId);
-		
-		@SuppressWarnings("unchecked")
-		List<Long> ids = new ArrayList<Long>(Arrays.asList(attributeIds));
-		List<ProductAttribute> attributes = productAttributeService.getByAttributeIds(store, product, ids);      
-		
-		for(ProductAttribute attribute : attributes) {
-			if(attribute.getProduct().getId().longValue()!=productId.longValue()) {
-				return null;
-			}
-		}
-		
-		FinalPrice price = pricingService.calculateProductPrice(product, attributes);
-    	ReadableProductPrice readablePrice = new ReadableProductPrice();
-    	ReadableFinalPricePopulator populator = new ReadableFinalPricePopulator();
-    	populator.setPricingService(pricingService);
-    	populator.populate(price, readablePrice, store, language);
-    	return readablePrice;
-    	
-    }
+
+	/**
+	 * Display product details no reference
+	 * @param friendlyUrl
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/{friendlyUrl}.html")
+	public String displayProduct(@PathVariable final String friendlyUrl, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		return display(null, friendlyUrl, model, request, response, locale);
+	}
+	
+    /**
+	 * Display product details with reference to caller page
+	 * @param friendlyUrl
+	 * @param ref
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/{friendlyUrl}.html/ref={ref}")
+	public String displayProductWithReference(@PathVariable final String friendlyUrl, @PathVariable final String ref, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		return display(ref, friendlyUrl, model, request, response, locale);
+	}
 	
 	private Attribute createAttribute(ProductAttribute productAttribute, Language language) {
 		

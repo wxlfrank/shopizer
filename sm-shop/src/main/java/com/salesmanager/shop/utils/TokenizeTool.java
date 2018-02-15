@@ -13,8 +13,6 @@ public class TokenizeTool {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TokenizeTool.class);
 	
-	private TokenizeTool(){}
-	
 	private static SecretKey key = null;
 	
 	static {
@@ -44,5 +42,7 @@ public class TokenizeTool {
 		
 		
 	}
+	
+	private TokenizeTool(){}
 
 }

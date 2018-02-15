@@ -8,12 +8,21 @@ import org.slf4j.LoggerFactory;
 public class VendorCacheManager {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(VendorCacheManager.class);
-	private EmbeddedCacheManager manager = null;
 	private static VendorCacheManager vendorCacheManager = null;
-	private String repositoryFileName = "cms/infinispan_configuration.xml";
+	public static VendorCacheManager getInstance() {
+		if(vendorCacheManager==null) {
+			vendorCacheManager = new VendorCacheManager();
+
+		}
+		return vendorCacheManager;
+	}
+	private EmbeddedCacheManager manager = null;
 	
 
 	
+	private String repositoryFileName = "cms/infinispan_configuration.xml";
+
+
 	private VendorCacheManager(){
 		
 		try {
@@ -22,15 +31,6 @@ public class VendorCacheManager {
 			LOGGER.error("Cannot start manager " + e.toString());
 		}
 		
-	}
-
-
-	public static VendorCacheManager getInstance() {
-		if(vendorCacheManager==null) {
-			vendorCacheManager = new VendorCacheManager();
-
-		}
-		return vendorCacheManager;
 	}
 
 

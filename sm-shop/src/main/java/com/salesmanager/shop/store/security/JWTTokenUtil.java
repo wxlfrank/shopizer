@@ -44,16 +44,15 @@ public class JWTTokenUtil implements Serializable {
 	    @Value("${jwt.expiration}")
 	    private Long expiration;
 
-	    public String getUsernameFromToken(String token) {
-	        return getClaimFromToken(token, Claims::getSubject);
+	    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
+	        final Date created = getIssuedAtDateFromToken(token);
+	        return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
+	                && (!isTokenExpired(token) || ignoreTokenExpiration(token));
 	    }
 
-	    public Date getIssuedAtDateFromToken(String token) {
-	        return getClaimFromToken(token, Claims::getIssuedAt);
-	    }
-
-	    public Date getExpirationDateFromToken(String token) {
-	        return getClaimFromToken(token, Claims::getExpiration);
+	    public String generateToken(UserDetails userDetails, Device device) {
+	        Map<String, Object> claims = new HashMap<>();
+	        return doGenerateToken(claims, userDetails.getUsername(), generateAudience(device));
 	    }
 
 	    public String getAudienceFromToken(String token) {
@@ -65,66 +64,16 @@ public class JWTTokenUtil implements Serializable {
 	        return claimsResolver.apply(claims);
 	    }
 
-	    private Claims getAllClaimsFromToken(String token) {
-	        return Jwts.parser()
-	                .setSigningKey(secret)
-	                .parseClaimsJws(token)
-	                .getBody();
+	    public Date getExpirationDateFromToken(String token) {
+	        return getClaimFromToken(token, Claims::getExpiration);
 	    }
 
-	    private Boolean isTokenExpired(String token) {
-	        final Date expiration = getExpirationDateFromToken(token);
-	        return expiration.before(DateUtil.getDate());
+	    public Date getIssuedAtDateFromToken(String token) {
+	        return getClaimFromToken(token, Claims::getIssuedAt);
 	    }
 
-	    private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
-	        return (lastPasswordReset != null && created.before(lastPasswordReset));
-	    }
-
-	    private String generateAudience(Device device) {
-	        String audience = AUDIENCE_UNKNOWN;
-	        if(device != null) {
-		        if (device.isNormal()) {
-		            audience = AUDIENCE_WEB;
-		        } else if (device.isTablet()) {
-		            audience = AUDIENCE_TABLET;
-		        } else if (device.isMobile()) {
-		            audience = AUDIENCE_MOBILE;
-		        }
-	        }
-	        return audience;
-	    }
-
-	    private Boolean ignoreTokenExpiration(String token) {
-	        String audience = getAudienceFromToken(token);
-	        return (AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience));
-	    }
-
-	    public String generateToken(UserDetails userDetails, Device device) {
-	        Map<String, Object> claims = new HashMap<>();
-	        return doGenerateToken(claims, userDetails.getUsername(), generateAudience(device));
-	    }
-
-	    private String doGenerateToken(Map<String, Object> claims, String subject, String audience) {
-	        final Date createdDate = DateUtil.getDate();
-	        final Date expirationDate = calculateExpirationDate(createdDate);
-
-	        System.out.println("doGenerateToken " + createdDate);
-
-	        return Jwts.builder()
-	                .setClaims(claims)
-	                .setSubject(subject)
-	                .setAudience(audience)
-	                .setIssuedAt(createdDate)
-	                .setExpiration(expirationDate)
-	                .signWith(SignatureAlgorithm.HS512, secret)
-	                .compact();
-	    }
-
-	    public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
-	        final Date created = getIssuedAtDateFromToken(token);
-	        return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
-	                && (!isTokenExpired(token) || ignoreTokenExpiration(token));
+	    public String getUsernameFromToken(String token) {
+	        return getClaimFromToken(token, Claims::getSubject);
 	    }
 
 	    public String refreshToken(String token) {
@@ -159,6 +108,57 @@ public class JWTTokenUtil implements Serializable {
 
 	    private Date calculateExpirationDate(Date createdDate) {
 	        return new Date(createdDate.getTime() + expiration * 1000);
+	    }
+
+	    private String doGenerateToken(Map<String, Object> claims, String subject, String audience) {
+	        final Date createdDate = DateUtil.getDate();
+	        final Date expirationDate = calculateExpirationDate(createdDate);
+
+	        System.out.println("doGenerateToken " + createdDate);
+
+	        return Jwts.builder()
+	                .setClaims(claims)
+	                .setSubject(subject)
+	                .setAudience(audience)
+	                .setIssuedAt(createdDate)
+	                .setExpiration(expirationDate)
+	                .signWith(SignatureAlgorithm.HS512, secret)
+	                .compact();
+	    }
+
+	    private String generateAudience(Device device) {
+	        String audience = AUDIENCE_UNKNOWN;
+	        if(device != null) {
+		        if (device.isNormal()) {
+		            audience = AUDIENCE_WEB;
+		        } else if (device.isTablet()) {
+		            audience = AUDIENCE_TABLET;
+		        } else if (device.isMobile()) {
+		            audience = AUDIENCE_MOBILE;
+		        }
+	        }
+	        return audience;
+	    }
+
+	    private Claims getAllClaimsFromToken(String token) {
+	        return Jwts.parser()
+	                .setSigningKey(secret)
+	                .parseClaimsJws(token)
+	                .getBody();
+	    }
+
+	    private Boolean ignoreTokenExpiration(String token) {
+	        String audience = getAudienceFromToken(token);
+	        return (AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience));
+	    }
+
+	    private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
+	        return (lastPasswordReset != null && created.before(lastPasswordReset));
+	    }
+
+	    private Boolean isTokenExpired(String token) {
+	        final Date expiration = getExpirationDateFromToken(token);
+	        return expiration.before(DateUtil.getDate());
 	    }
 
 }

@@ -35,20 +35,12 @@ public class CategoryDescription extends Description {
 	@Column(name = "CATEGORY_HIGHLIGHT")
 	private String categoryHighlight;
 
-	public String getCategoryHighlight() {
-		return categoryHighlight;
-	}
-
-	public void setCategoryHighlight(String categoryHighlight) {
-		this.categoryHighlight = categoryHighlight;
-	}
-
 	@Column(name="META_TITLE", length=120)
 	private String metatagTitle;
-	
+
 	@Column(name="META_KEYWORDS")
 	private String metatagKeywords;
-	
+
 	@Column(name="META_DESCRIPTION")
 	private String metatagDescription;
 	
@@ -61,43 +53,51 @@ public class CategoryDescription extends Description {
 		super.setId(0L);
 	}
 	
-	public String getSeUrl() {
-		return seUrl;
+	public Category getCategory() {
+		return category;
 	}
-
-	public void setSeUrl(String seUrl) {
-		this.seUrl = seUrl;
+	
+	public String getCategoryHighlight() {
+		return categoryHighlight;
 	}
-
-	public String getMetatagTitle() {
-		return metatagTitle;
-	}
-
-	public void setMetatagTitle(String metatagTitle) {
-		this.metatagTitle = metatagTitle;
+	
+	public String getMetatagDescription() {
+		return metatagDescription;
 	}
 
 	public String getMetatagKeywords() {
 		return metatagKeywords;
 	}
 
-	public void setMetatagKeywords(String metatagKeywords) {
-		this.metatagKeywords = metatagKeywords;
+	public String getMetatagTitle() {
+		return metatagTitle;
 	}
 
-	public String getMetatagDescription() {
-		return metatagDescription;
+	public String getSeUrl() {
+		return seUrl;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
+	}
+
+	public void setCategoryHighlight(String categoryHighlight) {
+		this.categoryHighlight = categoryHighlight;
 	}
 
 	public void setMetatagDescription(String metatagDescription) {
 		this.metatagDescription = metatagDescription;
 	}
 
-	public Category getCategory() {
-		return category;
+	public void setMetatagKeywords(String metatagKeywords) {
+		this.metatagKeywords = metatagKeywords;
 	}
 
-	public void setCategory(Category category) {
-		this.category = category;
+	public void setMetatagTitle(String metatagTitle) {
+		this.metatagTitle = metatagTitle;
+	}
+
+	public void setSeUrl(String seUrl) {
+		this.seUrl = seUrl;
 	}
 }

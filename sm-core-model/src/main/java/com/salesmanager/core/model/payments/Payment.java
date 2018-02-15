@@ -14,52 +14,52 @@ public class Payment {
 	private BigDecimal amount;
 	private Map<String,String> paymentMetaData = null;
 
-	public void setPaymentType(PaymentType paymentType) {
-		this.paymentType = paymentType;
-	}
-
-	public PaymentType getPaymentType() {
-		return paymentType;
-	}
-
-	public void setTransactionType(TransactionType transactionType) {
-		this.transactionType = transactionType;
-	}
-
-	public TransactionType getTransactionType() {
-		return transactionType;
-	}
-
-	public void setModuleName(String moduleName) {
-		this.moduleName = moduleName;
-	}
-
-	public String getModuleName() {
-		return moduleName;
+	public BigDecimal getAmount() {
+		return amount;
 	}
 
 	public Currency getCurrency() {
 		return currency;
 	}
 
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
+	public String getModuleName() {
+		return moduleName;
 	}
 
 	public Map<String,String> getPaymentMetaData() {
 		return paymentMetaData;
 	}
 
-	public void setPaymentMetaData(Map<String,String> paymentMetaData) {
-		this.paymentMetaData = paymentMetaData;
+	public PaymentType getPaymentType() {
+		return paymentType;
 	}
 
-	public BigDecimal getAmount() {
-		return amount;
+	public TransactionType getTransactionType() {
+		return transactionType;
 	}
 
 	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
+	}
+
+	public void setCurrency(Currency currency) {
+		this.currency = currency;
+	}
+
+	public void setModuleName(String moduleName) {
+		this.moduleName = moduleName;
+	}
+
+	public void setPaymentMetaData(Map<String,String> paymentMetaData) {
+		this.paymentMetaData = paymentMetaData;
+	}
+
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
+	}
+
+	public void setTransactionType(TransactionType transactionType) {
+		this.transactionType = transactionType;
 	}
 
 }

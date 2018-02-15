@@ -39,22 +39,6 @@ import javax.validation.Payload;
 public @interface FieldMatch
 {
 
-    String message() default "Fields are not matching";
-
-    Class<?>[] groups() default {};
-
-    Class<? extends Payload>[] payload() default {};
-
-    /**
-     * @return The first field
-     */
-    String first();
-
-    /**
-     * @return The second field
-     */
-    String second();
-
     /**
      * Defines several <code>@FieldMatch</code> annotations on the same element
      *
@@ -67,4 +51,20 @@ public @interface FieldMatch
     {
         FieldMatch[] value();
     }
+
+    /**
+     * @return The first field
+     */
+    String first();
+
+    Class<?>[] groups() default {};
+
+    String message() default "Fields are not matching";
+
+    Class<? extends Payload>[] payload() default {};
+
+    /**
+     * @return The second field
+     */
+    String second();
 }

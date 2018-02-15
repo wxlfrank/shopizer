@@ -16,7 +16,6 @@ import com.salesmanager.core.business.utils.ProductPriceUtils;
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.shipping.PackageDetails;
-import com.salesmanager.core.model.shipping.ShippingBasisType;
 import com.salesmanager.core.model.shipping.ShippingConfiguration;
 import com.salesmanager.core.model.shipping.ShippingOption;
 import com.salesmanager.core.model.shipping.ShippingOrigin;
@@ -43,17 +42,6 @@ public class CustomWeightBasedShippingQuote implements ShippingQuoteModule {
 	@Inject
 	private ProductPriceUtils productPriceUtils;
 
-
-	@Override
-	public void validateModuleConfiguration(
-			IntegrationConfiguration integrationConfiguration,
-			MerchantStore store) throws IntegrationException {
-		
-		
-		//not used, it has its own controller with complex validators
-
-	}
-	
 
 	@Override
 	public CustomIntegrationConfiguration getCustomModuleConfiguration(
@@ -85,6 +73,7 @@ public class CustomWeightBasedShippingQuote implements ShippingQuoteModule {
 		
 		
 	}
+	
 
 	@Override
 	public List<ShippingOption> getShippingQuotes(
@@ -103,9 +92,9 @@ public class CustomWeightBasedShippingQuote implements ShippingQuoteModule {
 		CustomShippingQuotesConfiguration customConfiguration = (CustomShippingQuotesConfiguration)this.getCustomModuleConfiguration(store);
 		
 		
-		List<CustomShippingQuotesRegion> regions = customConfiguration.getRegions();
-		
-		ShippingBasisType shippingType =  shippingConfiguration.getShippingBasisType();
+//		List<CustomShippingQuotesRegion> regions = customConfiguration.getRegions();
+//		
+//		ShippingBasisType shippingType =  shippingConfiguration.getShippingBasisType();
 		ShippingOption shippingOption = null;
 		try {
 			
@@ -153,6 +142,16 @@ public class CustomWeightBasedShippingQuote implements ShippingQuoteModule {
 		} catch (Exception e) {
 			throw new IntegrationException(e);
 		}
+
+	}
+
+	@Override
+	public void validateModuleConfiguration(
+			IntegrationConfiguration integrationConfiguration,
+			MerchantStore store) throws IntegrationException {
+		
+		
+		//not used, it has its own controller with complex validators
 
 	}
 

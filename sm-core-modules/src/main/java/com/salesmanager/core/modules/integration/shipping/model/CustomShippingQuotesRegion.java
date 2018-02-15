@@ -11,8 +11,12 @@ public class CustomShippingQuotesRegion implements JSONAware {
 	
 	private List<CustomShippingQuoteWeightItem> quoteItems;//price max weight
 
-	public void setQuoteItems(List<CustomShippingQuoteWeightItem> quoteItems) {
-		this.quoteItems = quoteItems;
+	public List<String> getCountries() {
+		return countries;
+	}
+
+	public String getCustomRegionName() {
+		return customRegionName;
 	}
 
 	public List<CustomShippingQuoteWeightItem> getQuoteItems() {
@@ -23,16 +27,12 @@ public class CustomShippingQuotesRegion implements JSONAware {
 		this.countries = countries;
 	}
 
-	public List<String> getCountries() {
-		return countries;
-	}
-
 	public void setCustomRegionName(String customRegionName) {
 		this.customRegionName = customRegionName;
 	}
 
-	public String getCustomRegionName() {
-		return customRegionName;
+	public void setQuoteItems(List<CustomShippingQuoteWeightItem> quoteItems) {
+		this.quoteItems = quoteItems;
 	}
 	
 

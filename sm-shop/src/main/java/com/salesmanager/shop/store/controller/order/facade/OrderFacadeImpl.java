@@ -177,44 +177,6 @@ public class OrderFacadeImpl implements OrderFacade {
 
 
 	@Override
-	public ShopOrder initializeOrder(MerchantStore store, Customer customer,
-			ShoppingCart shoppingCart, Language language) throws Exception {
-
-		//assert not null shopping cart items
-		
-		ShopOrder order = new ShopOrder();
-		
-		OrderStatus orderStatus = OrderStatus.ORDERED;
-		order.setOrderStatus(orderStatus);
-		
-		if(customer==null) {
-				customer = this.initEmptyCustomer(store);
-		}
-		
-		PersistableCustomer persistableCustomer = persistableCustomer(customer, store, language);
-		order.setCustomer(persistableCustomer);
-
-		//keep list of shopping cart items for core price calculation
-		List<ShoppingCartItem> items = new ArrayList<ShoppingCartItem>(shoppingCart.getLineItems());
-		order.setShoppingCartItems(items);
-		
-		return order;
-	}
-	
-
-
-	@Override
-	public OrderTotalSummary calculateOrderTotal(MerchantStore store,
-			ShopOrder order, Language language) throws Exception {
-		
-
-		Customer customer = customerFacade.getCustomerModel(order.getCustomer(), store, language);
-		OrderTotalSummary summary = this.calculateOrderTotal(store, customer, order, language);
-		this.setOrderTotals(order, summary);
-		return summary;
-	}
-
-	@Override
 	public OrderTotalSummary calculateOrderTotal(MerchantStore store,
 			PersistableOrder order, Language language) throws Exception {
 	
@@ -239,329 +201,208 @@ public class OrderFacadeImpl implements OrderFacade {
 		return summary;
 	}
 	
-	private OrderTotalSummary calculateOrderTotal(MerchantStore store, Customer customer, PersistableOrder order, Language language) throws Exception {
-		
-		OrderTotalSummary orderTotalSummary = null;
-		
-		OrderSummary summary = new OrderSummary();
-		
-		
-		if(order instanceof ShopOrder) {
-			ShopOrder o = (ShopOrder)order;
-			summary.setProducts(o.getShoppingCartItems());
-			
-			if(o.getShippingSummary()!=null) {
-				summary.setShippingSummary(o.getShippingSummary());
-			}
-			orderTotalSummary = orderService.caculateOrderTotal(summary, customer, store, language);
-		} else {
-			//need Set of ShoppingCartItem
-			//PersistableOrder not implemented
-			throw new Exception("calculateOrderTotal not yet implemented for PersistableOrder");
-		}
-
-		return orderTotalSummary;
-		
-	}
-	
-	
-	private PersistableCustomer persistableCustomer(Customer customer, MerchantStore store, Language language) throws Exception {
-		
-		PersistableCustomerPopulator customerPopulator = new PersistableCustomerPopulator();
-		PersistableCustomer persistableCustomer = customerPopulator.populate(customer, new PersistableCustomer(), store, language);
-		return persistableCustomer;
-		
-	}
-	
-	private Customer customer(PersistableCustomer customer, MerchantStore store, Language language) throws Exception {
-		CustomerPopulator populator = new CustomerPopulator();
-		populator.setCountryService(countryService);
-		populator.setCustomerOptionService(customerOptionService);
-		populator.setCustomerOptionValueService(customerOptionValueService);
-		populator.setLanguageService(languageService);
-		populator.setZoneService(zoneService);
-		populator.setGroupService(groupService);
-		Customer cust = populator.populate(customer, new Customer(), store, language);
-		return cust;
-		
-	}
-	
-	private void setOrderTotals(OrderEntity order, OrderTotalSummary summary) {
-		
-		List<OrderTotal> totals = new ArrayList<OrderTotal>();
-		List<com.salesmanager.core.model.order.OrderTotal> orderTotals = summary.getTotals();
-		for(com.salesmanager.core.model.order.OrderTotal t : orderTotals) {
-			OrderTotal total = new OrderTotal();
-			total.setCode(t.getOrderTotalCode());
-			total.setTitle(t.getTitle());
-			total.setValue(t.getValue());
-			totals.add(total);
-		}
-		
-		order.setTotals(totals);
-		
-	}
 
 
-	/**
-	 * Submitted object must be valided prior to the invocation of this method
-	 */
 	@Override
-	public Order processOrder(ShopOrder order, Customer customer, MerchantStore store,
-			Language language) throws ServiceException {
-				
-		return this.processOrderModel(order, customer, null, store, language);
+	public OrderTotalSummary calculateOrderTotal(MerchantStore store,
+			ShopOrder order, Language language) throws Exception {
+		
+
+		Customer customer = customerFacade.getCustomerModel(order.getCustomer(), store, language);
+		OrderTotalSummary summary = this.calculateOrderTotal(store, customer, order, language);
+		this.setOrderTotals(order, summary);
+		return summary;
+	}
+
+	@Override
+	public ReadableTransaction captureOrder(MerchantStore store, Order order, Customer customer, Language language) throws Exception {
+		Transaction transactionModel = paymentService.processCapturePayment(order, customer, store);
+		
+		ReadableTransaction transaction = new ReadableTransaction();
+		ReadableTransactionPopulator trxPopulator = new ReadableTransactionPopulator();
+		trxPopulator.setOrderService(orderService);
+		trxPopulator.setPricingService(pricingService);
+		
+		trxPopulator.populate(transactionModel, transaction, store, language);
+
+		return transaction;
 
 	}
 	
 	@Override
-	public Order processOrder(ShopOrder order, Customer customer, Transaction transaction, MerchantStore store,
-			Language language) throws ServiceException {
-				
-		return this.processOrderModel(order, customer, transaction, store, language);
+	public ReadableOrderList getCapturableOrderList(MerchantStore store, Date startDate, Date endDate,
+			Language language) throws Exception {
+		
+		//get all transactions for the given date
+		List<Order> orders = orderService.getCapturableOrders(store, startDate, endDate);
+		
+		ReadableOrderPopulator orderPopulator = new ReadableOrderPopulator();
+		Locale locale = LocaleUtils.getLocale(language);
+		orderPopulator.setLocale(locale);
 
+		ReadableOrderList returnList = new ReadableOrderList();
+		
+		if(CollectionUtils.isEmpty(orders)) {
+			returnList.setTotal(0);
+			returnList.setMessage("No results for store code " + store);
+			return null;
+		}
+
+		List<ReadableOrder> readableOrders = new ArrayList<ReadableOrder>();
+		for (Order order : orders) {
+			ReadableOrder readableOrder = new ReadableOrder();
+			orderPopulator.populate(order,readableOrder,store,language);
+			readableOrders.add(readableOrder);
+			
+		}
+		
+		returnList.setTotal(orders.size());
+		returnList.setOrders(readableOrders);
+
+		return returnList;
 	}
 	
-	private Order processOrderModel(ShopOrder order, Customer customer, Transaction transaction, MerchantStore store,
-			Language language) throws ServiceException {
+	
+	@Override
+	public ReadableOrder getReadableOrder(Long orderId, MerchantStore store,
+			Language language) throws Exception {
 		
-		try {
-			
-			if(order.isShipToBillingAdress()) {//customer shipping is billing
-				PersistableCustomer orderCustomer = order.getCustomer();
-				Address billing = orderCustomer.getBilling();
-				orderCustomer.setDelivery(billing);
-			}
-
- 
-
-			
-			Order modelOrder = new Order();
-			modelOrder.setDatePurchased(new Date());
-			modelOrder.setBilling(customer.getBilling());
-			modelOrder.setDelivery(customer.getDelivery());
-			modelOrder.setPaymentModuleCode(order.getPaymentModule());
-			modelOrder.setPaymentType(PaymentType.valueOf(order.getPaymentMethodType()));
-			modelOrder.setShippingModuleCode(order.getShippingModule());
-			modelOrder.setCustomerAgreement(order.isCustomerAgreed());
-			modelOrder.setLocale(LocaleUtils.getLocale(store));//set the store locale based on the country for order $ formatting
-	
-			List<ShoppingCartItem> shoppingCartItems = order.getShoppingCartItems();
-			Set<OrderProduct> orderProducts = new LinkedHashSet<OrderProduct>();
-			
-			OrderProductPopulator orderProductPopulator = new OrderProductPopulator();
-			orderProductPopulator.setDigitalProductService(digitalProductService);
-			orderProductPopulator.setProductAttributeService(productAttributeService);
-			orderProductPopulator.setProductService(productService);
-			
-			for(ShoppingCartItem item : shoppingCartItems) {
-				OrderProduct orderProduct = new OrderProduct();
-				orderProduct = orderProductPopulator.populate(item, orderProduct , store, language);
-				orderProduct.setOrder(modelOrder);
-				orderProducts.add(orderProduct);
-			}
-			
-			modelOrder.setOrderProducts(orderProducts);
-			
-			OrderTotalSummary summary = order.getOrderTotalSummary();
-			List<com.salesmanager.core.model.order.OrderTotal> totals = summary.getTotals();
-
-			//re-order totals
-			Collections.sort(
-					totals,
-					new Comparator<com.salesmanager.core.model.order.OrderTotal>() {
-					       public int compare(com.salesmanager.core.model.order.OrderTotal x, com.salesmanager.core.model.order.OrderTotal y) {
-					            if(x.getSortOrder()==y.getSortOrder())
-					            	return 0;
-					            return x.getSortOrder() < y.getSortOrder() ? -1 : 1;
-					        }
-				
-			});
-			
-			Set<com.salesmanager.core.model.order.OrderTotal> modelTotals = new LinkedHashSet<com.salesmanager.core.model.order.OrderTotal>();
-			for(com.salesmanager.core.model.order.OrderTotal total : totals) {
-				total.setOrder(modelOrder);
-				modelTotals.add(total);
-			}
-			
-			modelOrder.setOrderTotal(modelTotals);
-			modelOrder.setTotal(order.getOrderTotalSummary().getTotal());
-	
-			//order misc objects
-			modelOrder.setCurrency(store.getCurrency());
-			modelOrder.setMerchant(store);
-
-			
-			
-			//customer object
-			orderCustomer(customer, modelOrder, language);
-			
-			//populate shipping information
-			if(!StringUtils.isBlank(order.getShippingModule())) {
-				modelOrder.setShippingModuleCode(order.getShippingModule());
-			}
-			
-			String paymentType = order.getPaymentMethodType();
-			Payment payment = new Payment();
-			payment.setPaymentType(PaymentType.valueOf(paymentType));
-			payment.setAmount(order.getOrderTotalSummary().getTotal());
-			payment.setModuleName(order.getPaymentModule());
-			payment.setCurrency(modelOrder.getCurrency());
-			
-			if(order.getPayment().get("paymentToken") != null) {// set any tokenization payment token
-				String paymentToken = order.getPayment().get("paymentToken");
-				Map<String,String> paymentMetaData = new HashMap<String,String>();
-				payment.setPaymentMetaData(paymentMetaData);
-				paymentMetaData.put("paymentToken", paymentToken);
-			}
-			
-			
-			if(PaymentType.CREDITCARD.name().equals(paymentType)) {
-				
-				
-				
-				payment = new CreditCardPayment();
-				((CreditCardPayment)payment).setCardOwner(order.getPayment().get("creditcard_card_holder"));
-				((CreditCardPayment)payment).setCredidCardValidationNumber(order.getPayment().get("creditcard_card_cvv"));
-				((CreditCardPayment)payment).setCreditCardNumber(order.getPayment().get("creditcard_card_number"));
-				((CreditCardPayment)payment).setExpirationMonth(order.getPayment().get("creditcard_card_expirationmonth"));
-				((CreditCardPayment)payment).setExpirationYear(order.getPayment().get("creditcard_card_expirationyear"));
-				
-				
-				Map<String,String> paymentMetaData = order.getPayment();
-				payment.setPaymentMetaData(paymentMetaData);
-				
-
-				
-				CreditCardType creditCardType =null;
-				String cardType = order.getPayment().get("creditcard_card_type");
-				
-				
-				if(CreditCardType.AMEX.name().equalsIgnoreCase(cardType)) {
-					creditCardType = CreditCardType.AMEX;
-				} else if(CreditCardType.VISA.name().equalsIgnoreCase(cardType)) {
-					creditCardType = CreditCardType.VISA;
-				} else if(CreditCardType.MASTERCARD.name().equalsIgnoreCase(cardType)) {
-					creditCardType = CreditCardType.MASTERCARD;
-				} else if(CreditCardType.DINERS.name().equalsIgnoreCase(cardType)) {
-					creditCardType = CreditCardType.DINERS;
-				} else if(CreditCardType.DISCOVERY.name().equalsIgnoreCase(cardType)) {
-					creditCardType = CreditCardType.DISCOVERY;
-				}
-	
-				((CreditCardPayment)payment).setCreditCard(creditCardType);
-				
-				if(creditCardType!=null) {
-			
-					CreditCard cc = new CreditCard();
-					cc.setCardType(creditCardType);
-					cc.setCcCvv(((CreditCardPayment)payment).getCredidCardValidationNumber());
-					cc.setCcOwner(((CreditCardPayment)payment).getCardOwner());
-					cc.setCcExpires(((CreditCardPayment)payment).getExpirationMonth() + "-" + ((CreditCardPayment)payment).getExpirationYear());
-				
-					//hash credit card number
-					String maskedNumber = CreditCardUtils.maskCardNumber(order.getPayment().get("creditcard_card_number"));
-					cc.setCcNumber(maskedNumber);
-					modelOrder.setCreditCard(cc);
-				
-				}
-				
-
-			}
-			
-			if(PaymentType.PAYPAL.name().equals(paymentType)) {
-				
-				//check for previous transaction
-				if(transaction==null) {
-					throw new ServiceException("payment.error");
-				}
-				
-				payment = new com.salesmanager.core.model.payments.PaypalPayment();
-				
-				((com.salesmanager.core.model.payments.PaypalPayment)payment).setPayerId(transaction.getTransactionDetails().get("PAYERID"));
-				((com.salesmanager.core.model.payments.PaypalPayment)payment).setPaymentToken(transaction.getTransactionDetails().get("TOKEN"));
-				
-				
-			}
-			
-
-			modelOrder.setPaymentModuleCode(order.getPaymentModule());
-			payment.setModuleName(order.getPaymentModule());
-
-			if(transaction!=null) {
-				orderService.processOrder(modelOrder, customer, order.getShoppingCartItems(), summary, payment, store);
+		
+		
+		Order modelOrder = orderService.getById(orderId);
+		if(modelOrder==null) {
+			throw new Exception("Order not found with id " + orderId);
+		}
+		
+		ReadableOrder readableOrder = new ReadableOrder();
+		
+		Long customerId = modelOrder.getCustomerId();
+		if(customerId != null) {
+			ReadableCustomer readableCustomer = customerFacade.getCustomerById(customerId, store, language);
+			if(readableCustomer==null) {
+				LOGGER.warn("Customer id " + customerId + " not found in order " + orderId);
 			} else {
-				orderService.processOrder(modelOrder, customer, order.getShoppingCartItems(), summary, payment, transaction, store);
+				readableOrder.setCustomer(readableCustomer);
 			}
-			
-
-			
-			return modelOrder;
-		
-		} catch(ServiceException se) {//may be invalid credit card
-			throw se;
-		} catch(Exception e) {
-			throw new ServiceException(e);
 		}
+		
+		ReadableOrderPopulator orderPopulator = new ReadableOrderPopulator();
+		orderPopulator.populate(modelOrder, readableOrder,  store, language);
+		
+		//order products
+		List<ReadableOrderProduct> orderProducts = new ArrayList<ReadableOrderProduct>();
+		for(OrderProduct p : modelOrder.getOrderProducts()) {
+			ReadableOrderProductPopulator orderProductPopulator = new ReadableOrderProductPopulator();
+			orderProductPopulator.setProductService(productService);
+			orderProductPopulator.setPricingService(pricingService);
+			orderProductPopulator.setimageUtils(imageUtils);
+			
+			ReadableOrderProduct orderProduct = new ReadableOrderProduct();
+			orderProductPopulator.populate(p, orderProduct, store, language);
+			orderProducts.add(orderProduct);
+		}
+		
+		readableOrder.setProducts(orderProducts);
+		
+		return readableOrder;
+	}
+	
+	@Override
+	public ReadableOrderList getReadableOrderList(MerchantStore store,
+			Customer customer, int start, int maxCount, Language language) throws Exception {
+		
+		OrderCriteria criteria = new OrderCriteria();
+		criteria.setStartIndex(start);
+		criteria.setMaxCount(maxCount);
+		criteria.setCustomerId(customer.getId());
+
+		return this.getReadableOrderList(criteria, store, language);
 		
 	}
 	
-	private void orderCustomer(Customer customer, Order order, Language language) throws Exception {
-
-		//populate customer
-		order.setBilling(customer.getBilling());
-		order.setDelivery(customer.getDelivery());
-		order.setCustomerEmailAddress(customer.getEmailAddress());
-		order.setCustomerId(customer.getId());
-
+	@Override
+	public ReadableOrderList getReadableOrderList(MerchantStore store,
+			int start, int maxCount, Language language) throws Exception {
 		
-		
+		OrderCriteria criteria = new OrderCriteria();
+		criteria.setStartIndex(start);
+		criteria.setMaxCount(maxCount);
+
+		return this.getReadableOrderList(criteria, store, language);
 	}
 
 
-
 	@Override
-	public Customer initEmptyCustomer(MerchantStore store) {
+	public ShippingQuote getShippingQuote(Customer customer, ShoppingCart cart, MerchantStore store, Language language)
+			throws Exception {
 		
-		Customer customer = new Customer();
-		Billing billing = new Billing();
-		billing.setCountry(store.getCountry());
-		billing.setZone(store.getZone());
-		billing.setState(store.getStorestateprovince());
-		/** empty postal code for initial quote **/
-		//billing.setPostalCode(store.getStorepostalcode());
-		customer.setBilling(billing);
+		Validate.notNull(customer,"Customer cannot be null");
+		Validate.notNull(cart,"cart cannot be null");
+		
+		
+		//create shipping products
+		List<ShippingProduct> shippingProducts = shoppingCartService.createShippingProduct(cart);
+
+		if(CollectionUtils.isEmpty(shippingProducts)) {
+			return null;//products are virtual
+		}
+				
+
 		
 		Delivery delivery = new Delivery();
-		delivery.setCountry(store.getCountry());
-		delivery.setZone(store.getZone());
-		delivery.setState(store.getStorestateprovince());
-		/** empty postal code for initial quote **/
-		//delivery.setPostalCode(store.getStorepostalcode());
-		customer.setDelivery(delivery);
 		
-		return customer;
+		//adjust shipping and billing
+		if(customer.getDelivery() == null || StringUtils.isBlank(customer.getDelivery().getPostalCode())) {
+			Billing billing = customer.getBilling();
+			delivery.setAddress(billing.getAddress());
+			delivery.setCity(billing.getCity());
+			delivery.setCompany(billing.getCompany());
+			delivery.setPostalCode(billing.getPostalCode());
+			delivery.setState(billing.getState());
+			delivery.setCountry(billing.getCountry());
+			delivery.setZone(billing.getZone());
+		} else {
+			delivery = customer.getDelivery();
+		}
+
+		ShippingQuote quote = shippingService.getShippingQuote(cart.getId(), store, delivery, shippingProducts, language);
+		return quote;
 	}
-
-
-
+	
 	@Override
-	public void refreshOrder(ShopOrder order, MerchantStore store,
-			Customer customer, ShoppingCart shoppingCart, Language language)
+	public ShippingQuote getShippingQuote(Customer customer, ShoppingCart cart,
+			PersistableOrder order, MerchantStore store, Language language)
 			throws Exception {
-		if(customer==null && order.getCustomer()!=null) {
-			order.getCustomer().setId(0L);//reset customer id
+		//create shipping products
+		List<ShippingProduct> shippingProducts = shoppingCartService.createShippingProduct(cart);
+
+		if(CollectionUtils.isEmpty(shippingProducts)) {
+			return null;//products are virtual
+		}
+				
+
+		
+		Delivery delivery = new Delivery();
+		
+		//adjust shipping and billing
+		if(order.isShipToBillingAdress()) {
+			Billing billing = customer.getBilling();
+			delivery.setAddress(billing.getAddress());
+			delivery.setCity(billing.getCity());
+			delivery.setCompany(billing.getCompany());
+			delivery.setPostalCode(billing.getPostalCode());
+			delivery.setState(billing.getState());
+			delivery.setCountry(billing.getCountry());
+			delivery.setZone(billing.getZone());
+		} else {
+			delivery = customer.getDelivery();
 		}
 		
-		if(customer!=null) {
-			PersistableCustomer persistableCustomer = persistableCustomer(customer, store, language);
-			order.setCustomer(persistableCustomer);
-		}
 		
-		List<ShoppingCartItem> items = new ArrayList<ShoppingCartItem>(shoppingCart.getLineItems());
-		order.setShoppingCartItems(items);
 		
-		return;
+		ShippingQuote quote = shippingService.getShippingQuote(cart.getId(), store, delivery, shippingProducts, language);
+
+		return quote;
 	}
 	
 	@Override
@@ -607,26 +448,6 @@ public class OrderFacadeImpl implements OrderFacade {
 
 	}
 	
-	private String validatePostalCode(String postalCode) {
-		
-		String patternString = "__";//this one is set in the template
-		if(postalCode.contains(patternString)) {
-			postalCode = null;
-		}
-		return postalCode;
-	}
-	
-	@Override
-	public List<Country> getShipToCountry(MerchantStore store, Language language) throws Exception {
-		
-		List<Country> shippingCountriesList = shippingService.getShipToCountryList(store, language);
-		return shippingCountriesList;
-		
-	}
-	
-
-
-
 	/**
 	 * ShippingSummary contains the subset of information
 	 * of a ShippingQuote
@@ -660,6 +481,259 @@ public class OrderFacadeImpl implements OrderFacade {
 		
 		return summary;
 	}
+
+
+
+	@Override
+	public List<Country> getShipToCountry(MerchantStore store, Language language) throws Exception {
+		
+		List<Country> shippingCountriesList = shippingService.getShipToCountryList(store, language);
+		return shippingCountriesList;
+		
+	}
+
+
+
+	@Override
+	public Customer initEmptyCustomer(MerchantStore store) {
+		
+		Customer customer = new Customer();
+		Billing billing = new Billing();
+		billing.setCountry(store.getCountry());
+		billing.setZone(store.getZone());
+		billing.setState(store.getStorestateprovince());
+		/** empty postal code for initial quote **/
+		//billing.setPostalCode(store.getStorepostalcode());
+		customer.setBilling(billing);
+		
+		Delivery delivery = new Delivery();
+		delivery.setCountry(store.getCountry());
+		delivery.setZone(store.getZone());
+		delivery.setState(store.getStorestateprovince());
+		/** empty postal code for initial quote **/
+		//delivery.setPostalCode(store.getStorepostalcode());
+		customer.setDelivery(delivery);
+		
+		return customer;
+	}
+	
+	@Override
+	public ShopOrder initializeOrder(MerchantStore store, Customer customer,
+			ShoppingCart shoppingCart, Language language) throws Exception {
+
+		//assert not null shopping cart items
+		
+		ShopOrder order = new ShopOrder();
+		
+		OrderStatus orderStatus = OrderStatus.ORDERED;
+		order.setOrderStatus(orderStatus);
+		
+		if(customer==null) {
+				customer = this.initEmptyCustomer(store);
+		}
+		
+		PersistableCustomer persistableCustomer = persistableCustomer(customer, store, language);
+		order.setCustomer(persistableCustomer);
+
+		//keep list of shopping cart items for core price calculation
+		List<ShoppingCartItem> items = new ArrayList<ShoppingCartItem>(shoppingCart.getLineItems());
+		order.setShoppingCartItems(items);
+		
+		return order;
+	}
+	
+	@Override
+	public Order processOrder(PersistableOrderApi order, Customer customer, MerchantStore store, Language language, Locale locale)
+			throws ServiceException {
+
+		PersistableOrderApiPopulator populator = new PersistableOrderApiPopulator();
+		populator.setCurrencyService(currencyService);
+		populator.setCustomerService(customerService);
+		populator.setDigitalProductService(digitalProductService);
+		populator.setProductAttributeService(productAttributeService);
+		populator.setProductService(productService);
+		populator.setShoppingCartService(shoppingCartService);
+		
+		
+		try {
+			
+			Order modelOrder = new Order();
+			populator.populate(order, modelOrder,store, language);
+			
+			Long shoppingCartId = order.getShoppingCartId();
+			ShoppingCart cart = shoppingCartService.getById(shoppingCartId, store);
+			
+			if(cart == null) {
+				throw new ServiceException("Shopping cart with id " + shoppingCartId + " does not exist");
+			}
+
+			Set<ShoppingCartItem> shoppingCartItems = cart.getLineItems();
+			
+			List<ShoppingCartItem> items = new ArrayList<ShoppingCartItem>(shoppingCartItems);
+			
+			Set<OrderProduct> orderProducts = new LinkedHashSet<OrderProduct>();
+			
+			OrderProductPopulator orderProductPopulator = new OrderProductPopulator();
+			orderProductPopulator.setDigitalProductService(digitalProductService);
+			orderProductPopulator.setProductAttributeService(productAttributeService);
+			orderProductPopulator.setProductService(productService);
+			
+			for(ShoppingCartItem item : shoppingCartItems) {
+				OrderProduct orderProduct = new OrderProduct();
+				orderProduct = orderProductPopulator.populate(item, orderProduct , store, language);
+				orderProduct.setOrder(modelOrder);
+				orderProducts.add(orderProduct);
+			}
+			
+			modelOrder.setOrderProducts(orderProducts);
+			
+			if(order.getAttributes() != null && order.getAttributes().size() > 0) {
+				Set<OrderAttribute> attrs = new HashSet<OrderAttribute>();
+				for(com.salesmanager.shop.model.order.OrderAttribute attribute : order.getAttributes()) {
+					OrderAttribute attr = new OrderAttribute();
+					attr.setKey(attribute.getKey());
+					attr.setValue(attribute.getValue());
+					attr.setOrder(modelOrder);
+					attrs.add(attr);
+				}
+				modelOrder.setOrderAttributes(attrs);
+			}
+			
+			//requires Shipping information (need a quote id calculated)
+			ShippingSummary shippingSummary = null;
+			
+			//get shipping quote if asked for
+			if(order.getShippingQuote()!=null && order.getShippingQuote().longValue()>0) {
+				shippingSummary = shippingQuoteService.getShippingSummary(order.getShippingQuote(), store);
+				if(shippingSummary != null) {
+					modelOrder.setShippingModuleCode(shippingSummary.getShippingModule());
+				}
+			}
+			
+			//requires Order Totals, this needs recalculation and then compare total with the amount sent as part
+			//of process order request. If totals does not match, an error should be thrown.
+			
+			OrderTotalSummary orderTotalSummary = null;
+			
+			OrderSummary orderSummary = new OrderSummary();
+			orderSummary.setShippingSummary(shippingSummary);
+	    	List<ShoppingCartItem> itemsSet = new ArrayList<ShoppingCartItem>(cart.getLineItems());
+	    	orderSummary.setProducts(itemsSet);
+			
+			orderTotalSummary = orderService.caculateOrderTotal(orderSummary, customer, store, language);
+			
+			if(order.getPayment().getAmount()==null) {
+				throw new ConversionException("Requires Payment.amount");
+			}
+			
+			String submitedAmount = order.getPayment().getAmount();
+			
+			
+			BigDecimal calculatedAmount = orderTotalSummary.getTotal();
+			String strCalculatedTotal = pricingService.getStringAmount(calculatedAmount, store);
+			
+			//compare both prices
+			if(!submitedAmount.equals(strCalculatedTotal)) {
+				throw new ConversionException("Payment.amount does not match what the system has calculated " + strCalculatedTotal + " please recalculate the order and submit again");
+			}
+			
+			modelOrder.setTotal(calculatedAmount);
+			List<com.salesmanager.core.model.order.OrderTotal> totals = orderTotalSummary.getTotals();
+			Set<com.salesmanager.core.model.order.OrderTotal> set = new HashSet<com.salesmanager.core.model.order.OrderTotal>();
+			
+			if(!CollectionUtils.isEmpty(totals)) {
+				for(com.salesmanager.core.model.order.OrderTotal total : totals) {
+					total.setOrder(modelOrder);
+					set.add(total);
+				}	
+			}
+			modelOrder.setOrderTotal(set);
+			
+			PersistablePaymentPopulator paymentPopulator = new PersistablePaymentPopulator();
+			paymentPopulator.setPricingService(pricingService);
+			Payment paymentModel = new Payment();
+			paymentPopulator.populate(order.getPayment(), paymentModel,  store, language);
+
+			modelOrder = orderService.processOrder(modelOrder, customer, items, orderTotalSummary, paymentModel, store);
+			
+			
+			//delete cart
+			try {
+				shoppingCartFacade.deleteShoppingCart(cart.getShoppingCartCode(), store);
+			} catch(Exception e) {
+				LOGGER.error("Cannot delete cart " + cart.getId(), e);
+			}
+			
+			if("true".equals(coreConfiguration.getProperty("ORDER_EMAIL_API"))) {
+				//send email
+				try {
+					
+					//send order confirmation email to customer
+					emailTemplatesUtils.sendOrderEmail(customer.getEmailAddress(), customer, modelOrder, locale, language, store, coreConfiguration.getProperty("CONTEXT_PATH"));
+			        
+			        if(orderService.hasDownloadFiles(modelOrder)) {
+			        	emailTemplatesUtils.sendOrderDownloadEmail(customer, modelOrder, store, locale, coreConfiguration.getProperty("CONTEXT_PATH"));
+			        }
+		    		
+					//send order confirmation email to merchant
+					emailTemplatesUtils.sendOrderEmail(store.getStoreEmailAddress(), customer, modelOrder, locale, language, store, coreConfiguration.getProperty("CONTEXT_PATH"));
+			        
+					
+				} catch(Exception e) {
+					LOGGER.error("Cannot send order confirmation email", e);
+				}
+			}
+			
+			return modelOrder;
+			
+		} catch(Exception e) {
+			throw new ServiceException(e);
+		}
+
+	}
+	
+	/**
+	 * Submitted object must be valided prior to the invocation of this method
+	 */
+	@Override
+	public Order processOrder(ShopOrder order, Customer customer, MerchantStore store,
+			Language language) throws ServiceException {
+				
+		return this.processOrderModel(order, customer, null, store, language);
+
+	}
+	
+
+
+
+	@Override
+	public Order processOrder(ShopOrder order, Customer customer, Transaction transaction, MerchantStore store,
+			Language language) throws ServiceException {
+				
+		return this.processOrderModel(order, customer, transaction, store, language);
+
+	}
+
+	@Override
+	public void refreshOrder(ShopOrder order, MerchantStore store,
+			Customer customer, ShoppingCart shoppingCart, Language language)
+			throws Exception {
+		if(customer==null && order.getCustomer()!=null) {
+			order.getCustomer().setId(0L);//reset customer id
+		}
+		
+		if(customer!=null) {
+			PersistableCustomer persistableCustomer = persistableCustomer(customer, store, language);
+			order.setCustomer(persistableCustomer);
+		}
+		
+		List<ShoppingCartItem> items = new ArrayList<ShoppingCartItem>(shoppingCart.getLineItems());
+		order.setShoppingCartItems(items);
+		
+		return;
+	}
+
+
 
 	@Override
 	public void validateOrder(ShopOrder order, BindingResult bindingResult, Map<String,String> messagesResult, MerchantStore store,  Locale locale) throws ServiceException {
@@ -852,60 +926,101 @@ public class OrderFacadeImpl implements OrderFacade {
 
 
 
-	@Override
-	public ReadableOrderList getReadableOrderList(MerchantStore store,
-			Customer customer, int start, int maxCount, Language language) throws Exception {
+	private OrderTotalSummary calculateOrderTotal(MerchantStore store, Customer customer, PersistableOrder order, Language language) throws Exception {
 		
-		OrderCriteria criteria = new OrderCriteria();
-		criteria.setStartIndex(start);
-		criteria.setMaxCount(maxCount);
-		criteria.setCustomerId(customer.getId());
-
-		return this.getReadableOrderList(criteria, store, language);
+		OrderTotalSummary orderTotalSummary = null;
 		
-	}
-
-
-
-	@Override
-	public ShippingQuote getShippingQuote(Customer customer, ShoppingCart cart,
-			PersistableOrder order, MerchantStore store, Language language)
-			throws Exception {
-		//create shipping products
-		List<ShippingProduct> shippingProducts = shoppingCartService.createShippingProduct(cart);
-
-		if(CollectionUtils.isEmpty(shippingProducts)) {
-			return null;//products are virtual
-		}
-				
-
+		OrderSummary summary = new OrderSummary();
 		
-		Delivery delivery = new Delivery();
 		
-		//adjust shipping and billing
-		if(order.isShipToBillingAdress()) {
-			Billing billing = customer.getBilling();
-			delivery.setAddress(billing.getAddress());
-			delivery.setCity(billing.getCity());
-			delivery.setCompany(billing.getCompany());
-			delivery.setPostalCode(billing.getPostalCode());
-			delivery.setState(billing.getState());
-			delivery.setCountry(billing.getCountry());
-			delivery.setZone(billing.getZone());
+		if(order instanceof ShopOrder) {
+			ShopOrder o = (ShopOrder)order;
+			summary.setProducts(o.getShoppingCartItems());
+			
+			if(o.getShippingSummary()!=null) {
+				summary.setShippingSummary(o.getShippingSummary());
+			}
+			orderTotalSummary = orderService.caculateOrderTotal(summary, customer, store, language);
 		} else {
-			delivery = customer.getDelivery();
+			//need Set of ShoppingCartItem
+			//PersistableOrder not implemented
+			throw new Exception("calculateOrderTotal not yet implemented for PersistableOrder");
 		}
-		
-		
-		
-		ShippingQuote quote = shippingService.getShippingQuote(cart.getId(), store, delivery, shippingProducts, language);
 
-		return quote;
+		return orderTotalSummary;
+		
 	}
 	
 	
 
-     private ReadableOrderList populateOrderList(final OrderList orderList,final MerchantStore store, final Language language){
+     private Customer customer(PersistableCustomer customer, MerchantStore store, Language language) throws Exception {
+		CustomerPopulator populator = new CustomerPopulator();
+		populator.setCountryService(countryService);
+		populator.setCustomerOptionService(customerOptionService);
+		populator.setCustomerOptionValueService(customerOptionValueService);
+		populator.setLanguageService(languageService);
+		populator.setZoneService(zoneService);
+		populator.setGroupService(groupService);
+		Customer cust = populator.populate(customer, new Customer(), store, language);
+		return cust;
+		
+	}
+    
+    private ReadableOrderList getReadableOrderList(OrderCriteria criteria, MerchantStore store, Language language) throws Exception {
+		
+		OrderList orderList = orderService.listByStore(store, criteria);
+		
+		ReadableOrderPopulator orderPopulator = new ReadableOrderPopulator();
+		Locale locale = LocaleUtils.getLocale(language);
+		orderPopulator.setLocale(locale);
+		
+		List<Order> orders = orderList.getOrders();
+		ReadableOrderList returnList = new ReadableOrderList();
+		
+		if(CollectionUtils.isEmpty(orders)) {
+			returnList.setTotal(0);
+			returnList.setMessage("No results for store code " + store);
+			return null;
+		}
+
+		List<ReadableOrder> readableOrders = new ArrayList<ReadableOrder>();
+		for (Order order : orders) {
+			ReadableOrder readableOrder = new ReadableOrder();
+			orderPopulator.populate(order,readableOrder,store,language);
+			readableOrders.add(readableOrder);
+			
+		}
+		
+		returnList.setTotal(orderList.getTotalCount());
+		return this.populateOrderList(orderList, store, language);
+    	
+    	
+	}
+
+
+    private void orderCustomer(Customer customer, Order order, Language language) throws Exception {
+
+		//populate customer
+		order.setBilling(customer.getBilling());
+		order.setDelivery(customer.getDelivery());
+		order.setCustomerEmailAddress(customer.getEmailAddress());
+		order.setCustomerId(customer.getId());
+
+		
+		
+	}
+
+	private PersistableCustomer persistableCustomer(Customer customer, MerchantStore store, Language language) throws Exception {
+		
+		PersistableCustomerPopulator customerPopulator = new PersistableCustomerPopulator();
+		PersistableCustomer persistableCustomer = customerPopulator.populate(customer, new PersistableCustomer(), store, language);
+		return persistableCustomer;
+		
+	}
+
+
+
+	private ReadableOrderList populateOrderList(final OrderList orderList,final MerchantStore store, final Language language){
         List<Order> orders = orderList.getOrders();
         ReadableOrderList returnList = new ReadableOrderList();
         if(CollectionUtils.isEmpty( orders)){
@@ -941,8 +1056,195 @@ public class OrderFacadeImpl implements OrderFacade {
         return returnList;
        
     }
-    
-    private void setOrderProductList(final Order order, final Locale locale,final MerchantStore store, final Language language , final ReadableOrder readableOrder) throws ConversionException{
+
+
+	private Order processOrderModel(ShopOrder order, Customer customer, Transaction transaction, MerchantStore store,
+			Language language) throws ServiceException {
+		
+		try {
+			
+			if(order.isShipToBillingAdress()) {//customer shipping is billing
+				PersistableCustomer orderCustomer = order.getCustomer();
+				Address billing = orderCustomer.getBilling();
+				orderCustomer.setDelivery(billing);
+			}
+
+ 
+
+			
+			Order modelOrder = new Order();
+			modelOrder.setDatePurchased(new Date());
+			modelOrder.setBilling(customer.getBilling());
+			modelOrder.setDelivery(customer.getDelivery());
+			modelOrder.setPaymentModuleCode(order.getPaymentModule());
+			modelOrder.setPaymentType(PaymentType.valueOf(order.getPaymentMethodType()));
+			modelOrder.setShippingModuleCode(order.getShippingModule());
+			modelOrder.setCustomerAgreement(order.isCustomerAgreed());
+			modelOrder.setLocale(LocaleUtils.getLocale(store));//set the store locale based on the country for order $ formatting
+	
+			List<ShoppingCartItem> shoppingCartItems = order.getShoppingCartItems();
+			Set<OrderProduct> orderProducts = new LinkedHashSet<OrderProduct>();
+			
+			OrderProductPopulator orderProductPopulator = new OrderProductPopulator();
+			orderProductPopulator.setDigitalProductService(digitalProductService);
+			orderProductPopulator.setProductAttributeService(productAttributeService);
+			orderProductPopulator.setProductService(productService);
+			
+			for(ShoppingCartItem item : shoppingCartItems) {
+				OrderProduct orderProduct = new OrderProduct();
+				orderProduct = orderProductPopulator.populate(item, orderProduct , store, language);
+				orderProduct.setOrder(modelOrder);
+				orderProducts.add(orderProduct);
+			}
+			
+			modelOrder.setOrderProducts(orderProducts);
+			
+			OrderTotalSummary summary = order.getOrderTotalSummary();
+			List<com.salesmanager.core.model.order.OrderTotal> totals = summary.getTotals();
+
+			//re-order totals
+			Collections.sort(
+					totals,
+					new Comparator<com.salesmanager.core.model.order.OrderTotal>() {
+					       public int compare(com.salesmanager.core.model.order.OrderTotal x, com.salesmanager.core.model.order.OrderTotal y) {
+					            if(x.getSortOrder()==y.getSortOrder())
+					            	return 0;
+					            return x.getSortOrder() < y.getSortOrder() ? -1 : 1;
+					        }
+				
+			});
+			
+			Set<com.salesmanager.core.model.order.OrderTotal> modelTotals = new LinkedHashSet<com.salesmanager.core.model.order.OrderTotal>();
+			for(com.salesmanager.core.model.order.OrderTotal total : totals) {
+				total.setOrder(modelOrder);
+				modelTotals.add(total);
+			}
+			
+			modelOrder.setOrderTotal(modelTotals);
+			modelOrder.setTotal(order.getOrderTotalSummary().getTotal());
+	
+			//order misc objects
+			modelOrder.setCurrency(store.getCurrency());
+			modelOrder.setMerchant(store);
+
+			
+			
+			//customer object
+			orderCustomer(customer, modelOrder, language);
+			
+			//populate shipping information
+			if(!StringUtils.isBlank(order.getShippingModule())) {
+				modelOrder.setShippingModuleCode(order.getShippingModule());
+			}
+			
+			String paymentType = order.getPaymentMethodType();
+			Payment payment = new Payment();
+			payment.setPaymentType(PaymentType.valueOf(paymentType));
+			payment.setAmount(order.getOrderTotalSummary().getTotal());
+			payment.setModuleName(order.getPaymentModule());
+			payment.setCurrency(modelOrder.getCurrency());
+			
+			if(order.getPayment().get("paymentToken") != null) {// set any tokenization payment token
+				String paymentToken = order.getPayment().get("paymentToken");
+				Map<String,String> paymentMetaData = new HashMap<String,String>();
+				payment.setPaymentMetaData(paymentMetaData);
+				paymentMetaData.put("paymentToken", paymentToken);
+			}
+			
+			
+			if(PaymentType.CREDITCARD.name().equals(paymentType)) {
+				
+				
+				
+				payment = new CreditCardPayment();
+				((CreditCardPayment)payment).setCardOwner(order.getPayment().get("creditcard_card_holder"));
+				((CreditCardPayment)payment).setCredidCardValidationNumber(order.getPayment().get("creditcard_card_cvv"));
+				((CreditCardPayment)payment).setCreditCardNumber(order.getPayment().get("creditcard_card_number"));
+				((CreditCardPayment)payment).setExpirationMonth(order.getPayment().get("creditcard_card_expirationmonth"));
+				((CreditCardPayment)payment).setExpirationYear(order.getPayment().get("creditcard_card_expirationyear"));
+				
+				
+				Map<String,String> paymentMetaData = order.getPayment();
+				payment.setPaymentMetaData(paymentMetaData);
+				
+
+				
+				CreditCardType creditCardType =null;
+				String cardType = order.getPayment().get("creditcard_card_type");
+				
+				
+				if(CreditCardType.AMEX.name().equalsIgnoreCase(cardType)) {
+					creditCardType = CreditCardType.AMEX;
+				} else if(CreditCardType.VISA.name().equalsIgnoreCase(cardType)) {
+					creditCardType = CreditCardType.VISA;
+				} else if(CreditCardType.MASTERCARD.name().equalsIgnoreCase(cardType)) {
+					creditCardType = CreditCardType.MASTERCARD;
+				} else if(CreditCardType.DINERS.name().equalsIgnoreCase(cardType)) {
+					creditCardType = CreditCardType.DINERS;
+				} else if(CreditCardType.DISCOVERY.name().equalsIgnoreCase(cardType)) {
+					creditCardType = CreditCardType.DISCOVERY;
+				}
+	
+				((CreditCardPayment)payment).setCreditCard(creditCardType);
+				
+				if(creditCardType!=null) {
+			
+					CreditCard cc = new CreditCard();
+					cc.setCardType(creditCardType);
+					cc.setCcCvv(((CreditCardPayment)payment).getCredidCardValidationNumber());
+					cc.setCcOwner(((CreditCardPayment)payment).getCardOwner());
+					cc.setCcExpires(((CreditCardPayment)payment).getExpirationMonth() + "-" + ((CreditCardPayment)payment).getExpirationYear());
+				
+					//hash credit card number
+					String maskedNumber = CreditCardUtils.maskCardNumber(order.getPayment().get("creditcard_card_number"));
+					cc.setCcNumber(maskedNumber);
+					modelOrder.setCreditCard(cc);
+				
+				}
+				
+
+			}
+			
+			if(PaymentType.PAYPAL.name().equals(paymentType)) {
+				
+				//check for previous transaction
+				if(transaction==null) {
+					throw new ServiceException("payment.error");
+				}
+				
+				payment = new com.salesmanager.core.model.payments.PaypalPayment();
+				
+				((com.salesmanager.core.model.payments.PaypalPayment)payment).setPayerId(transaction.getTransactionDetails().get("PAYERID"));
+				((com.salesmanager.core.model.payments.PaypalPayment)payment).setPaymentToken(transaction.getTransactionDetails().get("TOKEN"));
+				
+				
+			}
+			
+
+			modelOrder.setPaymentModuleCode(order.getPaymentModule());
+			payment.setModuleName(order.getPaymentModule());
+
+			if(transaction!=null) {
+				orderService.processOrder(modelOrder, customer, order.getShoppingCartItems(), summary, payment, store);
+			} else {
+				orderService.processOrder(modelOrder, customer, order.getShoppingCartItems(), summary, payment, transaction, store);
+			}
+			
+
+			
+			return modelOrder;
+		
+		} catch(ServiceException se) {//may be invalid credit card
+			throw se;
+		} catch(Exception e) {
+			throw new ServiceException(e);
+		}
+		
+	}
+
+
+
+	private void setOrderProductList(final Order order, final Locale locale,final MerchantStore store, final Language language , final ReadableOrder readableOrder) throws ConversionException{
         List<ReadableOrderProduct> orderProducts = new ArrayList<ReadableOrderProduct>();
         for(OrderProduct p : order.getOrderProducts()) {
             ReadableOrderProductPopulator orderProductPopulator = new ReadableOrderProductPopulator();
@@ -966,334 +1268,32 @@ public class OrderFacadeImpl implements OrderFacade {
     }
 
 
-    private ReadableOrderList getReadableOrderList(OrderCriteria criteria, MerchantStore store, Language language) throws Exception {
-		
-		OrderList orderList = orderService.listByStore(store, criteria);
-		
-		ReadableOrderPopulator orderPopulator = new ReadableOrderPopulator();
-		Locale locale = LocaleUtils.getLocale(language);
-		orderPopulator.setLocale(locale);
-		
-		List<Order> orders = orderList.getOrders();
-		ReadableOrderList returnList = new ReadableOrderList();
-		
-		if(CollectionUtils.isEmpty(orders)) {
-			returnList.setTotal(0);
-			returnList.setMessage("No results for store code " + store);
-			return null;
-		}
 
-		List<ReadableOrder> readableOrders = new ArrayList<ReadableOrder>();
-		for (Order order : orders) {
-			ReadableOrder readableOrder = new ReadableOrder();
-			orderPopulator.populate(order,readableOrder,store,language);
-			readableOrders.add(readableOrder);
-			
+	private void setOrderTotals(OrderEntity order, OrderTotalSummary summary) {
+		
+		List<OrderTotal> totals = new ArrayList<OrderTotal>();
+		List<com.salesmanager.core.model.order.OrderTotal> orderTotals = summary.getTotals();
+		for(com.salesmanager.core.model.order.OrderTotal t : orderTotals) {
+			OrderTotal total = new OrderTotal();
+			total.setCode(t.getOrderTotalCode());
+			total.setTitle(t.getTitle());
+			total.setValue(t.getValue());
+			totals.add(total);
 		}
 		
-		returnList.setTotal(orderList.getTotalCount());
-		return this.populateOrderList(orderList, store, language);
-    	
-    	
-	}
-
-	@Override
-	public ReadableOrderList getReadableOrderList(MerchantStore store,
-			int start, int maxCount, Language language) throws Exception {
+		order.setTotals(totals);
 		
-		OrderCriteria criteria = new OrderCriteria();
-		criteria.setStartIndex(start);
-		criteria.setMaxCount(maxCount);
-
-		return this.getReadableOrderList(criteria, store, language);
 	}
 
 
 
-	@Override
-	public ReadableOrder getReadableOrder(Long orderId, MerchantStore store,
-			Language language) throws Exception {
+	private String validatePostalCode(String postalCode) {
 		
-		
-		
-		Order modelOrder = orderService.getById(orderId);
-		if(modelOrder==null) {
-			throw new Exception("Order not found with id " + orderId);
+		String patternString = "__";//this one is set in the template
+		if(postalCode.contains(patternString)) {
+			postalCode = null;
 		}
-		
-		ReadableOrder readableOrder = new ReadableOrder();
-		
-		Long customerId = modelOrder.getCustomerId();
-		if(customerId != null) {
-			ReadableCustomer readableCustomer = customerFacade.getCustomerById(customerId, store, language);
-			if(readableCustomer==null) {
-				LOGGER.warn("Customer id " + customerId + " not found in order " + orderId);
-			} else {
-				readableOrder.setCustomer(readableCustomer);
-			}
-		}
-		
-		ReadableOrderPopulator orderPopulator = new ReadableOrderPopulator();
-		orderPopulator.populate(modelOrder, readableOrder,  store, language);
-		
-		//order products
-		List<ReadableOrderProduct> orderProducts = new ArrayList<ReadableOrderProduct>();
-		for(OrderProduct p : modelOrder.getOrderProducts()) {
-			ReadableOrderProductPopulator orderProductPopulator = new ReadableOrderProductPopulator();
-			orderProductPopulator.setProductService(productService);
-			orderProductPopulator.setPricingService(pricingService);
-			orderProductPopulator.setimageUtils(imageUtils);
-			
-			ReadableOrderProduct orderProduct = new ReadableOrderProduct();
-			orderProductPopulator.populate(p, orderProduct, store, language);
-			orderProducts.add(orderProduct);
-		}
-		
-		readableOrder.setProducts(orderProducts);
-		
-		return readableOrder;
-	}
-
-
-	@Override
-	public ShippingQuote getShippingQuote(Customer customer, ShoppingCart cart, MerchantStore store, Language language)
-			throws Exception {
-		
-		Validate.notNull(customer,"Customer cannot be null");
-		Validate.notNull(cart,"cart cannot be null");
-		
-		
-		//create shipping products
-		List<ShippingProduct> shippingProducts = shoppingCartService.createShippingProduct(cart);
-
-		if(CollectionUtils.isEmpty(shippingProducts)) {
-			return null;//products are virtual
-		}
-				
-
-		
-		Delivery delivery = new Delivery();
-		
-		//adjust shipping and billing
-		if(customer.getDelivery() == null || StringUtils.isBlank(customer.getDelivery().getPostalCode())) {
-			Billing billing = customer.getBilling();
-			delivery.setAddress(billing.getAddress());
-			delivery.setCity(billing.getCity());
-			delivery.setCompany(billing.getCompany());
-			delivery.setPostalCode(billing.getPostalCode());
-			delivery.setState(billing.getState());
-			delivery.setCountry(billing.getCountry());
-			delivery.setZone(billing.getZone());
-		} else {
-			delivery = customer.getDelivery();
-		}
-
-		ShippingQuote quote = shippingService.getShippingQuote(cart.getId(), store, delivery, shippingProducts, language);
-		return quote;
-	}
-
-
-
-	@Override
-	public Order processOrder(PersistableOrderApi order, Customer customer, MerchantStore store, Language language, Locale locale)
-			throws ServiceException {
-
-		PersistableOrderApiPopulator populator = new PersistableOrderApiPopulator();
-		populator.setCurrencyService(currencyService);
-		populator.setCustomerService(customerService);
-		populator.setDigitalProductService(digitalProductService);
-		populator.setProductAttributeService(productAttributeService);
-		populator.setProductService(productService);
-		populator.setShoppingCartService(shoppingCartService);
-		
-		
-		try {
-			
-			Order modelOrder = new Order();
-			populator.populate(order, modelOrder,store, language);
-			
-			Long shoppingCartId = order.getShoppingCartId();
-			ShoppingCart cart = shoppingCartService.getById(shoppingCartId, store);
-			
-			if(cart == null) {
-				throw new ServiceException("Shopping cart with id " + shoppingCartId + " does not exist");
-			}
-
-			Set<ShoppingCartItem> shoppingCartItems = cart.getLineItems();
-			
-			List<ShoppingCartItem> items = new ArrayList<ShoppingCartItem>(shoppingCartItems);
-			
-			Set<OrderProduct> orderProducts = new LinkedHashSet<OrderProduct>();
-			
-			OrderProductPopulator orderProductPopulator = new OrderProductPopulator();
-			orderProductPopulator.setDigitalProductService(digitalProductService);
-			orderProductPopulator.setProductAttributeService(productAttributeService);
-			orderProductPopulator.setProductService(productService);
-			
-			for(ShoppingCartItem item : shoppingCartItems) {
-				OrderProduct orderProduct = new OrderProduct();
-				orderProduct = orderProductPopulator.populate(item, orderProduct , store, language);
-				orderProduct.setOrder(modelOrder);
-				orderProducts.add(orderProduct);
-			}
-			
-			modelOrder.setOrderProducts(orderProducts);
-			
-			if(order.getAttributes() != null && order.getAttributes().size() > 0) {
-				Set<OrderAttribute> attrs = new HashSet<OrderAttribute>();
-				for(com.salesmanager.shop.model.order.OrderAttribute attribute : order.getAttributes()) {
-					OrderAttribute attr = new OrderAttribute();
-					attr.setKey(attribute.getKey());
-					attr.setValue(attribute.getValue());
-					attr.setOrder(modelOrder);
-					attrs.add(attr);
-				}
-				modelOrder.setOrderAttributes(attrs);
-			}
-			
-			//requires Shipping information (need a quote id calculated)
-			ShippingSummary shippingSummary = null;
-			
-			//get shipping quote if asked for
-			if(order.getShippingQuote()!=null && order.getShippingQuote().longValue()>0) {
-				shippingSummary = shippingQuoteService.getShippingSummary(order.getShippingQuote(), store);
-				if(shippingSummary != null) {
-					modelOrder.setShippingModuleCode(shippingSummary.getShippingModule());
-				}
-			}
-			
-			//requires Order Totals, this needs recalculation and then compare total with the amount sent as part
-			//of process order request. If totals does not match, an error should be thrown.
-			
-			OrderTotalSummary orderTotalSummary = null;
-			
-			OrderSummary orderSummary = new OrderSummary();
-			orderSummary.setShippingSummary(shippingSummary);
-	    	List<ShoppingCartItem> itemsSet = new ArrayList<ShoppingCartItem>(cart.getLineItems());
-	    	orderSummary.setProducts(itemsSet);
-			
-			orderTotalSummary = orderService.caculateOrderTotal(orderSummary, customer, store, language);
-			
-			if(order.getPayment().getAmount()==null) {
-				throw new ConversionException("Requires Payment.amount");
-			}
-			
-			String submitedAmount = order.getPayment().getAmount();
-			
-			
-			BigDecimal calculatedAmount = orderTotalSummary.getTotal();
-			String strCalculatedTotal = pricingService.getStringAmount(calculatedAmount, store);
-			
-			//compare both prices
-			if(!submitedAmount.equals(strCalculatedTotal)) {
-				throw new ConversionException("Payment.amount does not match what the system has calculated " + strCalculatedTotal + " please recalculate the order and submit again");
-			}
-			
-			modelOrder.setTotal(calculatedAmount);
-			List<com.salesmanager.core.model.order.OrderTotal> totals = orderTotalSummary.getTotals();
-			Set<com.salesmanager.core.model.order.OrderTotal> set = new HashSet<com.salesmanager.core.model.order.OrderTotal>();
-			
-			if(!CollectionUtils.isEmpty(totals)) {
-				for(com.salesmanager.core.model.order.OrderTotal total : totals) {
-					total.setOrder(modelOrder);
-					set.add(total);
-				}	
-			}
-			modelOrder.setOrderTotal(set);
-			
-			PersistablePaymentPopulator paymentPopulator = new PersistablePaymentPopulator();
-			paymentPopulator.setPricingService(pricingService);
-			Payment paymentModel = new Payment();
-			paymentPopulator.populate(order.getPayment(), paymentModel,  store, language);
-
-			modelOrder = orderService.processOrder(modelOrder, customer, items, orderTotalSummary, paymentModel, store);
-			
-			
-			//delete cart
-			try {
-				shoppingCartFacade.deleteShoppingCart(cart.getShoppingCartCode(), store);
-			} catch(Exception e) {
-				LOGGER.error("Cannot delete cart " + cart.getId(), e);
-			}
-			
-			if("true".equals(coreConfiguration.getProperty("ORDER_EMAIL_API"))) {
-				//send email
-				try {
-					
-					//send order confirmation email to customer
-					emailTemplatesUtils.sendOrderEmail(customer.getEmailAddress(), customer, modelOrder, locale, language, store, coreConfiguration.getProperty("CONTEXT_PATH"));
-			        
-			        if(orderService.hasDownloadFiles(modelOrder)) {
-			        	emailTemplatesUtils.sendOrderDownloadEmail(customer, modelOrder, store, locale, coreConfiguration.getProperty("CONTEXT_PATH"));
-			        }
-		    		
-					//send order confirmation email to merchant
-					emailTemplatesUtils.sendOrderEmail(store.getStoreEmailAddress(), customer, modelOrder, locale, language, store, coreConfiguration.getProperty("CONTEXT_PATH"));
-			        
-					
-				} catch(Exception e) {
-					LOGGER.error("Cannot send order confirmation email", e);
-				}
-			}
-			
-			return modelOrder;
-			
-		} catch(Exception e) {
-			throw new ServiceException(e);
-		}
-
-	}
-
-
-
-	@Override
-	public ReadableOrderList getCapturableOrderList(MerchantStore store, Date startDate, Date endDate,
-			Language language) throws Exception {
-		
-		//get all transactions for the given date
-		List<Order> orders = orderService.getCapturableOrders(store, startDate, endDate);
-		
-		ReadableOrderPopulator orderPopulator = new ReadableOrderPopulator();
-		Locale locale = LocaleUtils.getLocale(language);
-		orderPopulator.setLocale(locale);
-
-		ReadableOrderList returnList = new ReadableOrderList();
-		
-		if(CollectionUtils.isEmpty(orders)) {
-			returnList.setTotal(0);
-			returnList.setMessage("No results for store code " + store);
-			return null;
-		}
-
-		List<ReadableOrder> readableOrders = new ArrayList<ReadableOrder>();
-		for (Order order : orders) {
-			ReadableOrder readableOrder = new ReadableOrder();
-			orderPopulator.populate(order,readableOrder,store,language);
-			readableOrders.add(readableOrder);
-			
-		}
-		
-		returnList.setTotal(orders.size());
-		returnList.setOrders(readableOrders);
-
-		return returnList;
-	}
-
-
-
-	@Override
-	public ReadableTransaction captureOrder(MerchantStore store, Order order, Customer customer, Language language) throws Exception {
-		Transaction transactionModel = paymentService.processCapturePayment(order, customer, store);
-		
-		ReadableTransaction transaction = new ReadableTransaction();
-		ReadableTransactionPopulator trxPopulator = new ReadableTransactionPopulator();
-		trxPopulator.setOrderService(orderService);
-		trxPopulator.setPricingService(pricingService);
-		
-		trxPopulator.populate(transactionModel, transaction, store, language);
-
-		return transaction;
-
+		return postalCode;
 	}
 
 }

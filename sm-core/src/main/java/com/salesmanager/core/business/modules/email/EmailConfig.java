@@ -15,6 +15,87 @@ public class EmailConfig implements JSONAware {
 	
 	private String emailTemplatesPath = null;
 	
+	public String getEmailTemplatesPath() {
+		return emailTemplatesPath;
+	}
+	
+	
+
+	public String getHost() {
+		return host;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public String getPort() {
+		return port;
+	}
+	public String getProtocol() {
+		return protocol;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public boolean isSmtpAuth() {
+		return smtpAuth;
+	}
+
+
+
+	public boolean isStarttls() {
+		return starttls;
+	}
+
+
+
+	public void setEmailTemplatesPath(String emailTemplatesPath) {
+		this.emailTemplatesPath = emailTemplatesPath;
+	}
+
+
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+
+
+
+	public void setSmtpAuth(boolean smtpAuth) {
+		this.smtpAuth = smtpAuth;
+	}
+
+
+
+	public void setStarttls(boolean starttls) {
+		this.starttls = starttls;
+	}
+
+
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public String toJSONString() {
@@ -27,87 +108,6 @@ public class EmailConfig implements JSONAware {
 		data.put("starttls", this.isStarttls());
 		data.put("password", this.getPassword());
 		return data.toJSONString();
-	}
-	
-	
-
-	public boolean isSmtpAuth() {
-		return smtpAuth;
-	}
-	public void setSmtpAuth(boolean smtpAuth) {
-		this.smtpAuth = smtpAuth;
-	}
-	public boolean isStarttls() {
-		return starttls;
-	}
-	public void setStarttls(boolean starttls) {
-		this.starttls = starttls;
-	}
-	public void setEmailTemplatesPath(String emailTemplatesPath) {
-		this.emailTemplatesPath = emailTemplatesPath;
-	}
-	public String getEmailTemplatesPath() {
-		return emailTemplatesPath;
-	}
-
-
-
-	public String getHost() {
-		return host;
-	}
-
-
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-
-
-	public String getPort() {
-		return port;
-	}
-
-
-
-	public void setPort(String port) {
-		this.port = port;
-	}
-
-
-
-	public String getProtocol() {
-		return protocol;
-	}
-
-
-
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
-
-
-
-	public String getUsername() {
-		return username;
-	}
-
-
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-
-
-	public String getPassword() {
-		return password;
-	}
-
-
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 }

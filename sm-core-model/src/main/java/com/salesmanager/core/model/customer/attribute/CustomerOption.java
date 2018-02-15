@@ -77,42 +77,23 @@ public class CustomerOption extends SalesManagerEntity<Long, CustomerOption> {
 	
 
 	
+	public String getCode() {
+		return code;
+	}
+
+	public String getCustomerOptionType() {
+		return customerOptionType;
+	}
+
 	public Set<CustomerOptionDescription> getDescriptions() {
 		return descriptions;
 	}
-
-	public void setDescriptions(Set<CustomerOptionDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-
-	@Override
-	public Long getId() {
-		return id;
-	}
 	
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-
-
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
-	}
-
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
-	}
-
-	public void setDescriptionsList(List<CustomerOptionDescription> descriptionsList) {
-		this.descriptionsList = descriptionsList;
-	}
-
 	public List<CustomerOptionDescription> getDescriptionsList() {
 		return descriptionsList;
 	}
-	
+
+
 
 	public List<CustomerOptionDescription> getDescriptionsSettoList() {
 		if(descriptionsList==null || descriptionsList.size()==0) {
@@ -122,32 +103,26 @@ public class CustomerOption extends SalesManagerEntity<Long, CustomerOption> {
 
 	}
 
-	public String getCustomerOptionType() {
-		return customerOptionType;
+	@Override
+	public Long getId() {
+		return id;
 	}
 
-
-
-	public void setCustomerOptionType(String customerOptionType) {
-		this.customerOptionType = customerOptionType;
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
 	}
 
-
-
-	public String getCode() {
-		return code;
+	public Integer getSortOrder() {
+		return sortOrder;
 	}
-
-
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-
+	
 
 	public boolean isActive() {
 		return active;
+	}
+
+	public boolean isPublicOption() {
+		return publicOption;
 	}
 
 
@@ -158,8 +133,39 @@ public class CustomerOption extends SalesManagerEntity<Long, CustomerOption> {
 
 
 
-	public boolean isPublicOption() {
-		return publicOption;
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+
+
+	public void setCustomerOptionType(String customerOptionType) {
+		this.customerOptionType = customerOptionType;
+	}
+
+
+
+	public void setDescriptions(Set<CustomerOptionDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+
+
+	public void setDescriptionsList(List<CustomerOptionDescription> descriptionsList) {
+		this.descriptionsList = descriptionsList;
+	}
+
+
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
 	}
 
 
@@ -172,11 +178,5 @@ public class CustomerOption extends SalesManagerEntity<Long, CustomerOption> {
 
 	public void setSortOrder(Integer sortOrder) {
 		this.sortOrder = sortOrder;
-	}
-
-
-
-	public Integer getSortOrder() {
-		return sortOrder;
 	}
 }

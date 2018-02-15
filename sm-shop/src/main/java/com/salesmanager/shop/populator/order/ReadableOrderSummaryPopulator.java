@@ -27,6 +27,15 @@ public class ReadableOrderSummaryPopulator extends AbstractDataPopulator<OrderTo
 	
 
 
+	public LabelUtils getMessages() {
+		return messages;
+	}
+
+	public PricingService getPricingService() {
+		return pricingService;
+	}
+	
+	
 	@Override
 	public ReadableOrderTotalSummary populate(OrderTotalSummary source, ReadableOrderTotalSummary target,
 			MerchantStore store, Language language) throws ConversionException {
@@ -71,27 +80,18 @@ public class ReadableOrderSummaryPopulator extends AbstractDataPopulator<OrderTo
 		
 	}
 
+	public void setMessages(LabelUtils messages) {
+		this.messages = messages;
+	}
+	
+	public void setPricingService(PricingService pricingService) {
+		this.pricingService = pricingService;
+	}
+
 	@Override
 	protected ReadableOrderTotalSummary createTarget() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-	
-	
-	public PricingService getPricingService() {
-		return pricingService;
-	}
-
-	public void setPricingService(PricingService pricingService) {
-		this.pricingService = pricingService;
-	}
-	
-	public LabelUtils getMessages() {
-		return messages;
-	}
-
-	public void setMessages(LabelUtils messages) {
-		this.messages = messages;
 	}
 
 }

@@ -68,14 +68,12 @@ public class CustomerOptionValue extends SalesManagerEntity<Long, CustomerOption
 	public CustomerOptionValue() {
 	}
 
-	@Override
-	public Long getId() {
-		return id;
+	public String getCode() {
+		return code;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
+	public String getCustomerOptionValueImage() {
+		return customerOptionValueImage;
 	}
 
 
@@ -83,31 +81,32 @@ public class CustomerOptionValue extends SalesManagerEntity<Long, CustomerOption
 		return descriptions;
 	}
 
-	public void setDescriptions(Set<CustomerOptionValueDescription> descriptions) {
-		this.descriptions = descriptions;
+	public List<CustomerOptionValueDescription> getDescriptionsList() {
+		return descriptionsList; 
+	}
+
+	public List<CustomerOptionValueDescription> getDescriptionsSettoList() {
+		if(descriptionsList==null || descriptionsList.size()==0) {
+			descriptionsList = new ArrayList<CustomerOptionValueDescription>(this.getDescriptions());
+		} 
+		return descriptionsList;
+	}
+
+	@Override
+	public Long getId() {
+		return id;
 	}
 
 	public MerchantStore getMerchantStore() {
 		return merchantStore;
 	}
 
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
-	}
-
-	public void setDescriptionsList(List<CustomerOptionValueDescription> descriptionsList) {
-		this.descriptionsList = descriptionsList;
-	}
-
-	public List<CustomerOptionValueDescription> getDescriptionsList() {
-		return descriptionsList; 
+	public Integer getSortOrder() {
+		return sortOrder;
 	}
 	
-	public List<CustomerOptionValueDescription> getDescriptionsSettoList() {
-		if(descriptionsList==null || descriptionsList.size()==0) {
-			descriptionsList = new ArrayList<CustomerOptionValueDescription>(this.getDescriptions());
-		} 
-		return descriptionsList;
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	//public void setImage(MultipartFile image) {
@@ -119,29 +118,30 @@ public class CustomerOptionValue extends SalesManagerEntity<Long, CustomerOption
 	//}
 
 
-	public String getCustomerOptionValueImage() {
-		return customerOptionValueImage;
-	}
-
 	public void setCustomerOptionValueImage(String customerOptionValueImage) {
 		this.customerOptionValueImage = customerOptionValueImage;
 	}
 
-	public String getCode() {
-		return code;
+	public void setDescriptions(Set<CustomerOptionValueDescription> descriptions) {
+		this.descriptions = descriptions;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
+	public void setDescriptionsList(List<CustomerOptionValueDescription> descriptionsList) {
+		this.descriptionsList = descriptionsList;
 	}
 
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
 
 	public void setSortOrder(Integer sortOrder) {
 		this.sortOrder = sortOrder;
-	}
-
-	public Integer getSortOrder() {
-		return sortOrder;
 	}
 	
 

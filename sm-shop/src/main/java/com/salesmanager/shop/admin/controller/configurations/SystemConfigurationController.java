@@ -8,8 +8,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -30,7 +28,7 @@ import com.salesmanager.shop.constants.Constants;
 @Controller
 public class SystemConfigurationController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SystemConfigurationController.class);
+//	private static final Logger LOGGER = LoggerFactory.getLogger(SystemConfigurationController.class);
 	
 	@Inject
 	private MerchantConfigurationService merchantConfigurationService;

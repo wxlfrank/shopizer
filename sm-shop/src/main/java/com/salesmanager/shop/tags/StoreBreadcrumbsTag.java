@@ -29,6 +29,10 @@ public class StoreBreadcrumbsTag extends TagSupport {
 	private Long categoryId = null;
 	private Long productId = null;
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+	
 	public int doStartTag() throws JspException {
 		try {
 
@@ -67,36 +71,32 @@ public class StoreBreadcrumbsTag extends TagSupport {
 		}
 		return SKIP_BODY;
 	}
-	
-	/** only category **/
-	private List<String> parseBreadCrumb(String refContent) throws Exception {
-		
-		/** c:1,2,3 **/
-		String[] categoryComa = refContent.split(":");
-		String[] categoryIds = categoryComa[1].split(",");
-		return new LinkedList(Arrays.asList(categoryIds));
-		
-		
-	}
-
-	public int doEndTag() {
-		return EVAL_PAGE;
-	}
 
 	public Long getCategoryId() {
 		return categoryId;
-	}
-
-	public void setCategoryId(Long categoryId) {
-		this.categoryId = categoryId;
 	}
 
 	public Long getProductId() {
 		return productId;
 	}
 
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
+	}
+
 	public void setProductId(Long productId) {
 		this.productId = productId;
+	}
+
+	/** only category **/
+	private List<String> parseBreadCrumb(String refContent) throws Exception {
+		
+		/** c:1,2,3 **/
+		String[] categoryComa = refContent.split(":");
+		String[] categoryIds = categoryComa[1].split(",");
+		return new LinkedList<String>(Arrays.asList(categoryIds));
+		
+		
 	}
 
 

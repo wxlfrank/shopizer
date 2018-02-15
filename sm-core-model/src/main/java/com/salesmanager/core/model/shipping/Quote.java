@@ -85,105 +85,89 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 	@Embedded
 	private Delivery delivery = null;
 
-	public Long getOrderId() {
-		return orderId;
-	}
-
-	public void setOrderId(Long orderId) {
-		this.orderId = orderId;
+	public Long getCartId() {
+		return cartId;
 	}
 
 	public Long getCustomerId() {
 		return customerId;
 	}
 
-	public void setCustomerId(Long customerId) {
-		this.customerId = customerId;
-	}
-
-	public String getModule() {
-		return module;
-	}
-
-	public void setModule(String module) {
-		this.module = module;
-	}
-
-	public String getOptionName() {
-		return optionName;
-	}
-
-	public void setOptionName(String optionName) {
-		this.optionName = optionName;
-	}
-
-	public String getOptionCode() {
-		return optionCode;
-	}
-
-	public void setOptionCode(String optionCode) {
-		this.optionCode = optionCode;
-	}
-
-	public Date getOptionDeliveryDate() {
-		return optionDeliveryDate;
-	}
-
-	public void setOptionDeliveryDate(Date optionDeliveryDate) {
-		this.optionDeliveryDate = optionDeliveryDate;
-	}
-
-	public Date getOptionShippingDate() {
-		return optionShippingDate;
-	}
-
-	public void setOptionShippingDate(Date optionShippingDate) {
-		this.optionShippingDate = optionShippingDate;
-	}
-
-	public Date getQuoteDate() {
-		return quoteDate;
-	}
-
-	public void setQuoteDate(Date quoteDate) {
-		this.quoteDate = quoteDate;
+	public Delivery getDelivery() {
+		return delivery;
 	}
 
 	public Integer getEstimatedNumberOfDays() {
 		return estimatedNumberOfDays;
 	}
 
-	public void setEstimatedNumberOfDays(Integer estimatedNumberOfDays) {
-		this.estimatedNumberOfDays = estimatedNumberOfDays;
+	public BigDecimal getHandling() {
+		return handling;
+	}
+
+	@Override
+	public Long getId() {
+		return id;
+	}
+
+	public String getModule() {
+		return module;
+	}
+
+	public String getOptionCode() {
+		return optionCode;
+	}
+
+	public Date getOptionDeliveryDate() {
+		return optionDeliveryDate;
+	}
+
+	public String getOptionName() {
+		return optionName;
+	}
+
+	public Date getOptionShippingDate() {
+		return optionShippingDate;
+	}
+
+	public Long getOrderId() {
+		return orderId;
 	}
 
 	public BigDecimal getPrice() {
 		return price;
 	}
 
-	public void setPrice(BigDecimal price) {
-		this.price = price;
+	public Date getQuoteDate() {
+		return quoteDate;
 	}
 
-	public Delivery getDelivery() {
-		return delivery;
+	public boolean isFreeShipping() {
+		return freeShipping;
+	}
+
+	public void setCartId(Long cartId) {
+		this.cartId = cartId;
+	}
+
+	public void setCustomerId(Long customerId) {
+		this.customerId = customerId;
 	}
 
 	public void setDelivery(Delivery delivery) {
 		this.delivery = delivery;
 	}
-	
-	public boolean isFreeShipping() {
-		return freeShipping;
+
+	public void setEstimatedNumberOfDays(Integer estimatedNumberOfDays) {
+		this.estimatedNumberOfDays = estimatedNumberOfDays;
 	}
 
 	public void setFreeShipping(boolean freeShipping) {
 		this.freeShipping = freeShipping;
 	}
-	
-	@Override
-	public Long getId() {
-		return id;
+
+	public void setHandling(BigDecimal handling) {
+		this.handling = handling;
 	}
 
 	@Override
@@ -192,20 +176,36 @@ public class Quote extends SalesManagerEntity<Long, Quote> {
 		
 	}
 	
-	public BigDecimal getHandling() {
-		return handling;
+	public void setModule(String module) {
+		this.module = module;
 	}
 
-	public void setHandling(BigDecimal handling) {
-		this.handling = handling;
+	public void setOptionCode(String optionCode) {
+		this.optionCode = optionCode;
 	}
 	
-	public Long getCartId() {
-		return cartId;
+	public void setOptionDeliveryDate(Date optionDeliveryDate) {
+		this.optionDeliveryDate = optionDeliveryDate;
 	}
 
-	public void setCartId(Long cartId) {
-		this.cartId = cartId;
+	public void setOptionName(String optionName) {
+		this.optionName = optionName;
+	}
+	
+	public void setOptionShippingDate(Date optionShippingDate) {
+		this.optionShippingDate = optionShippingDate;
+	}
+
+	public void setOrderId(Long orderId) {
+		this.orderId = orderId;
+	}
+	
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+
+	public void setQuoteDate(Date quoteDate) {
+		this.quoteDate = quoteDate;
 	}
 	
 

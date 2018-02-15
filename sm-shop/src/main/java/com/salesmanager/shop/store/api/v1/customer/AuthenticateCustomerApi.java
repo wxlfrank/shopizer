@@ -16,7 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,6 +63,64 @@ public class AuthenticateCustomerApi {
 	private LanguageUtils languageUtils;
     
 	/**
+	 * Authenticate a customer using username & password
+	 * @param authenticationRequest
+	 * @param device
+	 * @return
+	 * @throws AuthenticationException
+	 */
+    @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
+    public ResponseEntity<?> authenticate(@RequestBody @Valid AuthenticationRequest authenticationRequest, Device device) throws AuthenticationException {
+
+        // Perform the security
+    	Authentication authentication = null;
+    	try {
+    		
+	
+        		//to be used when username and password are set
+        		authentication = jwtCustomerAuthenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                authenticationRequest.getUsername(),
+                                authenticationRequest.getPassword()
+                        )
+                );
+
+    		
+    	} catch(Exception e) {
+    		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    	}
+    	
+    	if(authentication == null) {
+    		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    	}
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Reload password post-security so we can generate token
+        // todo create one for social
+        final JWTUser userDetails = (JWTUser)jwtCustomerDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        
+        final String token = jwtTokenUtil.generateToken(userDetails, device);
+
+        // Return the token
+        return ResponseEntity.ok(new AuthenticationResponse(userDetails.getId(),token));
+    }
+
+	@RequestMapping(value = "/auth/refresh", method = RequestMethod.GET)
+    public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
+        String token = request.getHeader(tokenHeader);
+        String username = jwtTokenUtil.getUsernameFromToken(token);
+        JWTUser user = (JWTUser) jwtCustomerDetailsService.loadUserByUsername(username);
+
+        if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
+            String refreshedToken = jwtTokenUtil.refreshToken(token);
+            return ResponseEntity.ok(new AuthenticationResponse(user.getId(),refreshedToken));
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    /**
 	 * Create new customer for a given MerchantStore, then authenticate that customer
 	 */
 	@RequestMapping( value={"/auth/register"}, method=RequestMethod.POST)
@@ -123,63 +180,5 @@ public class AuthenticateCustomerApi {
 
 		
 	}
-
-	/**
-	 * Authenticate a customer using username & password
-	 * @param authenticationRequest
-	 * @param device
-	 * @return
-	 * @throws AuthenticationException
-	 */
-    @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
-    public ResponseEntity<?> authenticate(@RequestBody @Valid AuthenticationRequest authenticationRequest, Device device) throws AuthenticationException {
-
-        // Perform the security
-    	Authentication authentication = null;
-    	try {
-    		
-	
-        		//to be used when username and password are set
-        		authentication = jwtCustomerAuthenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                authenticationRequest.getUsername(),
-                                authenticationRequest.getPassword()
-                        )
-                );
-
-    		
-    	} catch(Exception e) {
-    		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    	}
-    	
-    	if(authentication == null) {
-    		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    	}
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Reload password post-security so we can generate token
-        // todo create one for social
-        final JWTUser userDetails = (JWTUser)jwtCustomerDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        
-        final String token = jwtTokenUtil.generateToken(userDetails, device);
-
-        // Return the token
-        return ResponseEntity.ok(new AuthenticationResponse(userDetails.getId(),token));
-    }
-
-    @RequestMapping(value = "/auth/refresh", method = RequestMethod.GET)
-    public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
-        String token = request.getHeader(tokenHeader);
-        String username = jwtTokenUtil.getUsernameFromToken(token);
-        JWTUser user = (JWTUser) jwtCustomerDetailsService.loadUserByUsername(username);
-
-        if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
-            String refreshedToken = jwtTokenUtil.refreshToken(token);
-            return ResponseEntity.ok(new AuthenticationResponse(user.getId(),refreshedToken));
-        } else {
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
 
 }

@@ -1,15 +1,17 @@
 package com.salesmanager.shop.admin.controller.content;
 
-import com.salesmanager.core.business.services.content.ContentService;
-import com.salesmanager.core.business.utils.ajax.AjaxResponse;
-import com.salesmanager.core.model.content.FileContentType;
-import com.salesmanager.core.model.content.InputContentFile;
-import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.shop.admin.controller.ControllerConstants;
-import com.salesmanager.shop.admin.model.content.ContentFiles;
-import com.salesmanager.shop.admin.model.web.Menu;
-import com.salesmanager.shop.constants.Constants;
-import com.salesmanager.shop.utils.ImageFilePath;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +30,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.io.ByteArrayInputStream;
-import java.util.*;
+import com.salesmanager.core.business.services.content.ContentService;
+import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import com.salesmanager.core.model.content.FileContentType;
+import com.salesmanager.core.model.content.InputContentFile;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.shop.admin.controller.ControllerConstants;
+import com.salesmanager.shop.admin.model.content.ContentFiles;
+import com.salesmanager.shop.admin.model.web.Menu;
+import com.salesmanager.shop.constants.Constants;
+import com.salesmanager.shop.utils.ImageFilePath;
 
 /**
  * Manage static content type image
@@ -55,6 +61,25 @@ public class ContentImageController {
 	private ImageFilePath imageUtils;
 	
 	/**
+	 * Controller methods which allow Admin to add content images to underlying
+	 * Infinispan cache.
+	 * @param model model object
+	 * @param request http request object
+	 * @param response http response object
+	 * @return view allowing user to add content images
+	 * @throws Exception
+	 */
+	@PreAuthorize("hasRole('CONTENT')")
+	@RequestMapping(value="/admin/content/createContentImages.html", method=RequestMethod.GET)
+    public String displayContentImagesCreate(final Model model, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+      
+	    return ControllerConstants.Tiles.ContentImages.addContentImages;
+
+    }
+	
+	
+	
+	/**
 	 * Entry point for the file browser used from the javascript
 	 * content editor
 	 * @param model
@@ -73,7 +98,6 @@ public class ContentImageController {
 	}
 	
 	
-	
 	/**
 	 * Get images for a given merchant store
 	 * @param model
@@ -90,7 +114,6 @@ public class ContentImageController {
 		return ControllerConstants.Tiles.ContentImages.contentImages;
 		
 	}
-	
 	
 	@SuppressWarnings({ "unchecked"})
 	@PreAuthorize("hasRole('CONTENT')")
@@ -135,21 +158,42 @@ public class ContentImageController {
 	}
 	
 	/**
-	 * Controller methods which allow Admin to add content images to underlying
-	 * Infinispan cache.
-	 * @param model model object
-	 * @param request http request object
-	 * @param response http response object
-	 * @return view allowing user to add content images
-	 * @throws Exception
+	 * Removes a content image from the CMS
+	 * @param request
+	 * @param response
+	 * @param locale
+	 * @return
 	 */
 	@PreAuthorize("hasRole('CONTENT')")
-	@RequestMapping(value="/admin/content/createContentImages.html", method=RequestMethod.GET)
-    public String displayContentImagesCreate(final Model model, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-      
-	    return ControllerConstants.Tiles.ContentImages.addContentImages;
+	@RequestMapping(value="/admin/content/removeImage.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> removeImage(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String imageName = request.getParameter("name");
 
-    }
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		AjaxResponse resp = new AjaxResponse();
+
+		
+		try {
+			
+
+			
+			contentService.removeFile(store.getCode(), FileContentType.IMAGE, imageName);
+
+		
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting product", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
 	
 	/**
 	 * Method responsible for adding content images to underlying Infinispan cache.
@@ -203,44 +247,6 @@ public class ContentImageController {
         }
        
         return ControllerConstants.Tiles.ContentImages.contentImages;
-	}
-	
-	
-	/**
-	 * Removes a content image from the CMS
-	 * @param request
-	 * @param response
-	 * @param locale
-	 * @return
-	 */
-	@PreAuthorize("hasRole('CONTENT')")
-	@RequestMapping(value="/admin/content/removeImage.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> removeImage(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String imageName = request.getParameter("name");
-
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		AjaxResponse resp = new AjaxResponse();
-
-		
-		try {
-			
-
-			
-			contentService.removeFile(store.getCode(), FileContentType.IMAGE, imageName);
-
-		
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting product", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
 	private void setMenu(Model model, HttpServletRequest request) throws Exception {

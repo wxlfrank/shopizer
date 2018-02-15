@@ -1,18 +1,15 @@
 package com.salesmanager.shop.admin.controller.content;
 
-import com.salesmanager.core.business.services.catalog.product.relationship.ProductRelationshipService;
-import com.salesmanager.core.business.services.content.ContentService;
-import com.salesmanager.core.business.services.reference.language.LanguageService;
-import com.salesmanager.core.business.utils.ajax.AjaxResponse;
-import com.salesmanager.core.model.catalog.product.relationship.ProductRelationship;
-import com.salesmanager.core.model.content.Content;
-import com.salesmanager.core.model.content.ContentDescription;
-import com.salesmanager.core.model.content.ContentType;
-import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.model.reference.language.Language;
-import com.salesmanager.shop.admin.controller.ControllerConstants;
-import com.salesmanager.shop.admin.model.web.Menu;
-import com.salesmanager.shop.constants.Constants;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,13 +23,25 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.*;
+import com.salesmanager.core.business.services.catalog.product.relationship.ProductRelationshipService;
+import com.salesmanager.core.business.services.content.ContentService;
+import com.salesmanager.core.business.services.reference.language.LanguageService;
+import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import com.salesmanager.core.model.catalog.product.relationship.ProductRelationship;
+import com.salesmanager.core.model.content.Content;
+import com.salesmanager.core.model.content.ContentDescription;
+import com.salesmanager.core.model.content.ContentType;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.admin.controller.ControllerConstants;
+import com.salesmanager.shop.admin.model.web.Menu;
+import com.salesmanager.shop.constants.Constants;
 
 @Controller
 public class ContentPagesController {
@@ -49,15 +58,73 @@ public class ContentPagesController {
 	ProductRelationshipService productRelationshipService;
 	
 	
+	/**
+	 * Check if the content code filled in by the
+	 * user is unique
+	 * @param request
+	 * @param response
+	 * @param locale
+	 * @return
+	 */
 	@PreAuthorize("hasRole('CONTENT')")
-	@RequestMapping(value="/admin/content/pages/list.html", method=RequestMethod.GET)
-	public String listContentPages(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(value="/admin/content/checkContentCode.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> checkContentCode(HttpServletRequest request, HttpServletResponse response, Locale locale) {
 		
-		setMenu(model,request);
+		String code = request.getParameter("code");
+		String id = request.getParameter("id");
 
-		return ControllerConstants.Tiles.Content.contentPages;
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		   if(StringUtils.isBlank(code)) {
+				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		   }
+		
+		try {
+			
+		Content content = contentService.getByCode(code, store);
 		
 		
+		if(!StringUtils.isBlank(id)) {
+			try {
+				Long lid = Long.parseLong(id);
+				
+				if(content!=null && content.getCode().equals(code) && content.getId().longValue()==lid) {
+					resp.setStatus(AjaxResponse.RESPONSE_STATUS_SUCCESS);
+					String returnString = resp.toJSONString();
+					return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+				}
+			} catch (Exception e) {
+				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+
+		} else {
+			if(content!=null) {
+				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+		}
+
+			
+
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+
+		} catch (Exception e) {
+			LOGGER.error("Error while getting category", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
 	@PreAuthorize("hasRole('CONTENT')")
@@ -147,49 +214,14 @@ public class ContentPagesController {
 	
 	
 	@PreAuthorize("hasRole('CONTENT')")
-	@RequestMapping(value="/admin/content/remove.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> removeContent(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String id = request.getParameter("id");
+	@RequestMapping(value="/admin/content/pages/list.html", method=RequestMethod.GET)
+	public String listContentPages(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		setMenu(model,request);
 
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		return ControllerConstants.Tiles.Content.contentPages;
 		
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-
 		
-		try {
-			
-			//get the content first
-			Long lid = Long.parseLong(id);
-			
-			Content dbContent = contentService.getById(lid);
-			
-			if(dbContent==null) {
-				LOGGER.error("Invalid content id ", id);
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			if(dbContent!=null && dbContent.getMerchantStore().getId().intValue()!= store.getId().intValue()) {
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			contentService.delete(dbContent);
-
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting product", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
 	
@@ -255,6 +287,52 @@ public class ContentPagesController {
 	
 	
 	@PreAuthorize("hasRole('CONTENT')")
+	@RequestMapping(value="/admin/content/remove.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> removeContent(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String id = request.getParameter("id");
+
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		
+		try {
+			
+			//get the content first
+			Long lid = Long.parseLong(id);
+			
+			Content dbContent = contentService.getById(lid);
+			
+			if(dbContent==null) {
+				LOGGER.error("Invalid content id ", id);
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			if(dbContent!=null && dbContent.getMerchantStore().getId().intValue()!= store.getId().intValue()) {
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			contentService.delete(dbContent);
+
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting product", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasRole('CONTENT')")
 	@RequestMapping(value="/admin/content/pages/save.html", method=RequestMethod.POST)
 	public String saveContent(@Valid @ModelAttribute Content content, BindingResult result, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -295,75 +373,6 @@ public class ContentPagesController {
 		return ControllerConstants.Tiles.Content.contentPagesDetails;
 		
 		
-	}
-	
-	/**
-	 * Check if the content code filled in by the
-	 * user is unique
-	 * @param request
-	 * @param response
-	 * @param locale
-	 * @return
-	 */
-	@PreAuthorize("hasRole('CONTENT')")
-	@RequestMapping(value="/admin/content/checkContentCode.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> checkContentCode(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		
-		String code = request.getParameter("code");
-		String id = request.getParameter("id");
-
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		
-		   if(StringUtils.isBlank(code)) {
-				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		   }
-		
-		try {
-			
-		Content content = contentService.getByCode(code, store);
-		
-		
-		if(!StringUtils.isBlank(id)) {
-			try {
-				Long lid = Long.parseLong(id);
-				
-				if(content!=null && content.getCode().equals(code) && content.getId().longValue()==lid) {
-					resp.setStatus(AjaxResponse.RESPONSE_STATUS_SUCCESS);
-					String returnString = resp.toJSONString();
-					return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-				}
-			} catch (Exception e) {
-				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-
-		} else {
-			if(content!=null) {
-				resp.setStatus(AjaxResponse.CODE_ALREADY_EXIST);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-		}
-
-			
-
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-
-		} catch (Exception e) {
-			LOGGER.error("Error while getting category", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
 	

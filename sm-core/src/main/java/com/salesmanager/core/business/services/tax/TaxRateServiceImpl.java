@@ -29,22 +29,25 @@ public class TaxRateServiceImpl extends SalesManagerEntityServiceImpl<Long, TaxR
 	}
 
 	@Override
-	public List<TaxRate> listByStore(MerchantStore store)
-			throws ServiceException {
-		return taxRateRepository.findByStore(store.getId());
+	public void delete(TaxRate taxRate) throws ServiceException {
+		
+		//TaxRate t = this.getById(taxRate.getId());
+		//super.delete(t);
+		taxRateRepository.delete(taxRate);
+		
 	}
-	
-	@Override
-	public List<TaxRate> listByStore(MerchantStore store, Language language)
-			throws ServiceException {
-		return taxRateRepository.findByStoreAndLanguage(store.getId(), language.getId());
-	}
-	
 	
 	@Override
 	public TaxRate getByCode(String code, MerchantStore store)
 			throws ServiceException {
 		return taxRateRepository.findByStoreAndCode(store.getId(), code);
+	}
+	
+	
+	@Override
+	public List<TaxRate> listByCountryStateProvinceAndTaxClass(Country country, String stateProvince, TaxClass taxClass, MerchantStore store, Language language) throws ServiceException {
+		//return taxRateDao.listByCountryStateProvinceAndTaxClass(country, stateProvince, taxClass, store, language);
+		return taxRateRepository.findByMerchantAndProvinceAndCountryAndLanguage(store.getId(), stateProvince, country.getId(), language.getId());
 	}
 	
 	@Override
@@ -54,18 +57,15 @@ public class TaxRateServiceImpl extends SalesManagerEntityServiceImpl<Long, TaxR
 	}
 	
 	@Override
-	public List<TaxRate> listByCountryStateProvinceAndTaxClass(Country country, String stateProvince, TaxClass taxClass, MerchantStore store, Language language) throws ServiceException {
-		//return taxRateDao.listByCountryStateProvinceAndTaxClass(country, stateProvince, taxClass, store, language);
-		return taxRateRepository.findByMerchantAndProvinceAndCountryAndLanguage(store.getId(), stateProvince, country.getId(), language.getId());
+	public List<TaxRate> listByStore(MerchantStore store)
+			throws ServiceException {
+		return taxRateRepository.findByStore(store.getId());
 	}
 	
 	@Override
-	public void delete(TaxRate taxRate) throws ServiceException {
-		
-		//TaxRate t = this.getById(taxRate.getId());
-		//super.delete(t);
-		taxRateRepository.delete(taxRate);
-		
+	public List<TaxRate> listByStore(MerchantStore store, Language language)
+			throws ServiceException {
+		return taxRateRepository.findByStoreAndLanguage(store.getId(), language.getId());
 	}
 		
 

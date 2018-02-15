@@ -37,6 +37,10 @@ public class OrderProductDownloadUrlTag extends RequestContextAwareTag {
 
 
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
 	public int doStartTagInternal() throws JspException {
 		try {
 			
@@ -71,22 +75,18 @@ public class OrderProductDownloadUrlTag extends RequestContextAwareTag {
 		return SKIP_BODY;
 	}
 
-	public int doEndTag() {
-		return EVAL_PAGE;
-	}
-
 
 
 	public Long getOrderId() {
 		return orderId;
 	}
 
-	public void setOrderId(Long orderId) {
-		this.orderId = orderId;
-	}
-
 	public ReadableOrderProductDownload getProductDownload() {
 		return productDownload;
+	}
+
+	public void setOrderId(Long orderId) {
+		this.orderId = orderId;
 	}
 
 	public void setProductDownload(ReadableOrderProductDownload productDownload) {

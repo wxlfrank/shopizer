@@ -105,112 +105,11 @@ public class ProductServiceImpl extends SalesManagerEntityServiceImpl<Long, Prod
 	}
 	
 	@Override
-	public List<Product> getProducts(List<Long> categoryIds) throws ServiceException {
-		
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		Set ids = new HashSet(categoryIds);
-		return productRepository.getProductsListByCategories(ids);
-		
+	public void create(Product product) throws ServiceException {
+		this.saveOrUpdate(product);
+		searchService.index(product.getMerchantStore(), product);
 	}
 	
-	public Product getById(Long productId) {
-		return productRepository.getById(productId);
-	}
-	
-	@Override
-	public List<Product> getProducts(List<Long> categoryIds, Language language) throws ServiceException {
-		
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		Set<Long> ids = new HashSet(categoryIds);
-		return productRepository.getProductsListByCategories(ids, language);
-		
-	}
-	
-
-
-	@Override
-	public ProductDescription getProductDescription(Product product, Language language) {
-		for (ProductDescription description : product.getDescriptions()) {
-			if (description.getLanguage().equals(language)) {
-				return description;
-			}
-		}
-		return null;
-	}
-	
-	@Override
-	public Product getBySeUrl(MerchantStore store, String seUrl, Locale locale) {
-		return productRepository.getByFriendlyUrl(store, seUrl, locale);
-	}
-
-	@Override
-	public Product getProductForLocale(long productId, Language language, Locale locale)
-			throws ServiceException {
-		Product product =  productRepository.getProductForLocale(productId, language, locale);
-		if(product==null) {
-			return null;
-		}
-
-		CatalogServiceHelper.setToAvailability(product, locale);
-		CatalogServiceHelper.setToLanguage(product, language.getId());
-		return product;
-	}
-
-	@Override
-	public List<Product> getProductsForLocale(Category category,
-			Language language, Locale locale) throws ServiceException {
-		
-		if(category==null) {
-			throw new ServiceException("The category is null");
-		}
-		
-		//Get the category list
-		StringBuilder lineage = new StringBuilder().append(category.getLineage()).append(category.getId()).append("/");
-		List<Category> categories = categoryService.listByLineage(category.getMerchantStore(),lineage.toString());
-		Set<Long> categoryIds = new HashSet<Long>();
-		for(Category c : categories) {
-			
-			categoryIds.add(c.getId());
-			
-		}
-		
-		categoryIds.add(category.getId());
-		
-		//Get products
-		List<Product> products = productRepository.getProductsForLocale(category.getMerchantStore(), categoryIds, language, locale);
-		
-		//Filter availability
-		
-		return products;
-	}
-	
-	@Override
-	public ProductList listByStore(MerchantStore store,
-			Language language, ProductCriteria criteria) {
-		
-		return productRepository.listByStore(store, language, criteria);
-	}
-	
-	@Override
-	public List<Product> listByStore(MerchantStore store) {
-		
-		return productRepository.listByStore(store);
-	}
-	
-	@Override
-	public List<Product> listByTaxClass(TaxClass taxClass) {
-		return productRepository.listByTaxClass(taxClass);
-	}
-	
-	@Override
-	public Product getByCode(String productCode, Language language) {
-		return productRepository.getByCode(productCode, language);
-	}
-		
-
-
-	
-
 	@Override
 	public void delete(Product product) throws ServiceException {
 		LOGGER.debug("Deleting product");
@@ -245,9 +144,110 @@ public class ProductServiceImpl extends SalesManagerEntityServiceImpl<Long, Prod
 	}
 	
 	@Override
-	public void create(Product product) throws ServiceException {
-		this.saveOrUpdate(product);
-		searchService.index(product.getMerchantStore(), product);
+	public Product getByCode(String productCode, Language language) {
+		return productRepository.getByCode(productCode, language);
+	}
+	
+
+
+	public Product getById(Long productId) {
+		return productRepository.getById(productId);
+	}
+	
+	@Override
+	public Product getBySeUrl(MerchantStore store, String seUrl, Locale locale) {
+		return productRepository.getByFriendlyUrl(store, seUrl, locale);
+	}
+
+	@Override
+	public ProductDescription getProductDescription(Product product, Language language) {
+		for (ProductDescription description : product.getDescriptions()) {
+			if (description.getLanguage().equals(language)) {
+				return description;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Product getProductForLocale(long productId, Language language, Locale locale)
+			throws ServiceException {
+		Product product =  productRepository.getProductForLocale(productId, language, locale);
+		if(product==null) {
+			return null;
+		}
+
+		CatalogServiceHelper.setToAvailability(product, locale);
+		CatalogServiceHelper.setToLanguage(product, language.getId());
+		return product;
+	}
+	
+	@Override
+	public List<Product> getProducts(List<Long> categoryIds) throws ServiceException {
+		
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Set ids = new HashSet(categoryIds);
+		return productRepository.getProductsListByCategories(ids);
+		
+	}
+	
+	@Override
+	public List<Product> getProducts(List<Long> categoryIds, Language language) throws ServiceException {
+		
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Set<Long> ids = new HashSet(categoryIds);
+		return productRepository.getProductsListByCategories(ids, language);
+		
+	}
+	
+	@Override
+	public List<Product> getProductsForLocale(Category category,
+			Language language, Locale locale) throws ServiceException {
+		
+		if(category==null) {
+			throw new ServiceException("The category is null");
+		}
+		
+		//Get the category list
+		StringBuilder lineage = new StringBuilder().append(category.getLineage()).append(category.getId()).append("/");
+		List<Category> categories = categoryService.listByLineage(category.getMerchantStore(),lineage.toString());
+		Set<Long> categoryIds = new HashSet<Long>();
+		for(Category c : categories) {
+			
+			categoryIds.add(c.getId());
+			
+		}
+		
+		categoryIds.add(category.getId());
+		
+		//Get products
+		List<Product> products = productRepository.getProductsForLocale(category.getMerchantStore(), categoryIds, language, locale);
+		
+		//Filter availability
+		
+		return products;
+	}
+	
+	@Override
+	public List<Product> listByStore(MerchantStore store) {
+		
+		return productRepository.listByStore(store);
+	}
+		
+
+
+	
+
+	@Override
+	public ProductList listByStore(MerchantStore store,
+			Language language, ProductCriteria criteria) {
+		
+		return productRepository.listByStore(store, language, criteria);
+	}
+	
+	@Override
+	public List<Product> listByTaxClass(TaxClass taxClass) {
+		return productRepository.listByTaxClass(taxClass);
 	}
 	
 	@Override

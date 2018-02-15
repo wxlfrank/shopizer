@@ -28,20 +28,20 @@ public class ProductImageDescription extends Description {
 	@Column(name="ALT_TAG", length=100)
 	private String altTag;
 
-	public ProductImage getProductImage() {
-		return productImage;
-	}
-
-	public void setProductImage(ProductImage productImage) {
-		this.productImage = productImage;
-	}
-
 	public String getAltTag() {
 		return altTag;
 	}
 
+	public ProductImage getProductImage() {
+		return productImage;
+	}
+
 	public void setAltTag(String altTag) {
 		this.altTag = altTag;
+	}
+
+	public void setProductImage(ProductImage productImage) {
+		this.productImage = productImage;
 	}
 
 

@@ -22,31 +22,38 @@ public class AjaxResponse implements JSONAware {
 	private List<Map<String,String>> data = new ArrayList<Map<String,String>>();
 	private Map<String,String> dataMap = new HashMap<String,String>();
 	private Map<String,String> validationMessages = new HashMap<String,String>();
-	public Map<String, String> getValidationMessages() {
-		return validationMessages;
-	}
-	public void setValidationMessages(Map<String, String> validationMessages) {
-		this.validationMessages = validationMessages;
-	}
-	public int getStatus() {
-		return status;
-	}
-	public void setStatus(int status) {
-		this.status = status;
-	}
-	protected List<Map<String,String>> getData() {
-		return data;
-	}
-	
+	private String statusMessage = null;
 	public void addDataEntry(Map<String,String> dataEntry) {
 		this.data.add(dataEntry);
 	}
-	
 	public void addEntry(String key, String value) {
 		dataMap.put(key, value);
 	}
+	public void addValidationMessage(String fieldName, String message) {
+		this.validationMessages.put(fieldName, message);
+	}
+	public Map<String,String> getDataMap() {
+		return dataMap;
+	}
+	
+	public int getStatus() {
+		return status;
+	}
+	
+	public String getStatusMessage() {
+		return statusMessage;
+	}
 	
 	
+	public Map<String, String> getValidationMessages() {
+		return validationMessages;
+	}
+	
+	public void setDataMap(Map<String,String> dataMap) {
+		this.dataMap = dataMap;
+	}
+	
+
 	public void setErrorMessage(Throwable t) {
 		this.setStatusMessage(t.getMessage());
 	}
@@ -55,34 +62,17 @@ public class AjaxResponse implements JSONAware {
 		this.setStatusMessage(t);
 	}
 	
-
-	public void addValidationMessage(String fieldName, String message) {
-		this.validationMessages.put(fieldName, message);
-	}
 	
-	private String statusMessage = null;
-	
-	
-	public String getStatusMessage() {
-		return statusMessage;
+	public void setStatus(int status) {
+		this.status = status;
 	}
 	public void setStatusMessage(String statusMessage) {
 		this.statusMessage = statusMessage;
 	}
 	
 	
-	protected String getJsonInfo() {
-		
-		StringBuilder returnString = new StringBuilder();
-		returnString.append("{");
-		returnString.append("\"response\"").append(":");
-		returnString.append("{");
-		returnString.append("\"status\"").append(":").append(this.getStatus());
-		if(this.getStatusMessage()!=null && this.getStatus()!=0) {
-			returnString.append(",").append("\"statusMessage\"").append(":\"").append(JSONObject.escape(this.getStatusMessage())).append("\"");
-		}
-		return returnString.toString();
-		
+	public void setValidationMessages(Map<String, String> validationMessages) {
+		this.validationMessages = validationMessages;
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -176,11 +166,21 @@ public class AjaxResponse implements JSONAware {
 
 		
 	}
-	public Map<String,String> getDataMap() {
-		return dataMap;
+	protected List<Map<String,String>> getData() {
+		return data;
 	}
-	public void setDataMap(Map<String,String> dataMap) {
-		this.dataMap = dataMap;
+	protected String getJsonInfo() {
+		
+		StringBuilder returnString = new StringBuilder();
+		returnString.append("{");
+		returnString.append("\"response\"").append(":");
+		returnString.append("{");
+		returnString.append("\"status\"").append(":").append(this.getStatus());
+		if(this.getStatusMessage()!=null && this.getStatus()!=0) {
+			returnString.append(",").append("\"statusMessage\"").append(":\"").append(JSONObject.escape(this.getStatusMessage())).append("\"");
+		}
+		return returnString.toString();
+		
 	}
 
 }

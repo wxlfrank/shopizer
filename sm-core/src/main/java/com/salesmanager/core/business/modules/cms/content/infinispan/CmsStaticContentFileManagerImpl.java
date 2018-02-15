@@ -44,24 +44,6 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
     private static CmsStaticContentFileManagerImpl fileManager = null;
     private static final String ROOT_NAME="static-merchant-";
     
-    private String rootName = ROOT_NAME;
-    
-    private CacheManager cacheManager;
-    
-    public void stopFileManager()
-    {
-
-        try
-        {
-            cacheManager.getManager().stop();
-            LOGGER.info( "Stopping CMS" );
-        }
-        catch ( final Exception e )
-        {
-            LOGGER.error( "Error while stopping CmsStaticContentFileManager", e );
-        }
-    }
-
     public static CmsStaticContentFileManagerImpl getInstance()
     {
 
@@ -73,8 +55,11 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
         return fileManager;
 
     }
-
     
+    private String rootName = ROOT_NAME;
+    
+    private CacheManager cacheManager;
+
     /**
      * <p>Method to add static content data for given merchant.Static content data can be of following type
      * <pre>
@@ -122,6 +107,7 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
         
     }
 
+    
     /**
      * <p>
      * Method to add files for given store.Files will be stored in Infinispan and will be retrieved based on
@@ -170,6 +156,10 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
 
         }
      }
+
+    public CacheManager getCacheManager() {
+        return cacheManager;
+    }
  
 
     /**
@@ -231,7 +221,49 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
     }
     
     
+	/**
+     * Queries the CMS to retrieve all static content files. Only the name of the file will be returned to the client
+     * @param merchantStoreCode
+     * @return
+     * @throws ServiceException
+     */
 	@Override
+	public List<String> getFileNames(final String merchantStoreCode, final FileContentType staticContentType)
+			throws ServiceException {
+		
+		
+		
+	       if ( cacheManager.getTreeCache() == null )
+	        {
+	            throw new ServiceException( "CmsStaticContentFileManagerInfinispan has a null cacheManager.getTreeCache()" );
+	        }
+
+	        try
+	        {
+
+	        	
+	        	
+	        	String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
+	        	final Node<String, Object> objectNode = this.getNode(nodePath);
+	    		
+	    		if(objectNode.getKeys().isEmpty()) {
+	    			LOGGER.warn( "Unable to find content attribute for given merchant" );
+	                return Collections.<String> emptyList();
+	    		}
+	    		return new ArrayList<String>(objectNode.getKeys());
+
+	        }
+	        catch ( final Exception e )
+	        {
+	            LOGGER.error( "Error while fetching file for {} merchant ", merchantStoreCode);
+	            throw new ServiceException( e );
+	        }
+
+	}
+    
+    
+
+    @Override
 	public List<OutputContentFile> getFiles(
 			final String merchantStoreCode, final FileContentType staticContentType) throws ServiceException {
 
@@ -285,10 +317,12 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
 		
 		
 	}
-    
-    
 
-    @Override
+    public String getRootName() {
+		return rootName;
+	}
+    
+	@Override
     public void removeFile( final String merchantStoreCode, final FileContentType staticContentType, final String fileName )
         throws ServiceException
     {
@@ -317,7 +351,7 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
 
         
     }
-
+    
     /**
      * Removes the data in a given merchant node
      */
@@ -354,6 +388,31 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
 
     }
     
+
+    
+    public void setCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+
+    public void setRootName(String rootName) {
+		this.rootName = rootName;
+	}
+
+
+    public void stopFileManager()
+    {
+
+        try
+        {
+            cacheManager.getManager().stop();
+            LOGGER.info( "Stopping CMS" );
+        }
+        catch ( final Exception e )
+        {
+            LOGGER.error( "Error while stopping CmsStaticContentFileManager", e );
+        }
+    }
+
 	@SuppressWarnings({ "unchecked"})
 	private Node<String, Object> getNode( final String node )
     {
@@ -375,8 +434,8 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
         return nd;
 
     }
-    
-    private String getNodePath(final String storeCode,final FileContentType contentType) {
+
+	private String getNodePath(final String storeCode,final FileContentType contentType) {
     	
 		StringBuilder nodePath = new StringBuilder();
 		nodePath.append(storeCode).append("/").append(contentType.name());
@@ -384,65 +443,6 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
 		return nodePath.toString();
     	
     }
-    
-
-    
-    public CacheManager getCacheManager() {
-        return cacheManager;
-    }
-
-    public void setCacheManager(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
-    }
-
-
-    /**
-     * Queries the CMS to retrieve all static content files. Only the name of the file will be returned to the client
-     * @param merchantStoreCode
-     * @return
-     * @throws ServiceException
-     */
-	@Override
-	public List<String> getFileNames(final String merchantStoreCode, final FileContentType staticContentType)
-			throws ServiceException {
-		
-		
-		
-	       if ( cacheManager.getTreeCache() == null )
-	        {
-	            throw new ServiceException( "CmsStaticContentFileManagerInfinispan has a null cacheManager.getTreeCache()" );
-	        }
-
-	        try
-	        {
-
-	        	
-	        	
-	        	String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
-	        	final Node<String, Object> objectNode = this.getNode(nodePath);
-	    		
-	    		if(objectNode.getKeys().isEmpty()) {
-	    			LOGGER.warn( "Unable to find content attribute for given merchant" );
-	                return Collections.<String> emptyList();
-	    		}
-	    		return new ArrayList<String>(objectNode.getKeys());
-
-	        }
-	        catch ( final Exception e )
-	        {
-	            LOGGER.error( "Error while fetching file for {} merchant ", merchantStoreCode);
-	            throw new ServiceException( e );
-	        }
-
-	}
-
-	public void setRootName(String rootName) {
-		this.rootName = rootName;
-	}
-
-	public String getRootName() {
-		return rootName;
-	}
 
 
 }

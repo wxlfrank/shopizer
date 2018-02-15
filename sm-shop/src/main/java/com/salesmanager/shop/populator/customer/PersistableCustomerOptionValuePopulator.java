@@ -1,5 +1,11 @@
 package com.salesmanager.shop.populator.customer;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.Validate;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.services.reference.language.LanguageService;
 import com.salesmanager.core.business.utils.AbstractDataPopulator;
@@ -8,11 +14,6 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.customer.attribute.CustomerOptionValueDescription;
 import com.salesmanager.shop.model.customer.attribute.PersistableCustomerOptionValue;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.Validate;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class PersistableCustomerOptionValuePopulator extends
 		AbstractDataPopulator<PersistableCustomerOptionValue, CustomerOptionValue> {
@@ -20,6 +21,10 @@ public class PersistableCustomerOptionValuePopulator extends
 	
 	private LanguageService languageService;
 	
+	public LanguageService getLanguageService() {
+		return languageService;
+	}
+
 	@Override
 	public CustomerOptionValue populate(PersistableCustomerOptionValue source,
 			CustomerOptionValue target, MerchantStore store, Language language)
@@ -58,17 +63,13 @@ public class PersistableCustomerOptionValuePopulator extends
 		return target;
 	}
 
-	@Override
-	protected CustomerOptionValue createTarget() {
-		return null;
-	}
-
 	public void setLanguageService(LanguageService languageService) {
 		this.languageService = languageService;
 	}
 
-	public LanguageService getLanguageService() {
-		return languageService;
+	@Override
+	protected CustomerOptionValue createTarget() {
+		return null;
 	}
 
 }

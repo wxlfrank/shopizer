@@ -1,15 +1,15 @@
 package com.salesmanager.shop.admin.controller.shipping;
 
-import com.salesmanager.core.business.services.shipping.ShippingService;
-import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.model.system.IntegrationConfiguration;
-import com.salesmanager.core.model.system.IntegrationModule;
-import com.salesmanager.core.modules.integration.IntegrationException;
-import com.salesmanager.core.modules.integration.shipping.model.CustomShippingQuotesConfiguration;
-import com.salesmanager.shop.admin.controller.ControllerConstants;
-import com.salesmanager.shop.admin.model.web.Menu;
-import com.salesmanager.shop.constants.Constants;
-import com.salesmanager.shop.utils.LabelUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,10 +21,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import com.salesmanager.core.business.services.shipping.ShippingService;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.system.IntegrationConfiguration;
+import com.salesmanager.core.model.system.IntegrationModule;
+import com.salesmanager.core.modules.integration.IntegrationException;
+import com.salesmanager.core.modules.integration.shipping.model.CustomShippingQuotesConfiguration;
+import com.salesmanager.shop.admin.controller.ControllerConstants;
+import com.salesmanager.shop.admin.model.web.Menu;
+import com.salesmanager.shop.constants.Constants;
+import com.salesmanager.shop.utils.LabelUtils;
 
 @Controller
 public class ShippingMethodsController {
@@ -38,6 +44,43 @@ public class ShippingMethodsController {
 	@Inject
 	LabelUtils messages;
 	
+	@RequestMapping(value="/admin/shipping/deleteShippingMethod.html", method=RequestMethod.POST)
+	public String deleteShippingMethod(@RequestParam("code") String code, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		
+		this.setMenu(model, request);
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		shippingService.removeShippingQuoteModuleConfiguration(code, store);
+		
+		return "redirect:/admin/shipping/shippingMethods.html";
+		
+	}
+	@PreAuthorize("hasRole('SHIPPING')")
+	@RequestMapping(value="/admin/shipping/shippingMethod.html", method=RequestMethod.GET)
+	public String displayShippingMethod(@RequestParam("code") String code, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+
+		this.setMenu(model, request);
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+
+		//get configured shipping modules
+		IntegrationConfiguration configuration = shippingService.getShippingConfiguration(code, store);
+		if(configuration==null) {
+			configuration = new IntegrationConfiguration();
+		}
+		
+		configuration.setModuleCode(code);
+		
+		List<String> environments = new ArrayList<String>();
+		environments.add(com.salesmanager.core.business.constants.Constants.TEST_ENVIRONMENT);
+		environments.add(com.salesmanager.core.business.constants.Constants.PRODUCTION_ENVIRONMENT);
+		
+		model.addAttribute("configuration", configuration);
+		model.addAttribute("environments", environments);
+		return ControllerConstants.Tiles.Shipping.shippingMethod;
+		
+		
+	}
 	/**
 	 * Configures the shipping shows shipping methods
 	 * @param request
@@ -69,33 +112,16 @@ public class ShippingMethodsController {
 		
 		
 	}
+	
 	@PreAuthorize("hasRole('SHIPPING')")
-	@RequestMapping(value="/admin/shipping/shippingMethod.html", method=RequestMethod.GET)
-	public String displayShippingMethod(@RequestParam("code") String code, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(value="/admin/shipping/weightBased.html", method=RequestMethod.POST)
+	public String saveCustomWeightBasedShippingMethod(@ModelAttribute("configuration") CustomShippingQuotesConfiguration configuration, BindingResult result, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 
-
-		this.setMenu(model, request);
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-
-		//get configured shipping modules
-		IntegrationConfiguration configuration = shippingService.getShippingConfiguration(code, store);
-		if(configuration==null) {
-			configuration = new IntegrationConfiguration();
-		}
-		
-		configuration.setModuleCode(code);
-		
-		List<String> environments = new ArrayList<String>();
-		environments.add(com.salesmanager.core.business.constants.Constants.TEST_ENVIRONMENT);
-		environments.add(com.salesmanager.core.business.constants.Constants.PRODUCTION_ENVIRONMENT);
-		
-		model.addAttribute("configuration", configuration);
-		model.addAttribute("environments", environments);
+		model.addAttribute("success","success");
 		return ControllerConstants.Tiles.Shipping.shippingMethod;
-		
-		
+
 	}
+	
 	@PreAuthorize("hasRole('SHIPPING')")
 	@RequestMapping(value="/admin/shipping/saveShippingMethod.html", method=RequestMethod.POST)
 	public String saveShippingMethod(@ModelAttribute("configuration") IntegrationConfiguration configuration, BindingResult result, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
@@ -137,26 +163,6 @@ public class ShippingMethodsController {
 		model.addAttribute("success","success");
 		return ControllerConstants.Tiles.Shipping.shippingMethod;
 		
-		
-	}
-	
-	@PreAuthorize("hasRole('SHIPPING')")
-	@RequestMapping(value="/admin/shipping/weightBased.html", method=RequestMethod.POST)
-	public String saveCustomWeightBasedShippingMethod(@ModelAttribute("configuration") CustomShippingQuotesConfiguration configuration, BindingResult result, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-
-		model.addAttribute("success","success");
-		return ControllerConstants.Tiles.Shipping.shippingMethod;
-
-	}
-	
-	@RequestMapping(value="/admin/shipping/deleteShippingMethod.html", method=RequestMethod.POST)
-	public String deleteShippingMethod(@RequestParam("code") String code, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		
-		this.setMenu(model, request);
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		shippingService.removeShippingQuoteModuleConfiguration(code, store);
-		
-		return "redirect:/admin/shipping/shippingMethods.html";
 		
 	}
 

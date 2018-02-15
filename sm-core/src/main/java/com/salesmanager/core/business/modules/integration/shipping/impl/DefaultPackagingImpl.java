@@ -22,17 +22,17 @@ import com.salesmanager.core.modules.integration.shipping.model.Packaging;
 public class DefaultPackagingImpl implements Packaging {
 
 	
-	@Inject
-	private ShippingService shippingService;
-	
-	@Inject
-	private MerchantLogService merchantLogService;
-	
 	/** default dimensions **/
 	private final static Double defaultWeight = 1D;
+	
 	private final static Double defaultHeight = 4D;
+	
 	private final static Double defaultLength = 4D;
 	private final static Double defaultWidth = 4D;
+	@Inject
+	private ShippingService shippingService;
+	@Inject
+	private MerchantLogService merchantLogService;
 	
 	@Override
 	public List<PackageDetails> getBoxPackagesDetails(
@@ -69,7 +69,7 @@ public class DefaultPackagingImpl implements Packaging {
 		List<PackageDetails> boxes = new ArrayList<PackageDetails>();
 
 		// maximum number of boxes
-		int maxBox = 100;
+//		int maxBox = 100;
 		int iterCount = 0;
 
 		List<Product> individualProducts = new ArrayList<Product>();
@@ -142,7 +142,7 @@ public class DefaultPackagingImpl implements Packaging {
 			return null;
 		}
 
-		int productCount = individualProducts.size();
+//		int productCount = individualProducts.size();
 
 		List<PackingBox> boxesList = new ArrayList<PackingBox>();
 
@@ -249,13 +249,13 @@ public class DefaultPackagingImpl implements Packaging {
 					pbox.setWeightLeft(weightLeft);
 
 					assignedProducts.add(p);
-					productCount--;
+//					productCount--;
 
 					double w = pbox.getWeight();
 					w = w + productWeight;
 					pbox.setWeight(w);
 					productAssigned = true;
-					maxBox--;
+//					maxBox--;
 					break;
 
 				}
@@ -276,11 +276,11 @@ public class DefaultPackagingImpl implements Packaging {
 				double weightLeft = box.getWeightLeft() - productWeight;
 				box.setWeightLeft(weightLeft);
 				assignedProducts.add(p);
-				productCount--;
+//				productCount--;
 				double w = box.getWeight();
 				w = w + productWeight;
 				box.setWeight(w);
-				maxBox--;
+//				maxBox--;
 			}
 
 		}
@@ -295,7 +295,7 @@ public class DefaultPackagingImpl implements Packaging {
 		System.out.println("Number of boxes " + boxesList.size());
 		System.out.println("###################################");
 
-		for(PackingBox pb : boxesList) {
+		for(int index = 0; index < boxesList.size(); ++index) {
 			PackageDetails details = new PackageDetails();
 			details.setShippingHeight(height);
 			details.setShippingLength(length);
@@ -412,20 +412,20 @@ class PackingBox {
 		return volumeLeft;
 	}
 
-	public void setVolumeLeft(double volumeLeft) {
-		this.volumeLeft = volumeLeft;
-	}
-
 	public double getWeight() {
 		return weight;
 	}
 
-	public void setWeight(double weight) {
-		this.weight = weight;
-	}
-
 	public double getWeightLeft() {
 		return weightLeft;
+	}
+
+	public void setVolumeLeft(double volumeLeft) {
+		this.volumeLeft = volumeLeft;
+	}
+
+	public void setWeight(double weight) {
+		this.weight = weight;
 	}
 
 	public void setWeightLeft(double weightLeft) {

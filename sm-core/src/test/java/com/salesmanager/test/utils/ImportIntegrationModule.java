@@ -37,6 +37,59 @@ public class ImportIntegrationModule  {
 	private ModuleConfigurationService moduleCongigurationService;
 	
 	/**
+	 * Import all non existing modules
+	 * @throws Exception
+	 */
+	@Ignore
+	//@Test
+	public void importNonExistingIntegrationModule() throws Exception {
+		
+
+			ObjectMapper mapper = new ObjectMapper();
+			File file = new File("/Users/carlsamson/Documents/dev/workspaces/shopizer-master/shopizer/sm-core/src/main/resources/reference/integrationmodules.json");
+			
+			InputStream in = null;
+			
+			
+			try {
+				
+	            in = new FileInputStream(file);
+
+	            @SuppressWarnings("rawtypes")
+	    		Map[] objects = mapper.readValue(in, Map[].class);
+	            
+
+	            //get the module to be loaded
+	            for(int i = 0; i < objects.length; i++) {
+	            	@SuppressWarnings("rawtypes")
+					Map o = objects[i];
+	            	//get module object
+	            	IntegrationModule module = integrationModulesLoader.loadModule(o);
+	            	
+		            if(module!=null) {
+		            	IntegrationModule m = moduleCongigurationService.getByCode(module.getCode());
+		            	if(m==null) {
+		            		moduleCongigurationService.create(module);
+		            	}
+		            }
+
+	            }
+	            
+
+
+	  		} catch (Exception e) {
+	  			throw new ServiceException(e);
+	  		} finally {
+	  			if(in !=null) {
+	  				try {
+	  					in.close();
+	  				} catch(Exception ignore) {}
+	  			}
+	  		}
+	
+	}
+	
+	/**
 	 * Import a specific integration module. Will delete and recreate the module
 	 * if it already exists 
 	 * @throws Exception
@@ -80,59 +133,6 @@ public class ImportIntegrationModule  {
 	            	
 	            	moduleCongigurationService.create(module);
 	            }
-
-	  		} catch (Exception e) {
-	  			throw new ServiceException(e);
-	  		} finally {
-	  			if(in !=null) {
-	  				try {
-	  					in.close();
-	  				} catch(Exception ignore) {}
-	  			}
-	  		}
-	
-	}
-	
-	/**
-	 * Import all non existing modules
-	 * @throws Exception
-	 */
-	@Ignore
-	//@Test
-	public void importNonExistingIntegrationModule() throws Exception {
-		
-
-			ObjectMapper mapper = new ObjectMapper();
-			File file = new File("/Users/carlsamson/Documents/dev/workspaces/shopizer-master/shopizer/sm-core/src/main/resources/reference/integrationmodules.json");
-			
-			InputStream in = null;
-			
-			
-			try {
-				
-	            in = new FileInputStream(file);
-
-	            @SuppressWarnings("rawtypes")
-	    		Map[] objects = mapper.readValue(in, Map[].class);
-	            
-
-	            //get the module to be loaded
-	            for(int i = 0; i < objects.length; i++) {
-	            	@SuppressWarnings("rawtypes")
-					Map o = objects[i];
-	            	//get module object
-	            	IntegrationModule module = integrationModulesLoader.loadModule(o);
-	            	
-		            if(module!=null) {
-		            	IntegrationModule m = moduleCongigurationService.getByCode(module.getCode());
-		            	if(m==null) {
-		            		moduleCongigurationService.create(module);
-		            	}
-		            }
-
-	            }
-	            
-
 
 	  		} catch (Exception e) {
 	  			throw new ServiceException(e);

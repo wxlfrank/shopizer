@@ -7,8 +7,6 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -35,17 +33,9 @@ import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteMod
  */
 public class PriceByDistanceShippingQuoteRules implements ShippingQuoteModule {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(PriceByDistanceShippingQuoteRules.class);
+//	private static final Logger LOGGER = LoggerFactory.getLogger(PriceByDistanceShippingQuoteRules.class);
 
 	public final static String MODULE_CODE = "priceByDistance";
-
-	@Override
-	public void validateModuleConfiguration(
-			IntegrationConfiguration integrationConfiguration,
-			MerchantStore store) throws IntegrationException {
-		// Not used
-
-	}
 
 	@Override
 	public CustomIntegrationConfiguration getCustomModuleConfiguration(
@@ -129,6 +119,14 @@ public class PriceByDistanceShippingQuoteRules implements ShippingQuoteModule {
 		return options;
 		
 		
+	}
+
+	@Override
+	public void validateModuleConfiguration(
+			IntegrationConfiguration integrationConfiguration,
+			MerchantStore store) throws IntegrationException {
+		// Not used
+
 	}
 
 }

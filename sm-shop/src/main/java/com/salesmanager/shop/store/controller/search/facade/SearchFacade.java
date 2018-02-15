@@ -15,12 +15,19 @@ public interface SearchFacade {
 	
 
 	/**
+	 * Copy sm-core search response to a simple readable format populated with corresponding products
+	 * @param searchResponse
+	 * @return
+	 */
+	public SearchProductList copySearchResponse(SearchResponse searchResponse, MerchantStore store, int start, int count, Language language) throws Exception;
+	
+	/**
 	 * This utility method will re-index all products in the catalogue
 	 * @param store
 	 * @throws Exception
 	 */
 	public void indexAllData(MerchantStore store) throws Exception;
-	
+
 	/**
 	 * Produces a search request against elastic search
 	 * @param searchRequest
@@ -28,12 +35,5 @@ public interface SearchFacade {
 	 * @throws Exception
 	 */
 	public SearchProductList search(MerchantStore store, Language language, SearchProductRequest searchRequest) throws Exception;
-
-	/**
-	 * Copy sm-core search response to a simple readable format populated with corresponding products
-	 * @param searchResponse
-	 * @return
-	 */
-	public SearchProductList copySearchResponse(SearchResponse searchResponse, MerchantStore store, int start, int count, Language language) throws Exception;
 
 }

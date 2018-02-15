@@ -22,28 +22,28 @@ public class ReadableOrderTotalSummary implements Serializable {
 		return subTotal;
 	}
 
-	public void setSubTotal(String subTotal) {
-		this.subTotal = subTotal;
+	public String getTaxTotal() {
+		return taxTotal;
 	}
 
 	public String getTotal() {
 		return total;
 	}
 
-	public void setTotal(String total) {
-		this.total = total;
+	public List<ReadableOrderTotal> getTotals() {
+		return totals;
 	}
 
-	public String getTaxTotal() {
-		return taxTotal;
+	public void setSubTotal(String subTotal) {
+		this.subTotal = subTotal;
 	}
 
 	public void setTaxTotal(String taxTotal) {
 		this.taxTotal = taxTotal;
 	}
 
-	public List<ReadableOrderTotal> getTotals() {
-		return totals;
+	public void setTotal(String total) {
+		this.total = total;
 	}
 
 	public void setTotals(List<ReadableOrderTotal> totals) {

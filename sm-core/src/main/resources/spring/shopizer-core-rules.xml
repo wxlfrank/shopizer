@@ -5,7 +5,7 @@
 	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="
    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-   http://drools.org/schema/drools-spring http://drools.org/schema/drools-spring.xsd
+   http://drools.org/schema/drools-spring https://searchcode.com/codesearch/raw/101370613/
    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<!-- Decision table for the the selection of a shipping method -->

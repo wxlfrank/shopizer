@@ -1,5 +1,30 @@
 package com.salesmanager.shop.admin.controller.orders;
 
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.services.catalog.product.PricingService;
 import com.salesmanager.core.business.services.customer.CustomerService;
 import com.salesmanager.core.business.services.order.OrderService;
@@ -22,25 +47,6 @@ import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.EmailTemplatesUtils;
 import com.salesmanager.shop.utils.LabelUtils;
 import com.salesmanager.shop.utils.LocaleUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.util.*;
 
 /**
  * Manage order details
@@ -144,6 +150,131 @@ private static final Logger LOGGER = LoggerFactory.getLogger(OrderActionsControl
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
+	@SuppressWarnings("unchecked")
+	@PreAuthorize("hasRole('ORDER')")
+	@RequestMapping(value="/admin/orders/listTransactions.html", method=RequestMethod.GET)
+	public @ResponseBody ResponseEntity<String> listTransactions(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		String sId = request.getParameter("id");
+
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		if(sId==null) {
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			String returnString = resp.toJSONString();
+			return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		}
+
+
+		
+		try {
+			
+			Long id = Long.parseLong(sId);
+			
+
+			Order dbOrder = orderService.getById(id);
+
+			if(dbOrder==null) {
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			
+			if(dbOrder.getMerchant().getId().intValue()!=store.getId().intValue()) {
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+
+			
+			List<Transaction> transactions = transactionService.listTransactions(dbOrder);
+			
+			if(transactions!=null) {
+				
+				for(Transaction transaction : transactions) {
+					@SuppressWarnings("rawtypes")
+					Map entry = new HashMap();
+					entry.put("transactionId", transaction.getId());
+					entry.put("transactionDate", DateUtil.formatLongDate(transaction.getTransactionDate()));
+					entry.put("transactionType", transaction.getTransactionType().name());
+					entry.put("paymentType", transaction.getPaymentType().name());
+					entry.put("transactionAmount", pricingService.getStringAmount(transaction.getAmount(), store));
+					entry.put("transactionDetails", transaction.getTransactionDetails());
+					resp.addDataEntry(entry);
+				}
+				
+				
+			}
+			
+			
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+			
+		} catch(Exception e) {
+			LOGGER.error("Cannot get transactions for order id " + sId, e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		
+		
+	}
+	
+	@PreAuthorize("hasRole('ORDER')")
+	@RequestMapping(value="/admin/orders/printInvoice.html", method=RequestMethod.GET)
+	public void printInvoice(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		
+		String sId = request.getParameter("id");
+		
+		try {
+			
+		Long id = Long.parseLong(sId);
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		Order order = orderService.getById(id);
+		
+		if(order.getMerchant().getId().intValue()!=store.getId().intValue()) {
+			throw new Exception("Invalid order");
+		}
+		
+
+		Language lang = store.getDefaultLanguage();
+		
+		
+
+		ByteArrayOutputStream stream  = orderService.generateInvoice(store, order, lang);
+		StringBuilder attachment = new StringBuilder();
+		//attachment.append("attachment; filename=");
+		attachment.append(order.getId());
+		attachment.append(".pdf");
+		
+        response.setHeader("Content-disposition", "attachment;filename=" + attachment.toString());
+
+        //Set the mime type for the response
+        response.setContentType("application/pdf");
+
+		
+		response.getOutputStream().write(stream.toByteArray());
+		
+		response.flushBuffer();
+			
+			
+		} catch(Exception e) {
+			LOGGER.error("Error while printing a report",e);
+		}
+			
+		
+	}
+	
+
 	@PreAuthorize("hasRole('ORDER')")
 	@RequestMapping(value="/admin/orders/refundOrder.html", method=RequestMethod.POST)
 	public @ResponseBody ResponseEntity<String> refundOrder(@RequestBody Refund refund, HttpServletRequest request, HttpServletResponse response, Locale locale) {
@@ -238,60 +369,12 @@ private static final Logger LOGGER = LoggerFactory.getLogger(OrderActionsControl
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
+
 	@PreAuthorize("hasRole('ORDER')")
-	@RequestMapping(value="/admin/orders/printInvoice.html", method=RequestMethod.GET)
-	public void printInvoice(HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		
-		String sId = request.getParameter("id");
-		
-		try {
-			
-		Long id = Long.parseLong(sId);
-		
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		Order order = orderService.getById(id);
-		
-		if(order.getMerchant().getId().intValue()!=store.getId().intValue()) {
-			throw new Exception("Invalid order");
-		}
-		
-
-		Language lang = store.getDefaultLanguage();
-		
-		
-
-		ByteArrayOutputStream stream  = orderService.generateInvoice(store, order, lang);
-		StringBuilder attachment = new StringBuilder();
-		//attachment.append("attachment; filename=");
-		attachment.append(order.getId());
-		attachment.append(".pdf");
-		
-        response.setHeader("Content-disposition", "attachment;filename=" + attachment.toString());
-
-        //Set the mime type for the response
-        response.setContentType("application/pdf");
-
-		
-		response.getOutputStream().write(stream.toByteArray());
-		
-		response.flushBuffer();
-			
-			
-		} catch(Exception e) {
-			LOGGER.error("Error while printing a report",e);
-		}
-			
-		
-	}
-	
-
-	@SuppressWarnings("unchecked")
-	@PreAuthorize("hasRole('ORDER')")
-	@RequestMapping(value="/admin/orders/listTransactions.html", method=RequestMethod.GET)
-	public @ResponseBody ResponseEntity<String> listTransactions(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping(value="/admin/orders/sendDownloadEmail.html", method=RequestMethod.GET)
+	public @ResponseBody ResponseEntity<String> sendDownloadEmail(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		String sId = request.getParameter("id");
-
 		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
 		
 		
@@ -327,26 +410,20 @@ private static final Logger LOGGER = LoggerFactory.getLogger(OrderActionsControl
 				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 			}
 			
-
+			//get customer
+			Customer customer = customerService.getById(dbOrder.getCustomerId());
 			
-			List<Transaction> transactions = transactionService.listTransactions(dbOrder);
-			
-			if(transactions!=null) {
-				
-				for(Transaction transaction : transactions) {
-					@SuppressWarnings("rawtypes")
-					Map entry = new HashMap();
-					entry.put("transactionId", transaction.getId());
-					entry.put("transactionDate", DateUtil.formatLongDate(transaction.getTransactionDate()));
-					entry.put("transactionType", transaction.getTransactionType().name());
-					entry.put("paymentType", transaction.getPaymentType().name());
-					entry.put("transactionAmount", pricingService.getStringAmount(transaction.getAmount(), store));
-					entry.put("transactionDetails", transaction.getTransactionDetails());
-					resp.addDataEntry(entry);
-				}
-				
-				
+			if(customer==null) {
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+				resp.setErrorString("Customer does not exist");
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 			}
+			
+			Locale customerLocale = LocaleUtils.getLocale(customer.getDefaultLanguage());
+			
+			
+			emailTemplatesUtils.sendOrderDownloadEmail(customer, dbOrder, store, customerLocale, request.getContextPath());
 			
 			
 			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
@@ -354,6 +431,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger(OrderActionsControl
 		} catch(Exception e) {
 			LOGGER.error("Cannot get transactions for order id " + sId, e);
 			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorString(e.getMessage());
 			resp.setErrorMessage(e);
 		}
 		
@@ -362,6 +440,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger(OrderActionsControl
 		
 		
 	}
+	
 	
 
 	@PreAuthorize("hasRole('ORDER')")
@@ -433,8 +512,6 @@ private static final Logger LOGGER = LoggerFactory.getLogger(OrderActionsControl
 		
 	}
 	
-	
-
 	@PreAuthorize("hasRole('ORDER')")
 	@RequestMapping(value="/admin/orders/updateStatus.html", method=RequestMethod.GET)
 	public @ResponseBody ResponseEntity<String> updateStatus(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -509,77 +586,6 @@ private static final Logger LOGGER = LoggerFactory.getLogger(OrderActionsControl
 			}
 			emailTemplatesUtils.sendUpdateOrderStatusEmail(customer, dbOrder, lastHistory, store, customerLocale, request.getContextPath());
 
-			
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-			
-		} catch(Exception e) {
-			LOGGER.error("Cannot get transactions for order id " + sId, e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorString(e.getMessage());
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		
-		
-	}
-	
-	@PreAuthorize("hasRole('ORDER')")
-	@RequestMapping(value="/admin/orders/sendDownloadEmail.html", method=RequestMethod.GET)
-	public @ResponseBody ResponseEntity<String> sendDownloadEmail(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		String sId = request.getParameter("id");
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		
-		if(sId==null) {
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			String returnString = resp.toJSONString();
-			return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		}
-
-
-		
-		try {
-			
-			Long id = Long.parseLong(sId);
-			
-
-			Order dbOrder = orderService.getById(id);
-
-			if(dbOrder==null) {
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			
-			if(dbOrder.getMerchant().getId().intValue()!=store.getId().intValue()) {
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			//get customer
-			Customer customer = customerService.getById(dbOrder.getCustomerId());
-			
-			if(customer==null) {
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-				resp.setErrorString("Customer does not exist");
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			Locale customerLocale = LocaleUtils.getLocale(customer.getDefaultLanguage());
-			
-			
-			emailTemplatesUtils.sendOrderDownloadEmail(customer, dbOrder, store, customerLocale, request.getContextPath());
-			
 			
 			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
 			

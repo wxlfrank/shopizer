@@ -1,18 +1,15 @@
 package com.salesmanager.shop.admin.controller.products;
 
-import com.salesmanager.core.business.services.catalog.product.ProductService;
-import com.salesmanager.core.business.services.catalog.product.review.ProductReviewService;
-import com.salesmanager.core.business.utils.ajax.AjaxPageableResponse;
-import com.salesmanager.core.business.utils.ajax.AjaxResponse;
-import com.salesmanager.core.model.catalog.product.Product;
-import com.salesmanager.core.model.catalog.product.review.ProductReview;
-import com.salesmanager.core.model.catalog.product.review.ProductReviewDescription;
-import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.model.reference.language.Language;
-import com.salesmanager.shop.admin.controller.ControllerConstants;
-import com.salesmanager.shop.admin.model.web.Menu;
-import com.salesmanager.shop.constants.Constants;
-import com.salesmanager.shop.utils.LabelUtils;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +25,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import com.salesmanager.core.business.services.catalog.product.ProductService;
+import com.salesmanager.core.business.services.catalog.product.review.ProductReviewService;
+import com.salesmanager.core.business.utils.ajax.AjaxPageableResponse;
+import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import com.salesmanager.core.model.catalog.product.Product;
+import com.salesmanager.core.model.catalog.product.review.ProductReview;
+import com.salesmanager.core.model.catalog.product.review.ProductReviewDescription;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.shop.admin.controller.ControllerConstants;
+import com.salesmanager.shop.admin.model.web.Menu;
+import com.salesmanager.shop.constants.Constants;
+import com.salesmanager.shop.utils.LabelUtils;
 
 @Controller
 public class ProductReviewController {
@@ -49,12 +54,60 @@ public class ProductReviewController {
 	
 	
 	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/reviews/remove.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> deleteProductReview(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String sReviewid = request.getParameter("reviewId");
+
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		
+		try {
+			
+			Long reviewId = Long.parseLong(sReviewid);
+
+			
+			ProductReview review = productReviewService.getById(reviewId);
+			
+
+			if(review==null || review.getProduct().getMerchantStore().getId().intValue()!=store.getId()) {
+
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			} 
+			
+
+			productReviewService.delete(review);
+			
+			
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+
+		
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting category", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
 	@RequestMapping(value="/admin/products/reviews.html", method=RequestMethod.GET)
 	public String displayProductReviews(@RequestParam("id") long productId,Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 		
 		setMenu(model, request);
 		
-		Language language = (Language)request.getAttribute("LANGUAGE");
+//		Language language = (Language)request.getAttribute("LANGUAGE");
 		
 
 		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
@@ -74,7 +127,6 @@ public class ProductReviewController {
 		return ControllerConstants.Tiles.Product.productReviews;
 
 	}
-	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@PreAuthorize("hasRole('PRODUCTS')")
@@ -122,7 +174,7 @@ public class ProductReviewController {
 			}
 			
 			
-			Language language = (Language)request.getAttribute("LANGUAGE");
+//			Language language = (Language)request.getAttribute("LANGUAGE");
 
 			
 			List<ProductReview> reviews = productReviewService.getByProduct(product);
@@ -159,53 +211,6 @@ public class ProductReviewController {
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 
 
-	}
-	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/reviews/remove.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> deleteProductReview(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String sReviewid = request.getParameter("reviewId");
-
-		
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-
-		
-		try {
-			
-			Long reviewId = Long.parseLong(sReviewid);
-
-			
-			ProductReview review = productReviewService.getById(reviewId);
-			
-
-			if(review==null || review.getProduct().getMerchantStore().getId().intValue()!=store.getId()) {
-
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			} 
-			
-
-			productReviewService.delete(review);
-			
-			
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-
-		
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting category", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
 	

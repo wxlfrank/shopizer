@@ -1,5 +1,11 @@
 package com.salesmanager.shop.populator.catalog;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.Validate;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.services.reference.language.LanguageService;
 import com.salesmanager.core.business.utils.AbstractDataPopulator;
@@ -8,11 +14,6 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductOption;
 import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescription;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.Validate;
-
-import java.util.HashSet;
-import java.util.Set;
 
 
 
@@ -24,10 +25,6 @@ public class PersistableProductOptionPopulator extends
 
 	public LanguageService getLanguageService() {
 		return languageService;
-	}
-
-	public void setLanguageService(LanguageService languageService) {
-		this.languageService = languageService;
 	}
 
 	@Override
@@ -67,6 +64,10 @@ public class PersistableProductOptionPopulator extends
 		
 		
 		return target;
+	}
+
+	public void setLanguageService(LanguageService languageService) {
+		this.languageService = languageService;
 	}
 
 	@Override

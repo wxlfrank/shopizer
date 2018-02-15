@@ -19,16 +19,16 @@ public class PersistableOrderProduct extends OrderProductEntity implements
 
 
 
-	public void setAttributes(List<ProductAttribute> attributes) {
-		this.attributes = attributes;
-	}
-
 	public List<ProductAttribute> getAttributes() {
 		return attributes;
 	}
 
 	public BigDecimal getPrice() {
 		return price;
+	}
+
+	public void setAttributes(List<ProductAttribute> attributes) {
+		this.attributes = attributes;
 	}
 
 	public void setPrice(BigDecimal price) {

@@ -1,7 +1,5 @@
 package com.salesmanager.shop.utils;
 
-import java.util.Date;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -16,8 +14,8 @@ public class MerchantUtils {
 			footerMessage.append(prefix).append(" ");
 		}
 		
-		Date sinceDate = null;
-		String inBusinessSince = store.getDateBusinessSince();
+//		Date sinceDate = null;
+//		String inBusinessSince = store.getDateBusinessSince();
 		
 		
 		return null;

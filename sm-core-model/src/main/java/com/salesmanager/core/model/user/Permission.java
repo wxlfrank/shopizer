@@ -42,15 +42,6 @@ public class Permission extends SalesManagerEntity<Integer, Permission> implemen
 	@GeneratedValue(strategy = GenerationType.TABLE, generator = "TABLE_GEN")
 	private Integer id;
 	
-	public Permission() {
-		
-	}
-	
-	public Permission(String permissionName) {
-		this.permissionName = permissionName;
-	}
-	
-	
 	@NotEmpty
 	@Column(name="PERMISSION_NAME", unique=true)
 	private String permissionName;
@@ -71,24 +62,35 @@ public class Permission extends SalesManagerEntity<Integer, Permission> implemen
 	})
 	private List<Group> groups = new ArrayList<Group>();
 	
+	
 	@Embedded
 	private AuditSection auditSection = new AuditSection();
 	
+	public Permission() {
+		
+	}
 	
+	public Permission(String permissionName) {
+		this.permissionName = permissionName;
+	}
+	
+	
+	@Override
+	public AuditSection getAuditSection() {
+		return this.auditSection;
+	}
+
+	public List<Group> getGroups() {
+		return groups;
+	}
+
 	@Override
 	public Integer getId() {
 		return this.id;
 	}
 
-	@Override
-	public void setId(Integer id) {
-		this.id = id;
-		
-	}
-
-	@Override
-	public AuditSection getAuditSection() {
-		return this.auditSection;
+	public String getPermissionName() {
+		return permissionName;
 	}
 
 	@Override
@@ -97,20 +99,18 @@ public class Permission extends SalesManagerEntity<Integer, Permission> implemen
 		
 	}
 
-	public String getPermissionName() {
-		return permissionName;
+	public void setGroups(List<Group> groups) {
+		this.groups = groups;
+	}
+	
+	@Override
+	public void setId(Integer id) {
+		this.id = id;
+		
 	}
 
 	public void setPermissionName(String permissionName) {
 		this.permissionName = permissionName;
-	}
-	
-	public void setGroups(List<Group> groups) {
-		this.groups = groups;
-	}
-
-	public List<Group> getGroups() {
-		return groups;
 	}
 
 }

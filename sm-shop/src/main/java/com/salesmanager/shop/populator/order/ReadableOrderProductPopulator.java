@@ -1,5 +1,13 @@
 package com.salesmanager.shop.populator.order;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.product.PricingService;
@@ -16,13 +24,6 @@ import com.salesmanager.shop.model.order.ReadableOrderProduct;
 import com.salesmanager.shop.model.order.ReadableOrderProductAttribute;
 import com.salesmanager.shop.populator.catalog.ReadableProductPopulator;
 import com.salesmanager.shop.utils.ImageFilePath;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class ReadableOrderProductPopulator extends
 		AbstractDataPopulator<OrderProduct, ReadableOrderProduct> {
@@ -37,8 +38,12 @@ public class ReadableOrderProductPopulator extends
 		return imageUtils;
 	}
 
-	public void setimageUtils(ImageFilePath imageUtils) {
-		this.imageUtils = imageUtils;
+	public PricingService getPricingService() {
+		return pricingService;
+	}
+
+	public ProductService getProductService() {
+		return productService;
 	}
 
 	@Override
@@ -125,26 +130,22 @@ public class ReadableOrderProductPopulator extends
 		return target;
 	}
 
-	@Override
-	protected ReadableOrderProduct createTarget() {
-
-		return null;
-	}
-
-	public ProductService getProductService() {
-		return productService;
-	}
-
-	public void setProductService(ProductService productService) {
-		this.productService = productService;
-	}
-	
-	public PricingService getPricingService() {
-		return pricingService;
+	public void setimageUtils(ImageFilePath imageUtils) {
+		this.imageUtils = imageUtils;
 	}
 
 	public void setPricingService(PricingService pricingService) {
 		this.pricingService = pricingService;
+	}
+	
+	public void setProductService(ProductService productService) {
+		this.productService = productService;
+	}
+
+	@Override
+	protected ReadableOrderProduct createTarget() {
+
+		return null;
 	}
 
 }

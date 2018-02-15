@@ -75,52 +75,48 @@ public class OrderTotal extends SalesManagerEntity<Long, OrderTotal> {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public BigDecimal getValue() {
-		return value;
-	}
-
-	public void setValue(BigDecimal value) {
-		this.value = value;
-	}
-
 	public String getModule() {
 		return module;
 	}
 
-	public void setModule(String module) {
-		this.module = module;
+	public Order getOrder() {
+		return order;
+	}
+
+	public String getOrderTotalCode() {
+		return orderTotalCode;
+	}
+
+	public OrderTotalType getOrderTotalType() {
+		return orderTotalType;
+	}
+
+	public OrderValueType getOrderValueType() {
+		return orderValueType;
 	}
 
 	public int getSortOrder() {
 		return sortOrder;
 	}
 
-	public void setSortOrder(int sortOrder) {
-		this.sortOrder = sortOrder;
+	public String getText() {
+		return text;
 	}
 
-	public Order getOrder() {
-		return order;
+	public String getTitle() {
+		return title;
+	}
+
+	public BigDecimal getValue() {
+		return value;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setModule(String module) {
+		this.module = module;
 	}
 
 	public void setOrder(Order order) {
@@ -131,24 +127,28 @@ public class OrderTotal extends SalesManagerEntity<Long, OrderTotal> {
 		this.orderTotalCode = orderTotalCode;
 	}
 
-	public String getOrderTotalCode() {
-		return orderTotalCode;
+	public void setOrderTotalType(OrderTotalType orderTotalType) {
+		this.orderTotalType = orderTotalType;
 	}
 
 	public void setOrderValueType(OrderValueType orderValueType) {
 		this.orderValueType = orderValueType;
 	}
 
-	public OrderValueType getOrderValueType() {
-		return orderValueType;
+	public void setSortOrder(int sortOrder) {
+		this.sortOrder = sortOrder;
 	}
 
-	public void setOrderTotalType(OrderTotalType orderTotalType) {
-		this.orderTotalType = orderTotalType;
+	public void setText(String text) {
+		this.text = text;
 	}
 
-	public OrderTotalType getOrderTotalType() {
-		return orderTotalType;
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public void setValue(BigDecimal value) {
+		this.value = value;
 	}
 
 

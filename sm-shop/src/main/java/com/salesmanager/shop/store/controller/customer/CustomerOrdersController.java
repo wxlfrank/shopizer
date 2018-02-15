@@ -1,8 +1,26 @@
 package com.salesmanager.shop.store.controller.customer;
 
-import com.salesmanager.core.business.services.merchant.MerchantStoreService;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.salesmanager.core.business.services.order.orderproduct.OrderProductDownloadService;
-import com.salesmanager.core.business.services.reference.language.LanguageService;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.order.orderproduct.OrderProductDownload;
@@ -17,49 +35,31 @@ import com.salesmanager.shop.store.controller.ControllerConstants;
 import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
 import com.salesmanager.shop.store.controller.order.facade.OrderFacade;
 import com.salesmanager.shop.store.model.paging.PaginationData;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequestMapping(Constants.SHOP_URI + "/customer")
 public class CustomerOrdersController extends AbstractController {
 	
-    @Inject
-	private MerchantStoreService merchantStoreService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomerOrdersController.class);
     
-    @Inject
-    private LanguageService languageService;
+//    @Inject
+//	private MerchantStoreService merchantStoreService;
+    
+//    @Inject
+//    private LanguageService languageService;
     
     @Inject
     private OrderFacade orderFacade;
     
-    @Inject
-    private CustomerFacade customerFacade;
-    
 	@Inject
-	private OrderProductDownloadService orderProdctDownloadService;
+    private CustomerFacade customerFacade;
     
     
 
 	
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerOrdersController.class);
+	@Inject
+	private OrderProductDownloadService orderProdctDownloadService;
 	
 	@PreAuthorize("hasRole('AUTH_CUSTOMER')")
 	@RequestMapping(value="/orders.html", method={RequestMethod.GET,RequestMethod.POST})

@@ -29,13 +29,81 @@ import com.salesmanager.shop.populator.catalog.ReadableCategoryPopulator;
 @Service( value = "categoryFacade" )
 public class CategoryFacadeImpl implements CategoryFacade {
 	
+	private final static String FEATURED_CATEGORY = "featured";
+	
 	@Inject
 	private CategoryService categoryService;
 	
 	@Inject
 	private LanguageService languageService;
+
+	@Override
+	public void deleteCategory(Category category) throws Exception {
+		categoryService.delete(category);
+	}
+
+	@Override
+	public ReadableCategory getByCode(MerchantStore store, String code, Language language) throws Exception {
+
+		Validate.notNull(code,"category code must not be null");
+		ReadableCategoryPopulator categoryPopulator = new ReadableCategoryPopulator();
+		ReadableCategory readableCategory = new ReadableCategory();
+		
+		Category category = categoryService.getByCode(store, code);
+		categoryPopulator.populate(category, readableCategory, store, language);
+		
+		return readableCategory;
+		
+	}
 	
-	private final static String FEATURED_CATEGORY = "featured";
+	@Override
+	public ReadableCategory getById(MerchantStore store, Long id, Language language) throws Exception {
+		Category categoryModel = categoryService.getByLanguage(id, language);
+		
+		if(categoryModel == null)
+			return null;
+		
+		StringBuilder lineage = new StringBuilder();
+		lineage.append(categoryModel.getLineage());
+		lineage.append(categoryModel.getId());
+		
+		//get children
+		List<Category> children = categoryService.listByLineage(store, lineage.toString());
+		
+		
+
+		ReadableCategoryPopulator populator = new ReadableCategoryPopulator();
+
+		
+		ReadableCategory category = populator.populate(categoryModel, new ReadableCategory(), store, language);
+
+		Map<Long, ReadableCategory> categoryMap = new ConcurrentHashMap<Long, ReadableCategory>();
+		List<ReadableCategory> returnValues = new ArrayList<ReadableCategory>();
+		categoryMap.put(categoryModel.getId(), category);
+		
+		
+		for(Category child : children) {
+			ReadableCategory c = new ReadableCategory();
+			populator.populate(child, c, store, language);
+			returnValues.add(c);
+			categoryMap.put(c.getId(),c);
+		}
+		
+		//traverse map and add child to parent
+		for(ReadableCategory readable : returnValues) {
+			
+			if(readable.getParent() != null) {
+				
+				ReadableCategory rc = categoryMap.get(readable.getParent().getId());
+				rc.getChildren().add(readable);
+				
+			}
+		}
+		
+		
+		return category;
+
+	}
 
 	@Override
 	public List<ReadableCategory> getCategoryHierarchy(MerchantStore store,
@@ -129,7 +197,7 @@ public class CategoryFacadeImpl implements CategoryFacade {
 		
 		
 	}
-	
+
 	private void saveCategory(MerchantStore store, Category c, Category parent) throws ServiceException {
 		
 		
@@ -177,74 +245,6 @@ public class CategoryFacadeImpl implements CategoryFacade {
 				
 			}
 		}
-	}
-
-	@Override
-	public ReadableCategory getById(MerchantStore store, Long id, Language language) throws Exception {
-		Category categoryModel = categoryService.getByLanguage(id, language);
-		
-		if(categoryModel == null)
-			return null;
-		
-		StringBuilder lineage = new StringBuilder();
-		lineage.append(categoryModel.getLineage());
-		lineage.append(categoryModel.getId());
-		
-		//get children
-		List<Category> children = categoryService.listByLineage(store, lineage.toString());
-		
-		
-
-		ReadableCategoryPopulator populator = new ReadableCategoryPopulator();
-
-		
-		ReadableCategory category = populator.populate(categoryModel, new ReadableCategory(), store, language);
-
-		Map<Long, ReadableCategory> categoryMap = new ConcurrentHashMap<Long, ReadableCategory>();
-		List<ReadableCategory> returnValues = new ArrayList<ReadableCategory>();
-		categoryMap.put(categoryModel.getId(), category);
-		
-		
-		for(Category child : children) {
-			ReadableCategory c = new ReadableCategory();
-			populator.populate(child, c, store, language);
-			returnValues.add(c);
-			categoryMap.put(c.getId(),c);
-		}
-		
-		//traverse map and add child to parent
-		for(ReadableCategory readable : returnValues) {
-			
-			if(readable.getParent() != null) {
-				
-				ReadableCategory rc = categoryMap.get(readable.getParent().getId());
-				rc.getChildren().add(readable);
-				
-			}
-		}
-		
-		
-		return category;
-
-	}
-
-	@Override
-	public void deleteCategory(Category category) throws Exception {
-		categoryService.delete(category);
-	}
-
-	@Override
-	public ReadableCategory getByCode(MerchantStore store, String code, Language language) throws Exception {
-
-		Validate.notNull(code,"category code must not be null");
-		ReadableCategoryPopulator categoryPopulator = new ReadableCategoryPopulator();
-		ReadableCategory readableCategory = new ReadableCategory();
-		
-		Category category = categoryService.getByCode(store, code);
-		categoryPopulator.populate(category, readableCategory, store, language);
-		
-		return readableCategory;
-		
 	}
 
 }

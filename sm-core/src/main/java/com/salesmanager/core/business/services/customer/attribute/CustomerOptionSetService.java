@@ -15,22 +15,22 @@ public interface CustomerOptionSetService extends SalesManagerEntityService<Long
 
 
 
-	void saveOrUpdate(CustomerOptionSet entity) throws ServiceException;
+	List<CustomerOptionSet> listByOption(CustomerOption option,
+			MerchantStore store) throws ServiceException;
+
+
+
+
+	List<CustomerOptionSet> listByOptionValue(CustomerOptionValue optionValue,
+			MerchantStore store) throws ServiceException;
 
 
 
 
 	List<CustomerOptionSet> listByStore(MerchantStore store,
 			Language language) throws ServiceException;
-
-
-
-
-	List<CustomerOptionSet> listByOption(CustomerOption option,
-			MerchantStore store) throws ServiceException;
 	
 
-	List<CustomerOptionSet> listByOptionValue(CustomerOptionValue optionValue,
-			MerchantStore store) throws ServiceException;
+	void saveOrUpdate(CustomerOptionSet entity) throws ServiceException;
 
 }

@@ -3,6 +3,10 @@
  */
 package com.salesmanager.shop.populator.customer;
 
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.reference.country.CountryService;
@@ -14,9 +18,6 @@ import com.salesmanager.core.model.reference.country.Country;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.reference.zone.Zone;
 import com.salesmanager.shop.model.customer.ReadableDelivery;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.Map;
 
 /**
  * @author Carl Samson
@@ -29,6 +30,14 @@ public class ReadableCustomerDeliveryAddressPopulator extends AbstractDataPopula
 	private CountryService countryService;
 	private ZoneService zoneService;
 	
+	public CountryService getCountryService() {
+		return countryService;
+	}
+
+	public ZoneService getZoneService() {
+		return zoneService;
+	}
+
 	@Override
     public ReadableDelivery populate( Delivery source, ReadableDelivery target, MerchantStore store, Language language )
         throws ConversionException
@@ -118,26 +127,18 @@ public class ReadableCustomerDeliveryAddressPopulator extends AbstractDataPopula
         return target;
     }
 
-	@Override
-	protected ReadableDelivery createTarget() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public CountryService getCountryService() {
-		return countryService;
-	}
-
 	public void setCountryService(CountryService countryService) {
 		this.countryService = countryService;
 	}
 
-	public ZoneService getZoneService() {
-		return zoneService;
-	}
-
 	public void setZoneService(ZoneService zoneService) {
 		this.zoneService = zoneService;
+	}
+
+	@Override
+	protected ReadableDelivery createTarget() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

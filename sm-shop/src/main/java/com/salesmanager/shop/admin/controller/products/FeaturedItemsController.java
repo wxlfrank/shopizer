@@ -1,5 +1,27 @@
 package com.salesmanager.shop.admin.controller.products;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.relationship.ProductRelationshipService;
@@ -14,26 +36,6 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.admin.model.web.Menu;
 import com.salesmanager.shop.constants.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 @Controller
@@ -51,6 +53,62 @@ public class FeaturedItemsController {
 	ProductRelationshipService productRelationshipService;
 	
 	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/catalogue/featured/addItem.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> addItem(HttpServletRequest request, HttpServletResponse response) {
+		
+		String productId = request.getParameter("productId");
+		AjaxResponse resp = new AjaxResponse();
+		
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		
+		try {
+			
+
+			Long lProductId = Long.parseLong(productId);
+
+			MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+			
+			Product product = productService.getById(lProductId);
+			
+			if(product==null) {
+				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+
+
+			ProductRelationship relationship = new ProductRelationship();
+			relationship.setActive(true);
+			relationship.setCode(ProductRelationshipType.FEATURED_ITEM.name());
+			relationship.setStore(store);
+			relationship.setRelatedProduct(product);
+			
+			productRelationshipService.saveOrUpdate(relationship);
+			
+
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while paging products", e);
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		
+	}
+	
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
 	@RequestMapping(value="/admin/catalogue/featured/list.html", method=RequestMethod.GET)
 	public String displayFeaturedItems(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -66,7 +124,6 @@ public class FeaturedItemsController {
 		return "admin-catalogue-featured";
 		
 	}
-	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@PreAuthorize("hasRole('PRODUCTS')")
@@ -123,61 +180,6 @@ public class FeaturedItemsController {
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 
 
-	}
-	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/catalogue/featured/addItem.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> addItem(HttpServletRequest request, HttpServletResponse response) {
-		
-		String productId = request.getParameter("productId");
-		AjaxResponse resp = new AjaxResponse();
-		
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		
-		
-		try {
-			
-
-			Long lProductId = Long.parseLong(productId);
-
-			MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-			
-			Product product = productService.getById(lProductId);
-			
-			if(product==null) {
-				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-
-
-			ProductRelationship relationship = new ProductRelationship();
-			relationship.setActive(true);
-			relationship.setCode(ProductRelationshipType.FEATURED_ITEM.name());
-			relationship.setStore(store);
-			relationship.setRelatedProduct(product);
-			
-			productRelationshipService.saveOrUpdate(relationship);
-			
-
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while paging products", e);
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		
 	}
 	
 	@PreAuthorize("hasRole('PRODUCTS')")

@@ -26,8 +26,11 @@ public class TaxClassServiceImpl extends SalesManagerEntityServiceImpl<Long, Tax
 	}
 	
 	@Override
-	public List<TaxClass> listByStore(MerchantStore store) throws ServiceException {	
-		return taxClassRepository.findByStore(store.getId());
+	public void delete(TaxClass taxClass) throws ServiceException {
+		
+		TaxClass t = this.getById(taxClass.getId());
+		super.delete(t);
+		
 	}
 	
 	@Override
@@ -41,16 +44,13 @@ public class TaxClassServiceImpl extends SalesManagerEntityServiceImpl<Long, Tax
 	}
 	
 	@Override
-	public void delete(TaxClass taxClass) throws ServiceException {
-		
-		TaxClass t = this.getById(taxClass.getId());
-		super.delete(t);
-		
+	public TaxClass getById(Long id) {
+		return taxClassRepository.findOne(id);
 	}
 	
 	@Override
-	public TaxClass getById(Long id) {
-		return taxClassRepository.findOne(id);
+	public List<TaxClass> listByStore(MerchantStore store) throws ServiceException {	
+		return taxClassRepository.findByStore(store.getId());
 	}
 	
 

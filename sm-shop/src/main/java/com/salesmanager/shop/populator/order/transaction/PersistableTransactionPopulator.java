@@ -20,6 +20,14 @@ public class PersistableTransactionPopulator extends AbstractDataPopulator<Persi
 	private OrderService orderService;
 	private PricingService pricingService;
 	
+	public OrderService getOrderService() {
+		return orderService;
+	}
+
+	public PricingService getPricingService() {
+		return pricingService;
+	}
+	
 	@Override
 	public Transaction populate(PersistableTransaction source, Transaction target, MerchantStore store,
 			Language language) throws ConversionException {
@@ -64,26 +72,18 @@ public class PersistableTransactionPopulator extends AbstractDataPopulator<Persi
 
 	}
 
-	@Override
-	protected Transaction createTarget() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public OrderService getOrderService() {
-		return orderService;
-	}
-
 	public void setOrderService(OrderService orderService) {
 		this.orderService = orderService;
 	}
 
-	public PricingService getPricingService() {
-		return pricingService;
-	}
-
 	public void setPricingService(PricingService pricingService) {
 		this.pricingService = pricingService;
+	}
+
+	@Override
+	protected Transaction createTarget() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

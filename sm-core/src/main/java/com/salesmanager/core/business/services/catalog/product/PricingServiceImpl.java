@@ -34,6 +34,11 @@ public class PricingServiceImpl implements PricingService {
 	private ProductPriceUtils priceUtil;
 	
 	@Override
+	public BigDecimal calculatePriceQuantity(BigDecimal price, int quantity) {
+		return price.multiply(new BigDecimal(quantity));
+	}
+	
+	@Override
 	public FinalPrice calculateProductPrice(Product product) throws ServiceException {
 		return priceUtil.getFinalPrice(product);
 	}
@@ -54,21 +59,17 @@ public class PricingServiceImpl implements PricingService {
 		/** TODO add rules for price calculation **/
 		return priceUtil.getFinalProductPrice(product, attributes);
 	}
-	
-	@Override
-	public BigDecimal calculatePriceQuantity(BigDecimal price, int quantity) {
-		return price.multiply(new BigDecimal(quantity));
-	}
 
 	@Override
-	public String getDisplayAmount(BigDecimal amount, MerchantStore store) throws ServiceException {
+	public BigDecimal getAmount(String amount) throws ServiceException {
+
 		try {
-			String price= priceUtil.getStoreFormatedAmountWithCurrency(store,amount);
-			return price;
+			return priceUtil.getAmount(amount);
 		} catch (Exception e) {
-			LOGGER.error("An error occured when trying to format an amount " + amount.toString());
+			LOGGER.error("An error occured when trying to format an amount " + amount);
 			throw new ServiceException(e);
 		}
+
 	}
 	
 	@Override
@@ -84,6 +85,17 @@ public class PricingServiceImpl implements PricingService {
 	}
 
 	@Override
+	public String getDisplayAmount(BigDecimal amount, MerchantStore store) throws ServiceException {
+		try {
+			String price= priceUtil.getStoreFormatedAmountWithCurrency(store,amount);
+			return price;
+		} catch (Exception e) {
+			LOGGER.error("An error occured when trying to format an amount " + amount.toString());
+			throw new ServiceException(e);
+		}
+	}
+
+	@Override
 	public String getStringAmount(BigDecimal amount, MerchantStore store)
 			throws ServiceException {
 		try {
@@ -93,18 +105,6 @@ public class PricingServiceImpl implements PricingService {
 			LOGGER.error("An error occured when trying to format an amount " + amount.toString());
 			throw new ServiceException(e);
 		}
-	}
-
-	@Override
-	public BigDecimal getAmount(String amount) throws ServiceException {
-
-		try {
-			return priceUtil.getAmount(amount);
-		} catch (Exception e) {
-			LOGGER.error("An error occured when trying to format an amount " + amount);
-			throw new ServiceException(e);
-		}
-
 	}
 
 

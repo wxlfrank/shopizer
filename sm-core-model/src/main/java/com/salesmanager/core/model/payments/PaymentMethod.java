@@ -23,17 +23,17 @@ public class PaymentMethod implements Serializable {
 	private IntegrationModule module;
 	private IntegrationConfiguration informations;
 
-	public PaymentType getPaymentType() {
-		return paymentType;
+	public IntegrationConfiguration getInformations() {
+		return informations;
 	}
-	public void setPaymentType(PaymentType paymentType) {
-		this.paymentType = paymentType;
+	public IntegrationModule getModule() {
+		return module;
 	}
 	public String getPaymentMethodCode() {
 		return paymentMethodCode;
 	}
-	public void setPaymentMethodCode(String paymentMethodCode) {
-		this.paymentMethodCode = paymentMethodCode;
+	public PaymentType getPaymentType() {
+		return paymentType;
 	}
 	public boolean isDefaultSelected() {
 		return defaultSelected;
@@ -41,17 +41,17 @@ public class PaymentMethod implements Serializable {
 	public void setDefaultSelected(boolean defaultSelected) {
 		this.defaultSelected = defaultSelected;
 	}
-	public IntegrationModule getModule() {
-		return module;
+	public void setInformations(IntegrationConfiguration informations) {
+		this.informations = informations;
 	}
 	public void setModule(IntegrationModule module) {
 		this.module = module;
 	}
-	public IntegrationConfiguration getInformations() {
-		return informations;
+	public void setPaymentMethodCode(String paymentMethodCode) {
+		this.paymentMethodCode = paymentMethodCode;
 	}
-	public void setInformations(IntegrationConfiguration informations) {
-		this.informations = informations;
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
 	}
 
 }

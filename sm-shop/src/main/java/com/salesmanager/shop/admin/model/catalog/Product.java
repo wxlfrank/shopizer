@@ -1,16 +1,18 @@
 package com.salesmanager.shop.admin.model.catalog;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.salesmanager.core.model.catalog.product.availability.ProductAvailability;
 import com.salesmanager.core.model.catalog.product.description.ProductDescription;
 import com.salesmanager.core.model.catalog.product.image.ProductImage;
 import com.salesmanager.core.model.catalog.product.price.ProductPrice;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.Valid;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Product implements Serializable {
 	
@@ -47,61 +49,61 @@ public class Product implements Serializable {
 
 	private ProductDescription description = null;
 	
-	public String getDateAvailable() {
-		return dateAvailable;
-	}
-	public void setDateAvailable(String dateAvailable) {
-		this.dateAvailable = dateAvailable;
-	}
-	public com.salesmanager.core.model.catalog.product.Product getProduct() {
-		return product;
-	}
-	public void setProduct(com.salesmanager.core.model.catalog.product.Product product) {
-		this.product = product;
-	}
-	
-	public List<ProductDescription> getDescriptions() {
-		return descriptions;
-	}
-	public void setDescriptions(List<ProductDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-	public void setAvailability(ProductAvailability availability) {
-		this.availability = availability;
-	}
 	public ProductAvailability getAvailability() {
 		return availability;
 	}
-	public void setPrice(ProductPrice price) {
-		this.price = price;
+	public String getDateAvailable() {
+		return dateAvailable;
+	}
+	public ProductDescription getDescription() {
+		return description;
+	}
+	public List<ProductDescription> getDescriptions() {
+		return descriptions;
+	}
+	
+	public MultipartFile getImage() {
+		return image;
 	}
 	public ProductPrice getPrice() {
 		return price;
 	}
-	public MultipartFile getImage() {
-		return image;
-	}
-	public void setImage(MultipartFile image) {
-		this.image = image;
-	}
-
-	public void setProductPrice(String productPrice) {
-		this.productPrice = productPrice;
-	}
-	public String getProductPrice() {
-		return productPrice;
-	}
-	public void setProductImage(ProductImage productImage) {
-		this.productImage = productImage;
+	public com.salesmanager.core.model.catalog.product.Product getProduct() {
+		return product;
 	}
 	public ProductImage getProductImage() {
 		return productImage;
 	}
+	public String getProductPrice() {
+		return productPrice;
+	}
+	public void setAvailability(ProductAvailability availability) {
+		this.availability = availability;
+	}
+	public void setDateAvailable(String dateAvailable) {
+		this.dateAvailable = dateAvailable;
+	}
 	public void setDescription(ProductDescription description) {
 		this.description = description;
 	}
-	public ProductDescription getDescription() {
-		return description;
+
+	public void setDescriptions(List<ProductDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+	public void setImage(MultipartFile image) {
+		this.image = image;
+	}
+	public void setPrice(ProductPrice price) {
+		this.price = price;
+	}
+	public void setProduct(com.salesmanager.core.model.catalog.product.Product product) {
+		this.product = product;
+	}
+	public void setProductImage(ProductImage productImage) {
+		this.productImage = productImage;
+	}
+	public void setProductPrice(String productPrice) {
+		this.productPrice = productPrice;
 	}
 	
 

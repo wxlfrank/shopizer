@@ -1,5 +1,10 @@
 package com.salesmanager.shop.populator.order;
 
+import java.util.Locale;
+
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.services.catalog.product.PricingService;
@@ -10,10 +15,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.order.total.ReadableOrderTotal;
 import com.salesmanager.shop.utils.LabelUtils;
 import com.salesmanager.shop.utils.LocaleUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Locale;
 
 public class ReadableOrderTotalPopulator extends
 		AbstractDataPopulator<OrderTotal, ReadableOrderTotal> {
@@ -27,6 +28,14 @@ public class ReadableOrderTotalPopulator extends
 
 
 
+	public LabelUtils getMessages() {
+		return messages;
+	}
+
+	public PricingService getPricingService() {
+		return pricingService;
+	}
+	
 	@Override
 	public ReadableOrderTotal populate(OrderTotal source,
 			ReadableOrderTotal target, MerchantStore store, Language language)
@@ -65,25 +74,17 @@ public class ReadableOrderTotalPopulator extends
 		
 	}
 
-	@Override
-	protected ReadableOrderTotal createTarget() {
-		return new ReadableOrderTotal();
+	public void setMessages(LabelUtils messages) {
+		this.messages = messages;
 	}
 	
-	public PricingService getPricingService() {
-		return pricingService;
-	}
-
 	public void setPricingService(PricingService pricingService) {
 		this.pricingService = pricingService;
 	}
-	
-	public LabelUtils getMessages() {
-		return messages;
-	}
 
-	public void setMessages(LabelUtils messages) {
-		this.messages = messages;
+	@Override
+	protected ReadableOrderTotal createTarget() {
+		return new ReadableOrderTotal();
 	}
 
 }

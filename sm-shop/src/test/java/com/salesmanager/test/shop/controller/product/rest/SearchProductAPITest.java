@@ -3,7 +3,6 @@ package com.salesmanager.test.shop.controller.product.rest;
 import java.nio.charset.Charset;
 
 import org.junit.Ignore;
-import org.junit.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.salesmanager.shop.model.catalog.SearchProductList;
 import com.salesmanager.shop.model.catalog.SearchProductRequest;
-import com.salesmanager.shop.model.catalog.manufacturer.PersistableManufacturer;
 
 public class SearchProductAPITest {
 	
@@ -52,7 +50,7 @@ public class SearchProductAPITest {
 		
 		restTemplate = new RestTemplate();
 
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/api/v1/search", entity, SearchProductList.class);
+		ResponseEntity<SearchProductList> response = restTemplate.postForEntity("http://localhost:8080/api/v1/search", entity, SearchProductList.class);
 
 		SearchProductList search = (SearchProductList) response.getBody();
 		System.out.println("Search count : " + search.getProductCount());

@@ -1,13 +1,13 @@
 package com.salesmanager.shop.populator.manufacturer;
 
+import java.util.Set;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.utils.AbstractDataPopulator;
 import com.salesmanager.core.model.catalog.product.manufacturer.ManufacturerDescription;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.manufacturer.ReadableManufacturer;
-
-import java.util.Set;
 
 public class ReadableManufacturerPopulator extends AbstractDataPopulator<com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer,ReadableManufacturer>
 {

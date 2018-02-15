@@ -8,15 +8,43 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 public class DataUtils {
 	
 	/**
-	 * Removes dashes
-	 * @param postalCode
+	 * Get the measure according to the appropriate measure base. If the measure
+	 * configured in store is IN and it needs CM or vise versa then the
+	 * appropriate calculation is done
+	 * 
+	 * @param weight
+	 * @param store
+	 * @param base
 	 * @return
 	 */
-	public static String trimPostalCode(String postalCode) {
+	public static double getMeasure(double measure, MerchantStore store,
+			String base) {
 
-		String pc = postalCode.replaceAll("[^a-zA-Z0-9]", "");
+		if (base.equals(MeasureUnit.IN.name())) {
+			if (store.getSeizeunitcode().equals(MeasureUnit.IN.name())) {
+				return new BigDecimal(String.valueOf(measure)).setScale(2,
+						BigDecimal.ROUND_HALF_UP).doubleValue();
+			} else {// centimeter (inch to centimeter)
+				double measureConstant = 2.54;
 
-		return pc;
+				double answer = measure * measureConstant;
+				BigDecimal w = new BigDecimal(answer);
+				return w.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+			}
+		} else {// need CM
+			if (store.getSeizeunitcode().equals(MeasureUnit.CM.name())) {
+				return new BigDecimal(String.valueOf(measure)).setScale(2)
+						.doubleValue();
+			} else {// in (centimeter to inch)
+				double measureConstant = 0.39;
+
+				double answer = measure * measureConstant;
+				BigDecimal w = new BigDecimal(answer);
+				return w.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+			}
+		}
 
 	}
 	
@@ -59,43 +87,15 @@ public class DataUtils {
 	}
 	
 	/**
-	 * Get the measure according to the appropriate measure base. If the measure
-	 * configured in store is IN and it needs CM or vise versa then the
-	 * appropriate calculation is done
-	 * 
-	 * @param weight
-	 * @param store
-	 * @param base
+	 * Removes dashes
+	 * @param postalCode
 	 * @return
 	 */
-	public static double getMeasure(double measure, MerchantStore store,
-			String base) {
+	public static String trimPostalCode(String postalCode) {
 
-		if (base.equals(MeasureUnit.IN.name())) {
-			if (store.getSeizeunitcode().equals(MeasureUnit.IN.name())) {
-				return new BigDecimal(String.valueOf(measure)).setScale(2,
-						BigDecimal.ROUND_HALF_UP).doubleValue();
-			} else {// centimeter (inch to centimeter)
-				double measureConstant = 2.54;
+		String pc = postalCode.replaceAll("[^a-zA-Z0-9]", "");
 
-				double answer = measure * measureConstant;
-				BigDecimal w = new BigDecimal(answer);
-				return w.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-
-			}
-		} else {// need CM
-			if (store.getSeizeunitcode().equals(MeasureUnit.CM.name())) {
-				return new BigDecimal(String.valueOf(measure)).setScale(2)
-						.doubleValue();
-			} else {// in (centimeter to inch)
-				double measureConstant = 0.39;
-
-				double answer = measure * measureConstant;
-				BigDecimal w = new BigDecimal(answer);
-				return w.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-
-			}
-		}
+		return pc;
 
 	}
 

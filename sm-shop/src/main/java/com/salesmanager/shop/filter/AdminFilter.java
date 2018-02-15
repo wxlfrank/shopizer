@@ -1,10 +1,24 @@
 package com.salesmanager.shop.filter;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesmanager.core.business.services.merchant.MerchantStoreService;
-import com.salesmanager.core.business.services.reference.language.LanguageService;
 import com.salesmanager.core.business.services.user.UserService;
 import com.salesmanager.core.business.utils.CacheUtils;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -13,22 +27,6 @@ import com.salesmanager.core.model.user.User;
 import com.salesmanager.shop.admin.model.web.Menu;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.utils.LanguageUtils;
-
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 
 public class AdminFilter extends HandlerInterceptorAdapter {
@@ -42,8 +40,8 @@ public class AdminFilter extends HandlerInterceptorAdapter {
 	@Inject
 	private UserService userService;
 	
-	@Inject
-	private LanguageService languageService;
+//	@Inject
+//	private LanguageService languageService;
 	
 	@Inject
 	private CacheUtils cache;
@@ -141,12 +139,14 @@ public class AdminFilter extends HandlerInterceptorAdapter {
 				in =
 					(InputStream) this.getClass().getClassLoader().getResourceAsStream("admin/menu.json");
 
+				@SuppressWarnings("unchecked")
 				Map<String,Object> data = mapper.readValue(in, Map.class);
-
-				Menu currentMenu = null;
+//
+//				Menu currentMenu = null;
 				
 				menus = new LinkedHashMap<String,Menu>();
-				List objects = (List)data.get("menus");
+				@SuppressWarnings("unchecked")
+				List<Object> objects = (List<Object>) data.get("menus");
 				for(Object object : objects) {
 					Menu m = getMenu(object);
 					menus.put(m.getCode(),m);
@@ -188,8 +188,8 @@ public class AdminFilter extends HandlerInterceptorAdapter {
 	
 	private Menu getMenu(Object object) {
 		
-		Map o = (Map)object;
-		Map menu = (Map)o.get("menu");
+		Map<?, ?> o = (Map<?, ?>)object;
+		Map<?, ?> menu = (Map<?, ?>)o.get("menu");
 		
 		Menu m = new Menu();
 		m.setCode((String)menu.get("code"));
@@ -199,7 +199,7 @@ public class AdminFilter extends HandlerInterceptorAdapter {
 		m.setIcon((String)menu.get("icon"));
 		m.setRole((String)menu.get("role"));
 		
-		List menus = (List)menu.get("menus");
+		List<?> menus = (List<?>)menu.get("menus");
 		if(menus!=null) {
 			for(Object oo : menus) {
 				

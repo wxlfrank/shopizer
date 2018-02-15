@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,22 +42,93 @@ import com.salesmanager.shop.utils.LanguageUtils;
 @RequestMapping("/api/v1")
 public class ProductImageApi {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProductImageApi.class);
+	
 	@Inject
 	private ProductImageService productImageService;
 	
 	@Inject
 	private StoreFacade storeFacade;
+
 	
 	@Inject
 	private LanguageUtils languageUtils;
-
 	
 	@Inject
 	private ProductService productService;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProductImageApi.class);
-	
 	/**
+      * Simple way of uploading image using Base64
+      * @param id
+      * @param image
+      * @param request
+      * @param response
+      * @return
+      * @throws Exception
+      */
+     @ResponseStatus(HttpStatus.CREATED)
+ 	 @RequestMapping( value={"/private/products/{id}/images/v0"}, method=RequestMethod.POST)
+     public @ResponseBody PersistableImage createImage(@PathVariable Long id, @Valid @RequestBody PersistableImage image, HttpServletRequest request, HttpServletResponse response) throws Exception {
+     	
+ 		try {
+     	
+ 	    	MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+ 			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
+ 	    	
+ 	    	//get the product
+ 	    	Product product = productService.getById(id);
+ 	    	
+ 	    	PersistableImagePopulator imagePopulator = new PersistableImagePopulator();
+ 	    	imagePopulator.setProduct(product);
+ 	    	ProductImage productImage = imagePopulator.populate(image, merchantStore, language);
+ 	    	
+ 	    	InputStream input = new ByteArrayInputStream(image.getBytes());
+ 	    	
+ 	    	ImageContentFile file = new ImageContentFile();
+ 	    	file.setFile(input);
+ 	    	file.setFileContentType(FileContentType.IMAGE);
+ 	    	file.setFileName(productImage.getProductImage());
+ 	    	file.setMimeType(image.getContentType());
+ 	    	
+ 	    	productImageService.addProductImage(product, productImage, file);
+ 	    	image.setId(productImage.getId());
+ 	    	
+ 	    	return image;
+     	
+ 		} catch (Exception e) {
+ 			LOGGER.error("Error while creating ProductImage",e);
+ 			try {
+ 				response.sendError(503, "Error while creating ProductImage " + e.getMessage());
+ 			} catch (Exception ignore) {
+ 			}
+ 			
+ 			return null;
+ 		}
+     }
+    
+     @ResponseStatus(HttpStatus.OK)
+ 	 @RequestMapping( value={"/private/products/images/{id}","/auth/products/images/{id}"}, method=RequestMethod.DELETE)
+     public void deleteImage( @PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+     
+	 	 try {
+	     	   ProductImage productImage = productImageService.getById(id);
+	 	    	
+	 			if(productImage != null){
+	 				productImageService.delete(productImage);
+	 			}else{
+	 				response.sendError(404, "No ProductImage found for ID : " + id);
+	 			}
+	 		
+	 	 } catch (Exception e) {
+	 		LOGGER.error("Error while deleting ProductImage",e);
+	 		try {
+	 			response.sendError(503, "Error while deleting ProductImage " + e.getMessage());
+	 		} catch (Exception ignore) {
+	 		}
+	 	 }
+     }
+     
+     /**
 	 * To be used with MultipartFile
 	 * @param id
 	 * @param uploadfiles
@@ -126,76 +196,5 @@ public class ProductImageApi {
     	}
 	
     }
-    
-     /**
-      * Simple way of uploading image using Base64
-      * @param id
-      * @param image
-      * @param request
-      * @param response
-      * @return
-      * @throws Exception
-      */
-     @ResponseStatus(HttpStatus.CREATED)
- 	 @RequestMapping( value={"/private/products/{id}/images/v0"}, method=RequestMethod.POST)
-     public @ResponseBody PersistableImage createImage(@PathVariable Long id, @Valid @RequestBody PersistableImage image, HttpServletRequest request, HttpServletResponse response) throws Exception {
-     	
- 		try {
-     	
- 	    	MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
- 			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
- 	    	
- 	    	//get the product
- 	    	Product product = productService.getById(id);
- 	    	
- 	    	PersistableImagePopulator imagePopulator = new PersistableImagePopulator();
- 	    	imagePopulator.setProduct(product);
- 	    	ProductImage productImage = imagePopulator.populate(image, merchantStore, language);
- 	    	
- 	    	InputStream input = new ByteArrayInputStream(image.getBytes());
- 	    	
- 	    	ImageContentFile file = new ImageContentFile();
- 	    	file.setFile(input);
- 	    	file.setFileContentType(FileContentType.IMAGE);
- 	    	file.setFileName(productImage.getProductImage());
- 	    	file.setMimeType(image.getContentType());
- 	    	
- 	    	productImageService.addProductImage(product, productImage, file);
- 	    	image.setId(productImage.getId());
- 	    	
- 	    	return image;
-     	
- 		} catch (Exception e) {
- 			LOGGER.error("Error while creating ProductImage",e);
- 			try {
- 				response.sendError(503, "Error while creating ProductImage " + e.getMessage());
- 			} catch (Exception ignore) {
- 			}
- 			
- 			return null;
- 		}
-     }
-     
-     @ResponseStatus(HttpStatus.OK)
- 	 @RequestMapping( value={"/private/products/images/{id}","/auth/products/images/{id}"}, method=RequestMethod.DELETE)
-     public void deleteImage( @PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
-     
-	 	 try {
-	     	   ProductImage productImage = productImageService.getById(id);
-	 	    	
-	 			if(productImage != null){
-	 				productImageService.delete(productImage);
-	 			}else{
-	 				response.sendError(404, "No ProductImage found for ID : " + id);
-	 			}
-	 		
-	 	 } catch (Exception e) {
-	 		LOGGER.error("Error while deleting ProductImage",e);
-	 		try {
-	 			response.sendError(503, "Error while deleting ProductImage " + e.getMessage());
-	 		} catch (Exception ignore) {
-	 		}
-	 	 }
-     }
 
 }

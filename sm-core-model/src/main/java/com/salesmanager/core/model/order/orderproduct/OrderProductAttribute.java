@@ -59,21 +59,61 @@ public class OrderProductAttribute implements Serializable {
 		return id;
 	}
 
+	public OrderProduct getOrderProduct() {
+		return orderProduct;
+	}
+
+
+	public String getProductAttributeName() {
+		return productAttributeName;
+	}
+
+	public BigDecimal getProductAttributePrice() {
+		return productAttributePrice;
+	}
+
+	public String getProductAttributeValueName() {
+		return productAttributeValueName;
+	}
+
+	public java.math.BigDecimal getProductAttributeWeight() {
+		return productAttributeWeight;
+	}
+
+	public Long getProductOptionId() {
+		return productOptionId;
+	}
+
+	public Long getProductOptionValueId() {
+		return productOptionValueId;
+	}
+
+	public boolean isProductAttributeIsFree() {
+		return productAttributeIsFree;
+	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-
-	public boolean isProductAttributeIsFree() {
-		return productAttributeIsFree;
+	public void setOrderProduct(OrderProduct orderProduct) {
+		this.orderProduct = orderProduct;
 	}
 
 	public void setProductAttributeIsFree(boolean productAttributeIsFree) {
 		this.productAttributeIsFree = productAttributeIsFree;
 	}
 
-	public java.math.BigDecimal getProductAttributeWeight() {
-		return productAttributeWeight;
+	public void setProductAttributeName(String productAttributeName) {
+		this.productAttributeName = productAttributeName;
+	}
+
+	public void setProductAttributePrice(BigDecimal productAttributePrice) {
+		this.productAttributePrice = productAttributePrice;
+	}
+
+	public void setProductAttributeValueName(String productAttributeValueName) {
+		this.productAttributeValueName = productAttributeValueName;
 	}
 
 	public void setProductAttributeWeight(
@@ -81,48 +121,8 @@ public class OrderProductAttribute implements Serializable {
 		this.productAttributeWeight = productAttributeWeight;
 	}
 
-	public OrderProduct getOrderProduct() {
-		return orderProduct;
-	}
-
-	public void setOrderProduct(OrderProduct orderProduct) {
-		this.orderProduct = orderProduct;
-	}
-
-	public String getProductAttributeName() {
-		return productAttributeName;
-	}
-
-	public void setProductAttributeName(String productAttributeName) {
-		this.productAttributeName = productAttributeName;
-	}
-
-	public String getProductAttributeValueName() {
-		return productAttributeValueName;
-	}
-
-	public void setProductAttributeValueName(String productAttributeValueName) {
-		this.productAttributeValueName = productAttributeValueName;
-	}
-
-	public BigDecimal getProductAttributePrice() {
-		return productAttributePrice;
-	}
-
-	public void setProductAttributePrice(BigDecimal productAttributePrice) {
-		this.productAttributePrice = productAttributePrice;
-	}
-
-	public Long getProductOptionId() {
-		return productOptionId;
-	}
-
 	public void setProductOptionId(Long productOptionId) {
 		this.productOptionId = productOptionId;
-	}
-
-	public Long getProductOptionValueId() {
-		return productOptionValueId;
 	}
 
 	public void setProductOptionValueId(Long productOptionValueId) {

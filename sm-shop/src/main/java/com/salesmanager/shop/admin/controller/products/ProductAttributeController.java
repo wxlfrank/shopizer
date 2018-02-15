@@ -1,19 +1,18 @@
 package com.salesmanager.shop.admin.controller.products;
 
-import com.salesmanager.core.business.services.catalog.product.ProductService;
-import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
-import com.salesmanager.core.business.services.catalog.product.attribute.ProductOptionService;
-import com.salesmanager.core.business.services.catalog.product.attribute.ProductOptionValueService;
-import com.salesmanager.core.business.utils.ProductPriceUtils;
-import com.salesmanager.core.business.utils.ajax.AjaxPageableResponse;
-import com.salesmanager.core.business.utils.ajax.AjaxResponse;
-import com.salesmanager.core.model.catalog.product.Product;
-import com.salesmanager.core.model.catalog.product.attribute.*;
-import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.model.reference.language.Language;
-import com.salesmanager.shop.admin.model.web.Menu;
-import com.salesmanager.shop.constants.Constants;
-import com.salesmanager.shop.utils.LabelUtils;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +25,30 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.math.BigDecimal;
-import java.util.*;
+import com.salesmanager.core.business.services.catalog.product.ProductService;
+import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
+import com.salesmanager.core.business.services.catalog.product.attribute.ProductOptionService;
+import com.salesmanager.core.business.services.catalog.product.attribute.ProductOptionValueService;
+import com.salesmanager.core.business.utils.ProductPriceUtils;
+import com.salesmanager.core.business.utils.ajax.AjaxPageableResponse;
+import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import com.salesmanager.core.model.catalog.product.Product;
+import com.salesmanager.core.model.catalog.product.attribute.ProductAttribute;
+import com.salesmanager.core.model.catalog.product.attribute.ProductOption;
+import com.salesmanager.core.model.catalog.product.attribute.ProductOptionDescription;
+import com.salesmanager.core.model.catalog.product.attribute.ProductOptionValue;
+import com.salesmanager.core.model.catalog.product.attribute.ProductOptionValueDescription;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.shop.admin.model.web.Menu;
+import com.salesmanager.shop.constants.Constants;
+import com.salesmanager.shop.utils.LabelUtils;
 
 @Controller
 public class ProductAttributeController {
@@ -61,6 +76,136 @@ public class ProductAttributeController {
 	LabelUtils messages;
 	
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/attributes/getAttributeType.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> checkAttributeType(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+
+		String sOptionId = request.getParameter("optionId");
+
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+
+		
+		
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		
+		Long prodoptionId;
+		ProductOption productOption = null;
+		
+		try {
+			prodoptionId = Long.parseLong(sOptionId);
+		} catch (Exception e) {
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorString("Product Option id is not valid");
+			String returnString = resp.toJSONString();
+			return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		}
+
+		
+		try {
+			
+			
+			productOption = productOptionService.getById(prodoptionId);
+			
+			if(productOption==null) {
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			if(productOption.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+
+
+
+			Map entry = new HashMap();
+			
+
+			
+			entry.put("type", productOption.getProductOptionType());
+			resp.addDataEntry(entry);
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while paging products", e);
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+
+	}
+	
+	
+
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/attributes/attribute/remove.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> deleteProductPrice(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String sAttributeid = request.getParameter("attributeId");
+
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		
+		try {
+			
+			Long attributeId = Long.parseLong(sAttributeid);
+			ProductAttribute attribute = productAttributeService.getById(attributeId);
+			
+
+			if(attribute==null || attribute.getProduct().getMerchantStore().getId().intValue()!=store.getId()) {
+
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			} 
+			
+
+			productAttributeService.delete(attribute);
+			
+			
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+
+		
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting product price", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/attribute/createAttribute.html", method=RequestMethod.GET)
+	public String displayAttributeCreate(@RequestParam("productId") Long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return displayAttribute(productId, null,model,request,response);
+
+	}
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/attributes/editAttribute.html", method=RequestMethod.GET)
+	public String displayAttributeEdit(@RequestParam("productId") Long productId, @RequestParam("id") Long id, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return displayAttribute(productId, id,model,request,response);
+
+	}
+	
 	@PreAuthorize("hasRole('PRODUCTS')")
 	@RequestMapping(value="/admin/products/attributes/list.html", method=RequestMethod.GET)
 	public String displayProductAttributes(@RequestParam("id") long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -84,8 +229,6 @@ public class ProductAttributeController {
 		
 	}
 	
-	
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@PreAuthorize("hasRole('PRODUCTS')")
 	@RequestMapping(value="/admin/products/attributes/page.html", method=RequestMethod.POST)
@@ -168,78 +311,6 @@ public class ProductAttributeController {
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 
 
-	}
-	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/attributes/editAttribute.html", method=RequestMethod.GET)
-	public String displayAttributeEdit(@RequestParam("productId") Long productId, @RequestParam("id") Long id, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return displayAttribute(productId, id,model,request,response);
-
-	}
-	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/attribute/createAttribute.html", method=RequestMethod.GET)
-	public String displayAttributeCreate(@RequestParam("productId") Long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return displayAttribute(productId, null,model,request,response);
-
-	}
-	
-	private String displayAttribute(Long productId, Long id, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-
-		//display menu
-		setMenu(model,request);
-		
-		
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		Language language = (Language)request.getAttribute("LANGUAGE");
-		
-		//get product
-		Product product =  productService.getById(productId);
-		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		List<Language> languages = store.getLanguages();
-		
-		ProductAttribute attribute = null;
-		
-		//get Options
-		List<ProductOption> options = productOptionService.listByStore(store, language);
-		//get OptionsValues
-		List<ProductOptionValue> optionsValues = productOptionValueService.listByStoreNoReadOnly(store, language);
-		
-		if(id!=null && id.intValue()!=0) {//edit mode
-			
-			attribute = productAttributeService.getById(id);
-			attribute.setAttributePrice(priceUtil.getAdminFormatedAmount(store, attribute.getProductAttributePrice()));
-			attribute.setAttributeAdditionalWeight(String.valueOf(attribute.getProductAttributeWeight().intValue()));
-			attribute.setAttributeSortOrder(String.valueOf(attribute.getProductOptionSortOrder()));
-			
-		} else {
-			
-			attribute = new ProductAttribute();
-			attribute.setProduct(product);
-			ProductOptionValue value = new ProductOptionValue();
-			Set<ProductOptionValueDescription> descriptions = new HashSet<ProductOptionValueDescription>();
-			for(Language l : languages) {
-				
-				ProductOptionValueDescription desc = new ProductOptionValueDescription();
-				desc.setLanguage(l);
-				descriptions.add(desc);
-				
-				
-			}
-			
-			value.setDescriptions(descriptions);
-			attribute.setProductOptionValue(value);
-		}
-		
-		model.addAttribute("optionsValues",optionsValues);
-		model.addAttribute("options",options);
-		model.addAttribute("attribute",attribute);
-		model.addAttribute("product",product);
-		return "admin-products-attribute-details";
 	}
 	
 	@PreAuthorize("hasRole('PRODUCTS')")
@@ -393,119 +464,63 @@ public class ProductAttributeController {
 		return "admin-products-attribute-details";
 	}
 	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/attributes/attribute/remove.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> deleteProductPrice(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String sAttributeid = request.getParameter("attributeId");
+	
+	private String displayAttribute(Long productId, Long id, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
 
+		//display menu
+		setMenu(model,request);
+		
 		
 		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-
+		Language language = (Language)request.getAttribute("LANGUAGE");
 		
-		try {
-			
-			Long attributeId = Long.parseLong(sAttributeid);
-			ProductAttribute attribute = productAttributeService.getById(attributeId);
-			
-
-			if(attribute==null || attribute.getProduct().getMerchantStore().getId().intValue()!=store.getId()) {
-
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			} 
-			
-
-			productAttributeService.delete(attribute);
-			
-			
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-
-		
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting product price", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
+		//get product
+		Product product =  productService.getById(productId);
+		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+			return "redirect:/admin/products/products.html";
 		}
 		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-	}
-	
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/attributes/getAttributeType.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> checkAttributeType(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-
-		String sOptionId = request.getParameter("optionId");
-
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-
+		List<Language> languages = store.getLanguages();
 		
+		ProductAttribute attribute = null;
 		
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		//get Options
+		List<ProductOption> options = productOptionService.listByStore(store, language);
+		//get OptionsValues
+		List<ProductOptionValue> optionsValues = productOptionValueService.listByStoreNoReadOnly(store, language);
 		
-		
-		Long prodoptionId;
-		ProductOption productOption = null;
-		
-		try {
-			prodoptionId = Long.parseLong(sOptionId);
-		} catch (Exception e) {
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorString("Product Option id is not valid");
-			String returnString = resp.toJSONString();
-			return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		}
-
-		
-		try {
+		if(id!=null && id.intValue()!=0) {//edit mode
 			
+			attribute = productAttributeService.getById(id);
+			attribute.setAttributePrice(priceUtil.getAdminFormatedAmount(store, attribute.getProductAttributePrice()));
+			attribute.setAttributeAdditionalWeight(String.valueOf(attribute.getProductAttributeWeight().intValue()));
+			attribute.setAttributeSortOrder(String.valueOf(attribute.getProductOptionSortOrder()));
 			
-			productOption = productOptionService.getById(prodoptionId);
+		} else {
 			
-			if(productOption==null) {
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			attribute = new ProductAttribute();
+			attribute.setProduct(product);
+			ProductOptionValue value = new ProductOptionValue();
+			Set<ProductOptionValueDescription> descriptions = new HashSet<ProductOptionValueDescription>();
+			for(Language l : languages) {
+				
+				ProductOptionValueDescription desc = new ProductOptionValueDescription();
+				desc.setLanguage(l);
+				descriptions.add(desc);
+				
+				
 			}
 			
-			if(productOption.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-
-
-
-			Map entry = new HashMap();
-			
-
-			
-			entry.put("type", productOption.getProductOptionType());
-			resp.addDataEntry(entry);
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while paging products", e);
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
+			value.setDescriptions(descriptions);
+			attribute.setProductOptionValue(value);
 		}
 		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-
+		model.addAttribute("optionsValues",optionsValues);
+		model.addAttribute("options",options);
+		model.addAttribute("attribute",attribute);
+		model.addAttribute("product",product);
+		return "admin-products-attribute-details";
 	}
 
 	

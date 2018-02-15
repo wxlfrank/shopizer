@@ -23,46 +23,46 @@ public class Menu implements Serializable {
 	public String getCode() {
 		return code;
 	}
-	@JsonProperty("code")  
-	public void setCode(String code) {
-		this.code = code;
+	public String getIcon() {
+		return icon;
 	}
-	public String getUrl() {
-		return url;
+	public List<Menu> getMenus() {
+		return menus;
 	}
-	@JsonProperty("url")  
-	public void setUrl(String url) {
-		this.url = url;
+	public int getOrder() {
+		return order;
 	}
 
 	 
 
-	public int getOrder() {
-		return order;
+	public String getRole() {
+		return role;
 	}
-	@JsonProperty("order")  
-	public void setOrder(int order) {
-		this.order = order;
+	public String getUrl() {
+		return url;
 	}
-	public List<Menu> getMenus() {
-		return menus;
+	@JsonProperty("code")  
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 	@JsonProperty("menus")  
 	public void setMenus(List<Menu> menus) {
 		this.menus = menus;
 	}
-	public void setIcon(String icon) {
-		this.icon = icon;
-	}
-	public String getIcon() {
-		return icon;
-	}
-	public String getRole() {
-		return role;
+	@JsonProperty("order")  
+	public void setOrder(int order) {
+		this.order = order;
 	}
 	@JsonProperty("role") 
 	public void setRole(String role) {
 		this.role = role;
+	}
+	@JsonProperty("url")  
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 }

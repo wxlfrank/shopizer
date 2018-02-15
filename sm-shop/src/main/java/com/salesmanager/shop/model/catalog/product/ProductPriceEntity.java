@@ -24,50 +24,50 @@ public class ProductPriceEntity extends ProductPrice implements Serializable {
 	private BigDecimal originalPrice;
 	private BigDecimal discountedPrice;
 	
-	public boolean isDiscounted() {
-		return discounted;
-	}
-	public void setDiscounted(boolean discounted) {
-		this.discounted = discounted;
-	}
-	public String getDiscountStartDate() {
-		return discountStartDate;
-	}
-	public void setDiscountStartDate(String discountStartDate) {
-		this.discountStartDate = discountStartDate;
-	}
-	public String getDiscountEndDate() {
-		return discountEndDate;
-	}
-	public void setDiscountEndDate(String discountEndDate) {
-		this.discountEndDate = discountEndDate;
-	}
-	public boolean isDefaultPrice() {
-		return defaultPrice;
-	}
-	public void setDefaultPrice(boolean defaultPrice) {
-		this.defaultPrice = defaultPrice;
-	}
-	public BigDecimal getOriginalPrice() {
-		return originalPrice;
-	}
-	public void setOriginalPrice(BigDecimal originalPrice) {
-		this.originalPrice = originalPrice;
-	}
-	public BigDecimal getDiscountedPrice() {
-		return discountedPrice;
-	}
-	public void setDiscountedPrice(BigDecimal discountedPrice) {
-		this.discountedPrice = discountedPrice;
-	}
 	public String getCode() {
 		if(StringUtils.isBlank(this.code)) {
 			code = DEFAULT_PRICE_CODE;
 		}
 		return code;
 	}
+	public BigDecimal getDiscountedPrice() {
+		return discountedPrice;
+	}
+	public String getDiscountEndDate() {
+		return discountEndDate;
+	}
+	public String getDiscountStartDate() {
+		return discountStartDate;
+	}
+	public BigDecimal getOriginalPrice() {
+		return originalPrice;
+	}
+	public boolean isDefaultPrice() {
+		return defaultPrice;
+	}
+	public boolean isDiscounted() {
+		return discounted;
+	}
 	public void setCode(String code) {
 		this.code = code;
+	}
+	public void setDefaultPrice(boolean defaultPrice) {
+		this.defaultPrice = defaultPrice;
+	}
+	public void setDiscounted(boolean discounted) {
+		this.discounted = discounted;
+	}
+	public void setDiscountedPrice(BigDecimal discountedPrice) {
+		this.discountedPrice = discountedPrice;
+	}
+	public void setDiscountEndDate(String discountEndDate) {
+		this.discountEndDate = discountEndDate;
+	}
+	public void setDiscountStartDate(String discountStartDate) {
+		this.discountStartDate = discountStartDate;
+	}
+	public void setOriginalPrice(BigDecimal originalPrice) {
+		this.originalPrice = originalPrice;
 	}
 
 	

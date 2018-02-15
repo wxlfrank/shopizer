@@ -20,41 +20,41 @@ public class OrderTotal extends Entity implements Serializable {
 	private BigDecimal value;
 	
 	
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
 	public String getCode() {
 		return code;
-	}
-	public void setCode(String code) {
-		this.code = code;
-	}
-	public int getOrder() {
-		return order;
-	}
-	public void setOrder(int order) {
-		this.order = order;
 	}
 	public String getModule() {
 		return module;
 	}
-	public void setModule(String module) {
-		this.module = module;
-	}
-	public BigDecimal getValue() {
-		return value;
-	}
-	public void setValue(BigDecimal value) {
-		this.value = value;
+	public int getOrder() {
+		return order;
 	}
 	public String getText() {
 		return text;
 	}
+	public String getTitle() {
+		return title;
+	}
+	public BigDecimal getValue() {
+		return value;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public void setModule(String module) {
+		this.module = module;
+	}
+	public void setOrder(int order) {
+		this.order = order;
+	}
 	public void setText(String text) {
 		this.text = text;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public void setValue(BigDecimal value) {
+		this.value = value;
 	}
 
 

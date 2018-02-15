@@ -42,14 +42,28 @@ public class CustomerServiceImpl extends SalesManagerEntityServiceImpl<Long, Cus
 		this.customerRepository = customerRepository;
 	}
 
-	@Override
-	public List<Customer> getByName(String firstName) {
-		return customerRepository.findByName(firstName);
+	public void delete(Customer customer) throws ServiceException {
+		customer = getById(customer.getId());
+		
+		//delete attributes
+		List<CustomerAttribute> attributes =customerAttributeService.getByCustomer(customer.getMerchantStore(), customer);
+		if(attributes!=null) {
+			for(CustomerAttribute attribute : attributes) {
+				customerAttributeService.delete(attribute);
+			}
+		}
+		customerRepository.delete(customer);
+
 	}
 	
 	@Override
 	public Customer getById(Long id) {
 			return customerRepository.findOne(id);		
+	}
+	
+	@Override
+	public List<Customer> getByName(String firstName) {
+		return customerRepository.findByName(firstName);
 	}
 	
 	@Override
@@ -63,16 +77,6 @@ public class CustomerServiceImpl extends SalesManagerEntityServiceImpl<Long, Cus
 	}
 	
 	@Override
-	public List<Customer> listByStore(MerchantStore store) {
-		return customerRepository.findByStore(store.getId());
-	}
-	
-	@Override
-	public CustomerList listByStore(MerchantStore store, CustomerCriteria criteria) {
-		return customerRepository.listByStore(store,criteria);
-	}
-	
-	@Override
 	public Address getCustomerAddress(MerchantStore store, String ipAddress) throws ServiceException {
 		
 		try {
@@ -81,6 +85,16 @@ public class CustomerServiceImpl extends SalesManagerEntityServiceImpl<Long, Cus
 			throw new ServiceException(e);
 		}
 		
+	}
+	
+	@Override
+	public List<Customer> listByStore(MerchantStore store) {
+		return customerRepository.findByStore(store.getId());
+	}
+
+	@Override
+	public CustomerList listByStore(MerchantStore store, CustomerCriteria criteria) {
+		return customerRepository.listByStore(store,criteria);
 	}
 
 	@Override	
@@ -95,20 +109,6 @@ public class CustomerServiceImpl extends SalesManagerEntityServiceImpl<Long, Cus
 			super.create(customer);
 
 		}
-	}
-
-	public void delete(Customer customer) throws ServiceException {
-		customer = getById(customer.getId());
-		
-		//delete attributes
-		List<CustomerAttribute> attributes =customerAttributeService.getByCustomer(customer.getMerchantStore(), customer);
-		if(attributes!=null) {
-			for(CustomerAttribute attribute : attributes) {
-				customerAttributeService.delete(attribute);
-			}
-		}
-		customerRepository.delete(customer);
-
 	}
 	
 

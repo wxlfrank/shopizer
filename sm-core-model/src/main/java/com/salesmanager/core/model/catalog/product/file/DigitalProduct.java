@@ -51,25 +51,25 @@ public class DigitalProduct extends SalesManagerEntity<Long, DigitalProduct> {
 		return id;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
+	public Product getProduct() {
+		return product;
 	}
 
 	public String getProductFileName() {
 		return productFileName;
 	}
 
-	public void setProductFileName(String productFileName) {
-		this.productFileName = productFileName;
+	@Override
+	public void setId(Long id) {
+		this.id = id;
 	}
 	
-	public Product getProduct() {
-		return product;
-	}
-
 	public void setProduct(Product product) {
 		this.product = product;
+	}
+
+	public void setProductFileName(String productFileName) {
+		this.productFileName = productFileName;
 	}
 
 	

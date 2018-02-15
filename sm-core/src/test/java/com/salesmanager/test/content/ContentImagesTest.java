@@ -8,14 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Date;
 
 import javax.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.content.ContentService;
@@ -38,7 +35,7 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 @Ignore
 public class ContentImagesTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 	
-	private static final Date date = new Date(System.currentTimeMillis());
+//	private static final Date date = new Date(System.currentTimeMillis());
 	
 	@Inject
 	private ContentService contentService;

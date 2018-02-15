@@ -11,6 +11,12 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 
 public class AdminAccessDeniedHandler implements AccessDeniedHandler {
 
+	private String accessDeniedUrl = null;
+	
+	public String getAccessDeniedUrl() {
+		return accessDeniedUrl;
+	}
+
 	@Override
 	public void handle(HttpServletRequest request,
 			HttpServletResponse response,
@@ -19,15 +25,9 @@ public class AdminAccessDeniedHandler implements AccessDeniedHandler {
 		response.sendRedirect(request.getContextPath() + getAccessDeniedUrl());
 
 	}
-	
-	public String getAccessDeniedUrl() {
-		return accessDeniedUrl;
-	}
 
 	public void setAccessDeniedUrl(String accessDeniedUrl) {
 		this.accessDeniedUrl = accessDeniedUrl;
 	}
-
-	private String accessDeniedUrl = null;
 
 }

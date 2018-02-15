@@ -66,9 +66,41 @@ public class Optin extends SalesManagerEntity<Long, Optin> implements Serializab
 	private String description;
 
 
+	public String getCode() {
+		return code;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
 	@Override
 	public Long getId() {
 		return id;
+	}
+
+	public MerchantStore getMerchant() {
+		return merchant;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 
 	@Override
@@ -76,44 +108,12 @@ public class Optin extends SalesManagerEntity<Long, Optin> implements Serializab
 		this.id = id;	
 	}
 
-	public Date getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-
-	public Date getEndDate() {
-		return endDate;
-	}
-
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
-
-	public MerchantStore getMerchant() {
-		return merchant;
-	}
-
 	public void setMerchant(MerchantStore merchant) {
 		this.merchant = merchant;
 	}
 
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
 	}
 
 }

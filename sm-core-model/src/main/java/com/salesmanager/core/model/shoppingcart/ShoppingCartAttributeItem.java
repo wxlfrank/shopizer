@@ -52,29 +52,38 @@ public class ShoppingCartAttributeItem extends SalesManagerEntity<Long, Shopping
 	@JoinColumn(name = "SHP_CART_ITEM_ID", nullable = false)
 	private ShoppingCartItem shoppingCartItem;
 	
+	public ShoppingCartAttributeItem() {
+
+	}
+	
 	public ShoppingCartAttributeItem(ShoppingCartItem shoppingCartItem, ProductAttribute productAttribute) {
 		this.shoppingCartItem = shoppingCartItem;
 		this.productAttribute = productAttribute;
 		this.productAttributeId = productAttribute.getId();
 	}
 	
-	public ShoppingCartAttributeItem() {
-
-	}
 	
-	
-
-	public ShoppingCartItem getShoppingCartItem() {
-		return shoppingCartItem;
-	}
-
-	public void setShoppingCartItem(ShoppingCartItem shoppingCartItem) {
-		this.shoppingCartItem = shoppingCartItem;
-	}
 
 	@Override
 	public AuditSection getAuditSection() {
 		return auditSection;
+	}
+
+	@Override
+	public Long getId() {
+		return id;
+	}
+
+	public ProductAttribute getProductAttribute() {
+		return productAttribute;
+	}
+
+	public Long getProductAttributeId() {
+		return productAttributeId;
+	}
+
+	public ShoppingCartItem getShoppingCartItem() {
+		return shoppingCartItem;
 	}
 
 	@Override
@@ -83,10 +92,6 @@ public class ShoppingCartAttributeItem extends SalesManagerEntity<Long, Shopping
 		
 	}
 
-	@Override
-	public Long getId() {
-		return id;
-	}
 
 	@Override
 	public void setId(Long id) {
@@ -94,21 +99,16 @@ public class ShoppingCartAttributeItem extends SalesManagerEntity<Long, Shopping
 		
 	}
 
+	public void setProductAttribute(ProductAttribute productAttribute) {
+		this.productAttribute = productAttribute;
+	}
 
 	public void setProductAttributeId(Long productAttributeId) {
 		this.productAttributeId = productAttributeId;
 	}
 
-	public Long getProductAttributeId() {
-		return productAttributeId;
-	}
-
-	public void setProductAttribute(ProductAttribute productAttribute) {
-		this.productAttribute = productAttribute;
-	}
-
-	public ProductAttribute getProductAttribute() {
-		return productAttribute;
+	public void setShoppingCartItem(ShoppingCartItem shoppingCartItem) {
+		this.shoppingCartItem = shoppingCartItem;
 	}
 
 

@@ -156,183 +156,138 @@ public class Order extends SalesManagerEntity<Long, Order> {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
 	private Set<OrderAttribute> orderAttributes = new LinkedHashSet<OrderAttribute>();
 	
-	public Order() {
-	}
-	
 	@Column (name ="CUSTOMER_EMAIL_ADDRESS", length=50, nullable=false)
 	private String customerEmailAddress;
+	
+	public Order() {
+	}
 
 
-	@Override
-	public Long getId() {
-		return id;
+	public Billing getBilling() {
+		return billing;
 	}
 	
-	@Override
-	public void setId(Long id) {
-		this.id = id;
+	public OrderChannel getChannel() {
+		return channel;
 	}
 
-	public OrderStatus getStatus() {
-		return status;
+	public Boolean getConfirmedAddress() {
+		return confirmedAddress;
 	}
 
-	public void setStatus(OrderStatus status) {
-		this.status = status;
+	public CreditCard getCreditCard() {
+		return creditCard;
 	}
 
-	public Date getLastModified() {
-		return CloneUtils.clone(lastModified);
-	}
-
-	public void setLastModified(Date lastModified) {
-		this.lastModified = CloneUtils.clone(lastModified);
-	}
-
-	public Date getDatePurchased() {
-		return CloneUtils.clone(datePurchased);
-	}
-
-	public void setDatePurchased(Date datePurchased) {
-		this.datePurchased = CloneUtils.clone(datePurchased);
-	}
-
-	public Date getOrderDateFinished() {
-		return CloneUtils.clone(orderDateFinished);
-	}
-
-	public void setOrderDateFinished(Date orderDateFinished) {
-		this.orderDateFinished = CloneUtils.clone(orderDateFinished);
+	public Currency getCurrency() {
+		return currency;
 	}
 
 	public BigDecimal getCurrencyValue() {
 		return currencyValue;
 	}
 
-	public void setCurrencyValue(BigDecimal currencyValue) {
-		this.currencyValue = currencyValue;
+	public Boolean getCustomerAgreement() {
+		return customerAgreement;
 	}
 
-	public BigDecimal getTotal() {
-		return total;
-	}
-
-	public void setTotal(BigDecimal total) {
-		this.total = total;
-	}
-
-
-	public String getIpAddress() {
-		return ipAddress;
-	}
-
-	public void setIpAddress(String ipAddress) {
-		this.ipAddress = ipAddress;
-	}
-
-
-	public String getPaymentModuleCode() {
-		return paymentModuleCode;
-	}
-
-	public void setPaymentModuleCode(String paymentModuleCode) {
-		this.paymentModuleCode = paymentModuleCode;
-	}
-
-
-
-	public String getShippingModuleCode() {
-		return shippingModuleCode;
-	}
-
-	public void setShippingModuleCode(String shippingModuleCode) {
-		this.shippingModuleCode = shippingModuleCode;
-	}
-
-
-
-	public Currency getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
-	}
-
-	public MerchantStore getMerchant() {
-		return merchant;
-	}
-
-	public void setMerchant(MerchantStore merchant) {
-		this.merchant = merchant;
-	}
-
-	public Set<OrderProduct> getOrderProducts() {
-		return orderProducts;
-	}
-
-	public void setOrderProducts(Set<OrderProduct> orderProducts) {
-		this.orderProducts = orderProducts;
-	}
-
-	public Set<OrderTotal> getOrderTotal() {
-		return orderTotal;
-	}
-
-	public void setOrderTotal(Set<OrderTotal> orderTotal) {
-		this.orderTotal = orderTotal;
-	}
-
-	public Set<OrderStatusHistory> getOrderHistory() {
-		return orderHistory;
-	}
-
-	public void setOrderHistory(Set<OrderStatusHistory> orderHistory) {
-		this.orderHistory = orderHistory;
-	}
-
-
-	public void setDelivery(Delivery delivery) {
-		this.delivery = delivery;
-	}
-
-	public Delivery getDelivery() {
-		return delivery;
-	}
-
-	public void setBilling(Billing billing) {
-		this.billing = billing;
-	}
-
-	public Billing getBilling() {
-		return billing;
+	public String getCustomerEmailAddress() {
+		return customerEmailAddress;
 	}
 
 	public Long getCustomerId() {
 		return customerId;
 	}
 
-	public void setCustomerId(Long customerId) {
-		this.customerId = customerId;
-	}
-	
-
-	public String getCustomerEmailAddress() {
-		return customerEmailAddress;
+	public Date getDatePurchased() {
+		return CloneUtils.clone(datePurchased);
 	}
 
-	public void setCustomerEmailAddress(String customerEmailAddress) {
-		this.customerEmailAddress = customerEmailAddress;
+	public Delivery getDelivery() {
+		return delivery;
 	}
 
+	@Override
+	public Long getId() {
+		return id;
+	}
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public Date getLastModified() {
+		return CloneUtils.clone(lastModified);
+	}
+
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public MerchantStore getMerchant() {
+		return merchant;
+	}
+
+
+	public Set<OrderAttribute> getOrderAttributes() {
+		return orderAttributes;
+	}
+
+	public Date getOrderDateFinished() {
+		return CloneUtils.clone(orderDateFinished);
+	}
+
+
+
+	public Set<OrderStatusHistory> getOrderHistory() {
+		return orderHistory;
+	}
+
+	public Set<OrderProduct> getOrderProducts() {
+		return orderProducts;
+	}
+
+
+
+	public Set<OrderTotal> getOrderTotal() {
+		return orderTotal;
+	}
+
+	public OrderType getOrderType() {
+		return orderType;
+	}
+
+	public String getPaymentModuleCode() {
+		return paymentModuleCode;
+	}
+
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public String getShippingModuleCode() {
+		return shippingModuleCode;
+	}
+
+	public OrderStatus getStatus() {
+		return status;
+	}
+
+	public BigDecimal getTotal() {
+		return total;
+	}
+
+	public void setBilling(Billing billing) {
+		this.billing = billing;
+	}
 
 	public void setChannel(OrderChannel channel) {
 		this.channel = channel;
 	}
 
-
-	public OrderChannel getChannel() {
-		return channel;
+	public void setConfirmedAddress(Boolean confirmedAddress) {
+		this.confirmedAddress = confirmedAddress;
 	}
 
 
@@ -340,59 +295,104 @@ public class Order extends SalesManagerEntity<Long, Order> {
 		this.creditCard = creditCard;
 	}
 
-
-	public CreditCard getCreditCard() {
-		return creditCard;
+	public void setCurrency(Currency currency) {
+		this.currency = currency;
 	}
 
-
-	public void setPaymentType(PaymentType paymentType) {
-		this.paymentType = paymentType;
-	}
-
-
-	public PaymentType getPaymentType() {
-		return paymentType;
-	}
-	
-	public OrderType getOrderType() {
-		return orderType;
-	}
-
-	public void setOrderType(OrderType orderType) {
-		this.orderType = orderType;
-	}
-	
-	public Locale getLocale() {
-		return locale;
-	}
-
-	public void setLocale(Locale locale) {
-		this.locale = locale;
-	}
-	
-	public Boolean getCustomerAgreement() {
-		return customerAgreement;
+	public void setCurrencyValue(BigDecimal currencyValue) {
+		this.currencyValue = currencyValue;
 	}
 
 	public void setCustomerAgreement(Boolean customerAgreement) {
 		this.customerAgreement = customerAgreement;
 	}
 
-	public Boolean getConfirmedAddress() {
-		return confirmedAddress;
+	public void setCustomerEmailAddress(String customerEmailAddress) {
+		this.customerEmailAddress = customerEmailAddress;
 	}
 
-	public void setConfirmedAddress(Boolean confirmedAddress) {
-		this.confirmedAddress = confirmedAddress;
+	public void setCustomerId(Long customerId) {
+		this.customerId = customerId;
 	}
 	
-	public Set<OrderAttribute> getOrderAttributes() {
-		return orderAttributes;
+
+	public void setDatePurchased(Date datePurchased) {
+		this.datePurchased = CloneUtils.clone(datePurchased);
 	}
+
+	public void setDelivery(Delivery delivery) {
+		this.delivery = delivery;
+	}
+
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+
+	public void setLastModified(Date lastModified) {
+		this.lastModified = CloneUtils.clone(lastModified);
+	}
+
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+
+	public void setMerchant(MerchantStore merchant) {
+		this.merchant = merchant;
+	}
+
 
 	public void setOrderAttributes(Set<OrderAttribute> orderAttributes) {
 		this.orderAttributes = orderAttributes;
+	}
+	
+	public void setOrderDateFinished(Date orderDateFinished) {
+		this.orderDateFinished = CloneUtils.clone(orderDateFinished);
+	}
+
+	public void setOrderHistory(Set<OrderStatusHistory> orderHistory) {
+		this.orderHistory = orderHistory;
+	}
+	
+	public void setOrderProducts(Set<OrderProduct> orderProducts) {
+		this.orderProducts = orderProducts;
+	}
+
+	public void setOrderTotal(Set<OrderTotal> orderTotal) {
+		this.orderTotal = orderTotal;
+	}
+	
+	public void setOrderType(OrderType orderType) {
+		this.orderType = orderType;
+	}
+
+	public void setPaymentModuleCode(String paymentModuleCode) {
+		this.paymentModuleCode = paymentModuleCode;
+	}
+
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
+	}
+
+	public void setShippingModuleCode(String shippingModuleCode) {
+		this.shippingModuleCode = shippingModuleCode;
+	}
+	
+	public void setStatus(OrderStatus status) {
+		this.status = status;
+	}
+
+	public void setTotal(BigDecimal total) {
+		this.total = total;
 	}
 
 }

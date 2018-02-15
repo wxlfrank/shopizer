@@ -68,33 +68,33 @@ public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConf
 	@Enumerated(value = EnumType.STRING)
 	private MerchantConfigurationType merchantConfigurationType = MerchantConfigurationType.INTEGRATION;
 
-	public void setKey(String key) {
-		this.key = key;
+	public AuditSection getAuditSection() {
+		return auditSection;
+	}
+
+	@Override
+	public Long getId() {
+		return id;
 	}
 
 	public String getKey() {
 		return key;
 	}
 
-	public void setValue(String value) {
-		this.value = value;
+	public MerchantConfigurationType getMerchantConfigurationType() {
+		return merchantConfigurationType;
+	}
+
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
 	}
 
 	public String getValue() {
 		return value;
 	}
 
-	public AuditSection getAuditSection() {
-		return auditSection;
-	}
-
 	public void setAuditSection(AuditSection auditSection) {
 		this.auditSection = auditSection;
-	}
-
-	@Override
-	public Long getId() {
-		return id;
 	}
 
 	@Override
@@ -104,20 +104,20 @@ public class MerchantConfiguration extends SalesManagerEntity<Long, MerchantConf
 
 
 
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
-	}
-
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
+	public void setKey(String key) {
+		this.key = key;
 	}
 
 	public void setMerchantConfigurationType(MerchantConfigurationType merchantConfigurationType) {
 		this.merchantConfigurationType = merchantConfigurationType;
 	}
 
-	public MerchantConfigurationType getMerchantConfigurationType() {
-		return merchantConfigurationType;
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 

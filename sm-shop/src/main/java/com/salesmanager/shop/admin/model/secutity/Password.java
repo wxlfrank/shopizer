@@ -1,8 +1,8 @@
 package com.salesmanager.shop.admin.model.secutity;
 
-import com.salesmanager.core.model.user.User;
-
 import java.io.Serializable;
+
+import com.salesmanager.core.model.user.User;
 
 /**
  * Entity used in the cahange passord page
@@ -23,32 +23,32 @@ public class Password implements Serializable {
 
 	
 	
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public String getNewPassword() {
 		return newPassword;
 	}
 
-	public void setNewPassword(String newPassword) {
-		this.newPassword = newPassword;
+	public String getPassword() {
+		return password;
 	}
 
 	public String getRepeatPassword() {
 		return repeatPassword;
 	}
 
-	public void setRepeatPassword(String repeatPassword) {
-		this.repeatPassword = repeatPassword;
-	}
-
 	public User getUser() {
 		return user;
+	}
+
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setRepeatPassword(String repeatPassword) {
+		this.repeatPassword = repeatPassword;
 	}
 
 	public void setUser(User user) {

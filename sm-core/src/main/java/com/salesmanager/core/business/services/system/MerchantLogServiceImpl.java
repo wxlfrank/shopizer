@@ -20,6 +20,7 @@ public class MerchantLogServiceImpl extends
 
 
 	
+	@SuppressWarnings("unused")
 	private MerchantLogRepository merchantLogRepository;
 	
 	@Inject

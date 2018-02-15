@@ -18,28 +18,28 @@ public class SearchProductRequest implements Serializable {
 	private int count;
 	private int start;
 
-	public String getQuery() {
-		return query;
+	public int getCount() {
+		return count;
 	}
 
-	public void setQuery(String query) {
-		this.query = query;
+	public String getQuery() {
+		return query;
 	}
 
 	public int getStart() {
 		return start;
 	}
 
-	public void setStart(int start) {
-		this.start = start;
-	}
-
-	public int getCount() {
-		return count;
-	}
-
 	public void setCount(int count) {
 		this.count = count;
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
+	}
+
+	public void setStart(int start) {
+		this.start = start;
 	}
 
 }

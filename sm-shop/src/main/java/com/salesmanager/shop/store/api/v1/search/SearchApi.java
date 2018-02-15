@@ -33,6 +33,8 @@ import com.salesmanager.shop.utils.LanguageUtils;
 @RequestMapping("/api/v1")
 public class SearchApi {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(SearchApi.class);
+	
 	@Inject
 	private SearchFacade searchFacade;
 	
@@ -41,8 +43,6 @@ public class SearchApi {
 	
 	@Inject
 	private LanguageUtils languageUtils;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SearchApi.class);
 	
 	
 	/**

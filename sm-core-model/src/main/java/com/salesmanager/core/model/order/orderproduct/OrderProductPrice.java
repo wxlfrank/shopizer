@@ -63,76 +63,76 @@ public class OrderProductPrice implements Serializable {
 	public OrderProductPrice() {
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public Boolean getDefaultPrice() {
 		return defaultPrice;
 	}
 
-	public void setDefaultPrice(Boolean defaultPrice) {
-		this.defaultPrice = defaultPrice;
-	}
-
-	public String getProductPriceName() {
-		return productPriceName;
-	}
-
-	public void setProductPriceName(String productPriceName) {
-		this.productPriceName = productPriceName;
+	public Long getId() {
+		return id;
 	}
 
 	public OrderProduct getOrderProduct() {
 		return orderProduct;
 	}
 
-	public void setOrderProduct(OrderProduct orderProduct) {
-		this.orderProduct = orderProduct;
-	}
-
-	public void setProductPriceCode(String productPriceCode) {
-		this.productPriceCode = productPriceCode;
+	public BigDecimal getProductPrice() {
+		return productPrice;
 	}
 
 	public String getProductPriceCode() {
 		return productPriceCode;
 	}
 
-	public void setProductPriceSpecialStartDate(
-			Date productPriceSpecialStartDate) {
-		this.productPriceSpecialStartDate = productPriceSpecialStartDate;
-	}
-
-	public Date getProductPriceSpecialStartDate() {
-		return productPriceSpecialStartDate;
-	}
-
-	public void setProductPriceSpecialEndDate(Date productPriceSpecialEndDate) {
-		this.productPriceSpecialEndDate = productPriceSpecialEndDate;
-	}
-
-	public Date getProductPriceSpecialEndDate() {
-		return productPriceSpecialEndDate;
-	}
-
-	public void setProductPriceSpecial(BigDecimal productPriceSpecial) {
-		this.productPriceSpecial = productPriceSpecial;
+	public String getProductPriceName() {
+		return productPriceName;
 	}
 
 	public BigDecimal getProductPriceSpecial() {
 		return productPriceSpecial;
 	}
 
+	public Date getProductPriceSpecialEndDate() {
+		return productPriceSpecialEndDate;
+	}
+
+	public Date getProductPriceSpecialStartDate() {
+		return productPriceSpecialStartDate;
+	}
+
+	public void setDefaultPrice(Boolean defaultPrice) {
+		this.defaultPrice = defaultPrice;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setOrderProduct(OrderProduct orderProduct) {
+		this.orderProduct = orderProduct;
+	}
+
 	public void setProductPrice(BigDecimal productPrice) {
 		this.productPrice = productPrice;
 	}
 
-	public BigDecimal getProductPrice() {
-		return productPrice;
+	public void setProductPriceCode(String productPriceCode) {
+		this.productPriceCode = productPriceCode;
+	}
+
+	public void setProductPriceName(String productPriceName) {
+		this.productPriceName = productPriceName;
+	}
+
+	public void setProductPriceSpecial(BigDecimal productPriceSpecial) {
+		this.productPriceSpecial = productPriceSpecial;
+	}
+
+	public void setProductPriceSpecialEndDate(Date productPriceSpecialEndDate) {
+		this.productPriceSpecialEndDate = productPriceSpecialEndDate;
+	}
+
+	public void setProductPriceSpecialStartDate(
+			Date productPriceSpecialStartDate) {
+		this.productPriceSpecialStartDate = productPriceSpecialStartDate;
 	}
 }

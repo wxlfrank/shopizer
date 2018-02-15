@@ -44,57 +44,14 @@ public class LanguageServiceImpl extends SalesManagerEntityServiceImpl<Integer, 
 	
 	
 	@Override
+	public Language defaultLanguage() {
+		return toLanguage(Locale.ENGLISH);
+	}
+	
+	@Override
 	public Language getByCode(String code) throws ServiceException {
 		return languageRepository.findByCode(code);
 	}
-	
-	@Override
-	public Locale toLocale(Language language, MerchantStore store) {
-		
-		if(store != null) {
-		
-			String countryCode = store.getCountry().getIsoCode();
-			
-			//try to build valid language
-			if("CA".equals(countryCode) && language.getCode().equals("en")) {
-				countryCode = "US";
-			}
-			
-			return new Locale(language.getCode(), countryCode);
-		
-		} else {
-			
-			return new Locale(language.getCode());
-		}
-	}
-	
-	@Override
-	public Language toLanguage(Locale locale) {
-		
-		try {
-			Language lang = getLanguagesMap().get(locale.getLanguage());
-			return lang;
-		} catch (Exception e) {
-			LOGGER.error("Cannot convert locale " + locale.getLanguage() + " to language");
-		}
-		
-		return new Language(Constants.DEFAULT_LANGUAGE);
-
-	}
-	
-	@Override
-	public Map<String,Language> getLanguagesMap() throws ServiceException {
-		
-		List<Language> langs = this.getLanguages();
-		Map<String,Language> returnMap = new LinkedHashMap<String,Language>();
-		
-		for(Language lang : langs) {
-			returnMap.put(lang.getCode(), lang);
-		}
-		return returnMap;
-
-	}
-	
 	
 	@Override
 	@SuppressWarnings("unchecked")
@@ -120,8 +77,51 @@ public class LanguageServiceImpl extends SalesManagerEntityServiceImpl<Integer, 
 	}
 	
 	@Override
-	public Language defaultLanguage() {
-		return toLanguage(Locale.ENGLISH);
+	public Map<String,Language> getLanguagesMap() throws ServiceException {
+		
+		List<Language> langs = this.getLanguages();
+		Map<String,Language> returnMap = new LinkedHashMap<String,Language>();
+		
+		for(Language lang : langs) {
+			returnMap.put(lang.getCode(), lang);
+		}
+		return returnMap;
+
+	}
+	
+	
+	@Override
+	public Language toLanguage(Locale locale) {
+		
+		try {
+			Language lang = getLanguagesMap().get(locale.getLanguage());
+			return lang;
+		} catch (Exception e) {
+			LOGGER.error("Cannot convert locale " + locale.getLanguage() + " to language");
+		}
+		
+		return new Language(Constants.DEFAULT_LANGUAGE);
+
+	}
+	
+	@Override
+	public Locale toLocale(Language language, MerchantStore store) {
+		
+		if(store != null) {
+		
+			String countryCode = store.getCountry().getIsoCode();
+			
+			//try to build valid language
+			if("CA".equals(countryCode) && language.getCode().equals("en")) {
+				countryCode = "US";
+			}
+			
+			return new Locale(language.getCode(), countryCode);
+		
+		} else {
+			
+			return new Locale(language.getCode());
+		}
 	}
 
 }

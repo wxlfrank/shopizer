@@ -43,23 +43,17 @@ public class ProductType extends SalesManagerEntity<Long, ProductType> implement
 	}
 	
 	@Override
-	public Long getId() {
-		return id;
-	}
-
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	@Override
 	public AuditSection getAuditSection() {
 		return auditSection;
 	}
 
+	public String getCode() {
+		return code;
+	}
+
 	@Override
-	public void setAuditSection(AuditSection auditSection) {
-		this.auditSection = auditSection;
+	public Long getId() {
+		return id;
 	}
 
 	public boolean isAllowAddToCart() {
@@ -70,12 +64,18 @@ public class ProductType extends SalesManagerEntity<Long, ProductType> implement
 		this.allowAddToCart = allowAddToCart;
 	}
 
-	public String getCode() {
-		return code;
+	@Override
+	public void setAuditSection(AuditSection auditSection) {
+		this.auditSection = auditSection;
 	}
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 

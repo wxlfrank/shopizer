@@ -38,20 +38,20 @@ public class CustomerReviewDescription extends Description {
 	@JoinColumn(name="CUSTOMER_REVIEW_ID")
 	private CustomerReview customerReview;
 
-	public CustomerReview getCustomerReview() {
-		return customerReview;
-	}
-
-	public void setCustomerReview(CustomerReview customerReview) {
-		this.customerReview = customerReview;
-	}
-
 	public CustomerReviewDescription() {
 	}
 
 	public CustomerReviewDescription(Language language, String name) {
 		this.setLanguage(language);
 		this.setName(name);
+	}
+
+	public CustomerReview getCustomerReview() {
+		return customerReview;
+	}
+
+	public void setCustomerReview(CustomerReview customerReview) {
+		this.customerReview = customerReview;
 	}
 
 

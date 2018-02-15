@@ -75,85 +75,85 @@ public class CustomerReview extends SalesManagerEntity<Long, CustomerReview> imp
 	@JoinColumn(name="REVIEWED_CUSTOMER_ID")
 	private Customer reviewedCustomer;
 
-	public Customer getReviewedCustomer() {
-		return reviewedCustomer;
-	}
-
-	public void setReviewedCustomer(Customer reviewedCustomer) {
-		this.reviewedCustomer = reviewedCustomer;
-	}
-
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "customerReview")
 	private Set<CustomerReviewDescription> descriptions = new HashSet<CustomerReviewDescription>();
-	
+
 	public CustomerReview() {
+	}
+
+	@Override
+	public AuditSection getAuditSection() {
+		return audit;
+	}
+	
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public Set<CustomerReviewDescription> getDescriptions() {
+		return descriptions;
 	}
 
 	public Long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public Date getReviewDate() {
+		return reviewDate;
+	}
+
+	public Customer getReviewedCustomer() {
+		return reviewedCustomer;
 	}
 
 	public Double getReviewRating() {
 		return reviewRating;
 	}
 
-	public void setReviewRating(Double reviewRating) {
-		this.reviewRating = reviewRating;
-	}
-
 	public Long getReviewRead() {
 		return reviewRead;
-	}
-
-	public void setReviewRead(Long reviewRead) {
-		this.reviewRead = reviewRead;
 	}
 
 	public Integer getStatus() {
 		return status;
 	}
 
-	public void setStatus(Integer status) {
-		this.status = status;
-	}
-
-	public Customer getCustomer() {
-		return customer;
+	@Override
+	public void setAuditSection(AuditSection audit) {
+		this.audit = audit;
 	}
 
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
 
-
-	public Set<CustomerReviewDescription> getDescriptions() {
-		return descriptions;
-	}
-
 	public void setDescriptions(Set<CustomerReviewDescription> descriptions) {
 		this.descriptions = descriptions;
 	}
-	
-	@Override
-	public AuditSection getAuditSection() {
-		return audit;
-	}
-	
-	@Override
-	public void setAuditSection(AuditSection audit) {
-		this.audit = audit;
-	}
-	
-	public Date getReviewDate() {
-		return reviewDate;
+
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public void setReviewDate(Date reviewDate) {
 		this.reviewDate = reviewDate;
+	}
+	
+	public void setReviewedCustomer(Customer reviewedCustomer) {
+		this.reviewedCustomer = reviewedCustomer;
+	}
+	
+	public void setReviewRating(Double reviewRating) {
+		this.reviewRating = reviewRating;
+	}
+	
+	public void setReviewRead(Long reviewRead) {
+		this.reviewRead = reviewRead;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
 }

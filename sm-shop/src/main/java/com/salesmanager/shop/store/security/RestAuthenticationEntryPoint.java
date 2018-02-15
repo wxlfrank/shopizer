@@ -18,6 +18,13 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint, I
 	private String realmName = "rest-realm";
 
 	@Override
+	public void afterPropertiesSet() throws Exception {
+		if ((realmName == null) || "".equals(realmName)) {
+			throw new IllegalArgumentException("realmName must be specified");
+		}
+	}
+
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
 		
@@ -29,13 +36,6 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint, I
 	@Override
 	public int getOrder() {
 		return 1;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if ((realmName == null) || "".equals(realmName)) {
-			throw new IllegalArgumentException("realmName must be specified");
-		}
 	}
 
 }

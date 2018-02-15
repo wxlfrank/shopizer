@@ -32,11 +32,6 @@ public class TaxClass extends SalesManagerEntity<Long, TaxClass> {
 	
 	public final static String DEFAULT_TAX_CLASS = "DEFAULT";
 	
-	public TaxClass(String code) {
-		this.code = code;
-		this.title = code;
-	}
-	
 	@Id
 	@Column(name = "TAX_CLASS_ID", unique=true, nullable=false)
 	@TableGenerator(name = "TABLE_GEN", table = "SM_SEQUENCER", pkColumnName = "SEQ_NAME", valueColumnName = "SEQ_COUNT", pkColumnValue = "TX_CLASS_SEQ_NEXT_VAL")
@@ -51,10 +46,14 @@ public class TaxClass extends SalesManagerEntity<Long, TaxClass> {
 	@Column(name = "TAX_CLASS_TITLE" , nullable=false , length=32 )
 	private String title;
 	
-
-
 	@OneToMany(mappedBy = "taxClass", targetEntity = Product.class)
 	private List<Product> products = new ArrayList<Product>();
+	
+
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="MERCHANT_ID", nullable=true)
+	private MerchantStore merchantStore;
 	
 
 /*	@ManyToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL)
@@ -64,51 +63,26 @@ public class TaxClass extends SalesManagerEntity<Long, TaxClass> {
 					nullable = false) })
 	private Set<MerchantStore> stores = new HashSet<MerchantStore>();*/
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="MERCHANT_ID", nullable=true)
-	private MerchantStore merchantStore;
-
-	
 	@OneToMany(mappedBy = "taxClass")
 	private List<TaxRate> taxRates = new ArrayList<TaxRate>();
+
 	
 	public TaxClass() {
 		super();
 	}
 	
-	@Override
-	public Long getId() {
-		return this.id;
+	public TaxClass(String code) {
+		this.code = code;
+		this.title = code;
 	}
-
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
+	
 	public String getCode() {
 		return code;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public List<TaxRate> getTaxRates() {
-		return taxRates;
-	}
-
-	public void setTaxRates(List<TaxRate> taxRates) {
-		this.taxRates = taxRates;
+	@Override
+	public Long getId() {
+		return this.id;
 	}
 
 
@@ -116,8 +90,34 @@ public class TaxClass extends SalesManagerEntity<Long, TaxClass> {
 		return merchantStore;
 	}
 
+	public List<TaxRate> getTaxRates() {
+		return taxRates;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public void setMerchantStore(MerchantStore merchantStore) {
 		this.merchantStore = merchantStore;
+	}
+
+
+	public void setTaxRates(List<TaxRate> taxRates) {
+		this.taxRates = taxRates;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	
 }

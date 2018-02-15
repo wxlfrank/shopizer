@@ -21,38 +21,38 @@ public class OrderTotalInputParameters {
 	public Double getDiscount() {
 		return discount;
 	}
-	public void setDiscount(Double discount) {
-		this.discount = discount;
-	}
-	public String getTotalCode() {
-		return totalCode;
-	}
-	public void setTotalCode(String totalCode) {
-		this.totalCode = totalCode;
+	public String getItemCategoryCode() {
+		return itemCategoryCode;
 	}
 	public String getItemManufacturerCode() {
 		return itemManufacturerCode;
 	}
-	public void setItemManufacturerCode(String itemManufacturerCode) {
-		this.itemManufacturerCode = itemManufacturerCode;
-	}
-	public String getItemCategoryCode() {
-		return itemCategoryCode;
-	}
-	public void setItemCategoryCode(String itemCategoryCode) {
-		this.itemCategoryCode = itemCategoryCode;
-	}
 	public long getProductId() {
 		return productId;
-	}
-	public void setProductId(long productId) {
-		this.productId = productId;
 	}
 	public String getShippingMethod() {
 		return shippingMethod;
 	}
+	public String getTotalCode() {
+		return totalCode;
+	}
+	public void setDiscount(Double discount) {
+		this.discount = discount;
+	}
+	public void setItemCategoryCode(String itemCategoryCode) {
+		this.itemCategoryCode = itemCategoryCode;
+	}
+	public void setItemManufacturerCode(String itemManufacturerCode) {
+		this.itemManufacturerCode = itemManufacturerCode;
+	}
+	public void setProductId(long productId) {
+		this.productId = productId;
+	}
 	public void setShippingMethod(String shippingMethod) {
 		this.shippingMethod = shippingMethod;
+	}
+	public void setTotalCode(String totalCode) {
+		this.totalCode = totalCode;
 	}
 
 	

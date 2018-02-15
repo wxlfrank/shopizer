@@ -22,6 +22,10 @@ public class PersistablePaymentPopulator extends AbstractDataPopulator<Persistab
 
 
 
+	public PricingService getPricingService() {
+		return pricingService;
+	}
+
 	@Override
 	public Payment populate(PersistablePayment source, Payment target, MerchantStore store, Language language)
 			throws ConversionException {
@@ -49,19 +53,15 @@ public class PersistablePaymentPopulator extends AbstractDataPopulator<Persistab
 			throw new ConversionException(e);
 		}
 	}
+	
+	public void setPricingService(PricingService pricingService) {
+		this.pricingService = pricingService;
+	}
 
 	@Override
 	protected Payment createTarget() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-	
-	public PricingService getPricingService() {
-		return pricingService;
-	}
-
-	public void setPricingService(PricingService pricingService) {
-		this.pricingService = pricingService;
 	}
 
 }

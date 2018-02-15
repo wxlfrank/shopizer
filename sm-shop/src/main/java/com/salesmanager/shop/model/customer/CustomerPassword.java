@@ -23,23 +23,23 @@ public class CustomerPassword implements Serializable {
 	private String password;
 	@Size(min=6, message="{repeatpassword.not.empty}")
 	private String checkPassword;
+	public String getCheckPassword() {
+		return checkPassword;
+	}
 	public String getCurrentPassword() {
 		return currentPassword;
-	}
-	public void setCurrentPassword(String currentPassword) {
-		this.currentPassword = currentPassword;
 	}
 	public String getPassword() {
 		return password;
 	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	public String getCheckPassword() {
-		return checkPassword;
-	}
 	public void setCheckPassword(String checkPassword) {
 		this.checkPassword = checkPassword;
+	}
+	public void setCurrentPassword(String currentPassword) {
+		this.currentPassword = currentPassword;
+	}
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 }

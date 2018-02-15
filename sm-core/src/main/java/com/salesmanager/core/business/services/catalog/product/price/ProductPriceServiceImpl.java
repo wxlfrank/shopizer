@@ -32,6 +32,15 @@ public class ProductPriceServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	
 	
 	@Override
+	public void delete(ProductPrice price) throws ServiceException {
+		
+		//override method, this allows the error that we try to remove a detached instance
+		price = this.getById(price.getId());
+		super.delete(price);
+		
+	}
+	
+	@Override
 	public void saveOrUpdate(ProductPrice price) throws ServiceException {
 		
 		if(price.getId()!=null && price.getId()>0) {
@@ -49,15 +58,6 @@ public class ProductPriceServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		}
 		
 		
-		
-	}
-	
-	@Override
-	public void delete(ProductPrice price) throws ServiceException {
-		
-		//override method, this allows the error that we try to remove a detached instance
-		price = this.getById(price.getId());
-		super.delete(price);
 		
 	}
 	

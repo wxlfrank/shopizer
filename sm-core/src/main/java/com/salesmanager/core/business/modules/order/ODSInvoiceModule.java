@@ -23,6 +23,7 @@ import org.jopendocument.renderer.ODTRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.itextpdf.awt.PdfPrinterGraphics2D;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
@@ -373,7 +374,7 @@ public class ODSInvoiceModule implements InvoiceModule {
 			 PdfContentByte cb = writer.getDirectContent();
 			 PdfTemplate tp = cb.createTemplate(w, h);
 
-			 Graphics2D g2 = tp.createPrinterGraphics(w, h, null);
+			 Graphics2D g2 = new PdfPrinterGraphics2D(tp, w, h, null);
 			 // If you want to prevent copy/paste, you can use
 			 // g2 = tp.createGraphicsShapes(w, h, true, 0.9f);
 			            

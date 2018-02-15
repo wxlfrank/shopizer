@@ -26,44 +26,44 @@ public class CreditCard {
 	@Column (name ="CC_CVV")
 	private String ccCvv;
 
-	public String getCcOwner() {
-		return ccOwner;
-	}
-
-	public void setCcOwner(String ccOwner) {
-		this.ccOwner = ccOwner;
-	}
-
-	public String getCcNumber() {
-		return ccNumber;
-	}
-
-	public void setCcNumber(String ccNumber) {
-		this.ccNumber = ccNumber;
-	}
-
-	public String getCcExpires() {
-		return ccExpires;
-	}
-
-	public void setCcExpires(String ccExpires) {
-		this.ccExpires = ccExpires;
+	public CreditCardType getCardType() {
+		return cardType;
 	}
 
 	public String getCcCvv() {
 		return ccCvv;
 	}
 
-	public void setCcCvv(String ccCvv) {
-		this.ccCvv = ccCvv;
+	public String getCcExpires() {
+		return ccExpires;
+	}
+
+	public String getCcNumber() {
+		return ccNumber;
+	}
+
+	public String getCcOwner() {
+		return ccOwner;
 	}
 
 	public void setCardType(CreditCardType cardType) {
 		this.cardType = cardType;
 	}
 
-	public CreditCardType getCardType() {
-		return cardType;
+	public void setCcCvv(String ccCvv) {
+		this.ccCvv = ccCvv;
+	}
+
+	public void setCcExpires(String ccExpires) {
+		this.ccExpires = ccExpires;
+	}
+
+	public void setCcNumber(String ccNumber) {
+		this.ccNumber = ccNumber;
+	}
+
+	public void setCcOwner(String ccOwner) {
+		this.ccOwner = ccOwner;
 	}
 
 }

@@ -1,5 +1,24 @@
 package com.salesmanager.shop.admin.controller.payments;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.salesmanager.core.business.modules.integration.IntegrationException;
 import com.salesmanager.core.business.services.payments.PaymentService;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -10,19 +29,6 @@ import com.salesmanager.shop.admin.controller.ControllerConstants;
 import com.salesmanager.shop.admin.model.web.Menu;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.utils.LabelUtils;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
 
 @Controller
 public class PaymentsController {
@@ -35,28 +41,15 @@ public class PaymentsController {
 	LabelUtils messages;
 
 	
-	@RequestMapping(value="/admin/payments/paymentMethods.html", method=RequestMethod.GET)
-	public String getPaymentMethods(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+	@RequestMapping(value="/admin/payments/deletePaymentMethod.html", method=RequestMethod.POST)
+	public String deletePaymentMethod(@RequestParam("code") String code, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 		
-		//set menu
-		setMenu(model,request);
-		
+		this.setMenu(model, request);
 		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		paymentService.removePaymentModuleConfiguration(code, store);
 		
-		//get payment methods
-		List<IntegrationModule> modules = paymentService.getPaymentMethods(store);
-
-		//get configured payment modules
-		Map<String,IntegrationConfiguration> configuredModules = paymentService.getPaymentModulesConfigured(store);
+		return "redirect:/admin/payments/paymentMethods.html";
 		
-
-
-		model.addAttribute("modules", modules);
-		model.addAttribute("configuredModules", configuredModules);
-		
-		return ControllerConstants.Tiles.Payment.paymentMethods;
-
 	}
 	
 	@PreAuthorize("hasRole('PAYMENT')")
@@ -92,6 +85,30 @@ public class PaymentsController {
 		return ControllerConstants.Tiles.Payment.paymentMethod;
 		
 		
+	}
+	
+	@RequestMapping(value="/admin/payments/paymentMethods.html", method=RequestMethod.GET)
+	public String getPaymentMethods(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		//set menu
+		setMenu(model,request);
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		//get payment methods
+		List<IntegrationModule> modules = paymentService.getPaymentMethods(store);
+
+		//get configured payment modules
+		Map<String,IntegrationConfiguration> configuredModules = paymentService.getPaymentModulesConfigured(store);
+		
+
+
+		model.addAttribute("modules", modules);
+		model.addAttribute("configuredModules", configuredModules);
+		
+		return ControllerConstants.Tiles.Payment.paymentMethods;
+
 	}
 	
 	@PreAuthorize("hasRole('PAYMENT')")
@@ -134,17 +151,6 @@ public class PaymentsController {
 		model.addAttribute("success","success");
 		return ControllerConstants.Tiles.Payment.paymentMethod;
 		
-		
-	}
-	
-	@RequestMapping(value="/admin/payments/deletePaymentMethod.html", method=RequestMethod.POST)
-	public String deletePaymentMethod(@RequestParam("code") String code, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		
-		this.setMenu(model, request);
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		paymentService.removePaymentModuleConfiguration(code, store);
-		
-		return "redirect:/admin/payments/paymentMethods.html";
 		
 	}
 	

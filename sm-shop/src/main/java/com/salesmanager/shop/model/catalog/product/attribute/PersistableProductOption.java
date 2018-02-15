@@ -11,11 +11,11 @@ public class PersistableProductOption extends ProductOptionEntity implements
 	 */
 	private static final long serialVersionUID = 1L;
 	private List<ProductOptionDescription> descriptions;
-	public void setDescriptions(List<ProductOptionDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
 	public List<ProductOptionDescription> getDescriptions() {
 		return descriptions;
+	}
+	public void setDescriptions(List<ProductOptionDescription> descriptions) {
+		this.descriptions = descriptions;
 	}
 
 }

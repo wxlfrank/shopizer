@@ -1,6 +1,9 @@
 package com.salesmanager.shop.populator.customer;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.utils.AbstractDataPopulator;
 import com.salesmanager.core.model.customer.attribute.CustomerOptionSet;
@@ -8,10 +11,6 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.admin.model.customer.attribute.CustomerOption;
 import com.salesmanager.shop.admin.model.customer.attribute.CustomerOptionValue;
-
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 
@@ -29,10 +28,6 @@ public class CustomerOptionPopulator extends
 	
 	public CustomerOptionSet getOptionSet() {
 		return optionSet;
-	}
-
-	public void setOptionSet(CustomerOptionSet optionSet) {
-		this.optionSet = optionSet;
 	}
 
 	@Override
@@ -65,6 +60,10 @@ public class CustomerOptionPopulator extends
 		
 		return customerOption;
 
+	}
+
+	public void setOptionSet(CustomerOptionSet optionSet) {
+		this.optionSet = optionSet;
 	}
 
     @Override

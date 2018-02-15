@@ -44,7 +44,7 @@ import com.salesmanager.core.modules.integration.shipping.model.CustomShippingQu
 @Ignore
 public class ShippingQuoteByWeightTest extends com.salesmanager.test.common.AbstractSalesManagerCoreTestCase {
 	
-	private static final Date date = new Date(System.currentTimeMillis());
+//	private static final Date date = new Date(System.currentTimeMillis());
 	
 	@Inject
 	private ShippingService shippingService;

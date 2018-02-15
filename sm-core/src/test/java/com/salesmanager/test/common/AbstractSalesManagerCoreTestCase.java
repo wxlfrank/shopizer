@@ -41,7 +41,6 @@ import com.salesmanager.core.business.services.reference.language.LanguageServic
 import com.salesmanager.core.business.services.reference.zone.ZoneService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
 import com.salesmanager.core.business.services.system.EmailService;
-import com.salesmanager.core.business.utils.ProductPriceUtils;
 import com.salesmanager.test.configuration.ConfigurationTest;
 
 
@@ -70,8 +69,8 @@ public class AbstractSalesManagerCoreTestCase {
 	@Inject
 	protected PricingService pricingService;
 	
-	@Inject
-	private ProductPriceUtils priceUtil;
+//	@Inject
+//	private ProductPriceUtils priceUtil;
 
 	
 	@Inject
@@ -146,15 +145,15 @@ public class AbstractSalesManagerCoreTestCase {
 	@Inject
 	protected EmailService emailService;
 	
+	@After
+	public void close() throws ServiceException {
+
+	}
+	
 	@Before
 	public void init() throws ServiceException {
 		System.out.println("**** INTO INIT ***");
 		populate();
-
-	}
-	
-	@After
-	public void close() throws ServiceException {
 
 	}
 	

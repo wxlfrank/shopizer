@@ -1,5 +1,26 @@
 package com.salesmanager.core.business.services.shipping;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.inject.Inject;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesmanager.core.business.constants.ShippingConstants;
 import com.salesmanager.core.business.exception.ServiceException;
@@ -15,29 +36,30 @@ import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.country.Country;
 import com.salesmanager.core.model.reference.language.Language;
-import com.salesmanager.core.model.shipping.*;
+import com.salesmanager.core.model.shipping.PackageDetails;
+import com.salesmanager.core.model.shipping.Quote;
+import com.salesmanager.core.model.shipping.ShippingConfiguration;
+import com.salesmanager.core.model.shipping.ShippingMetaData;
+import com.salesmanager.core.model.shipping.ShippingOption;
+import com.salesmanager.core.model.shipping.ShippingOptionPriceType;
+import com.salesmanager.core.model.shipping.ShippingOrigin;
+import com.salesmanager.core.model.shipping.ShippingPackageType;
+import com.salesmanager.core.model.shipping.ShippingProduct;
+import com.salesmanager.core.model.shipping.ShippingQuote;
+import com.salesmanager.core.model.shipping.ShippingSummary;
+import com.salesmanager.core.model.shipping.ShippingType;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
-import com.salesmanager.core.model.system.*;
+import com.salesmanager.core.model.system.CustomIntegrationConfiguration;
+import com.salesmanager.core.model.system.IntegrationConfiguration;
+import com.salesmanager.core.model.system.IntegrationModule;
+import com.salesmanager.core.model.system.MerchantConfiguration;
+import com.salesmanager.core.model.system.MerchantLog;
 import com.salesmanager.core.modules.integration.IntegrationException;
 import com.salesmanager.core.modules.integration.shipping.model.Packaging;
 import com.salesmanager.core.modules.integration.shipping.model.ShippingQuoteModule;
 import com.salesmanager.core.modules.integration.shipping.model.ShippingQuotePrePostProcessModule;
 import com.salesmanager.core.modules.utils.Encryption;
 import com.shopizer.search.utils.DateUtil;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.util.*;
 
 
 @Service("shippingService")
@@ -96,6 +118,42 @@ public class ShippingServiceImpl implements ShippingService {
 	private List<ShippingQuotePrePostProcessModule> shippingModulePostProcessors;
 	
 	@Override
+	public CustomIntegrationConfiguration getCustomShippingConfiguration(String moduleCode, MerchantStore store) throws ServiceException {
+
+		
+		ShippingQuoteModule quoteModule = (ShippingQuoteModule)shippingModules.get(moduleCode);
+		if(quoteModule==null) {
+			return null;
+		}
+		return quoteModule.getCustomModuleConfiguration(store);
+		
+	}
+	
+	@Override
+	public List<PackageDetails> getPackagesDetails(
+			List<ShippingProduct> products, MerchantStore store)
+			throws ServiceException {
+		
+		List<PackageDetails> packages = null;
+		
+		ShippingConfiguration shippingConfiguration = this.getShippingConfiguration(store);
+		//determine if the system has to use BOX or ITEM
+		ShippingPackageType shippingPackageType = ShippingPackageType.ITEM;
+		if(shippingConfiguration!=null) {
+			shippingPackageType = shippingConfiguration.getShippingPackageType();
+		}
+		
+		if(shippingPackageType.name().equals(ShippingPackageType.BOX.name())){
+			packages = packaging.getBoxPackagesDetails(products, store);
+		} else {
+			packages = packaging.getItemPackagesDetails(products, store);
+		}
+		
+		return packages;
+		
+	}
+	
+	@Override
 	public ShippingConfiguration getShippingConfiguration(MerchantStore store) throws ServiceException {
 
 		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(ShippingConstants.SHIPPING_CONFIGURATION, store);
@@ -134,65 +192,50 @@ public class ShippingServiceImpl implements ShippingService {
 	}
 	
 	@Override
-	public CustomIntegrationConfiguration getCustomShippingConfiguration(String moduleCode, MerchantStore store) throws ServiceException {
-
+	public ShippingMetaData getShippingMetaData(MerchantStore store)
+			throws ServiceException {
 		
-		ShippingQuoteModule quoteModule = (ShippingQuoteModule)shippingModules.get(moduleCode);
-		if(quoteModule==null) {
-			return null;
-		}
-		return quoteModule.getCustomModuleConfiguration(store);
+		ShippingMetaData metaData = new ShippingMetaData();
 		
-	}
-	
-	@Override
-	public void saveShippingConfiguration(ShippingConfiguration shippingConfiguration, MerchantStore store) throws ServiceException {
+		// configured country
+		List<Country> countries = getShipToCountryList(store, store.getDefaultLanguage());
+		metaData.setShipToCountry(countries);
 		
-		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(ShippingConstants.SHIPPING_CONFIGURATION, store);
-
-		if(configuration==null) {
-			configuration = new MerchantConfiguration();
-			configuration.setMerchantStore(store);
-			configuration.setKey(ShippingConstants.SHIPPING_CONFIGURATION);
-		}
-		
-		String value = shippingConfiguration.toJSONString();
-		configuration.setValue(value);
-		merchantConfigurationService.saveOrUpdate(configuration);
-		
-	}
-	
-	@Override
-	public void saveCustomShippingConfiguration(String moduleCode, CustomIntegrationConfiguration shippingConfiguration, MerchantStore store) throws ServiceException {
-		
-		
-		ShippingQuoteModule quoteModule = (ShippingQuoteModule)shippingModules.get(moduleCode);
-		if(quoteModule==null) {
-			throw new ServiceException("Shipping module " + moduleCode + " does not exist");
-		}
-		
-		String configurationValue = shippingConfiguration.toJSONString();
-		
-		
-		try {
-
-			MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(moduleCode, store);
-	
-			if(configuration==null) {
-
-				configuration = new MerchantConfiguration();
-				configuration.setKey(moduleCode);
-				configuration.setMerchantStore(store);
+		// configured modules
+		Map<String,IntegrationConfiguration> modules = getShippingModulesConfigured(store);
+		List<String> moduleKeys = new ArrayList<String>();
+		if(modules!=null) {
+			for(String key : modules.keySet()) {
+				moduleKeys.add(key);
 			}
-			configuration.setValue(configurationValue);
-			merchantConfigurationService.saveOrUpdate(configuration);
-		
-		} catch (Exception e) {
-			throw new IntegrationException(e);
 		}
-
+		metaData.setModules(moduleKeys);
+		
+		// pre processors
+		List<ShippingQuotePrePostProcessModule> preProcessors = this.shippingModulePreProcessors;
+		List<String> preProcessorKeys = new ArrayList<String>();
+		if(preProcessors!=null) {
+			for(ShippingQuotePrePostProcessModule processor : preProcessors) {
+				preProcessorKeys.add(processor.getModuleCode());
+				if(SHIPPING_DISTANCE.equals(processor.getModuleCode())) {
+					metaData.setUseDistanceModule(true);
+				}
+			}
+		}
+		metaData.setPreProcessors(preProcessorKeys);
+		
+		//post processors
+		List<ShippingQuotePrePostProcessModule> postProcessors = this.shippingModulePostProcessors;
+		List<String> postProcessorKeys = new ArrayList<String>();
+		if(postProcessors!=null) {
+			for(ShippingQuotePrePostProcessModule processor : postProcessors) {
+				postProcessorKeys.add(processor.getModuleCode());
+			}
+		}
+		metaData.setPostProcessors(postProcessorKeys);
 		
 		
+		return metaData;
 	}
 	
 
@@ -211,108 +254,6 @@ public class ShippingServiceImpl implements ShippingService {
 		}
 		
 		return returnModules;
-	}
-	
-	@Override
-	public void saveShippingQuoteModuleConfiguration(IntegrationConfiguration configuration, MerchantStore store) throws ServiceException {
-		
-			//validate entries
-			try {
-				
-				String moduleCode = configuration.getModuleCode();
-				ShippingQuoteModule quoteModule = (ShippingQuoteModule)shippingModules.get(moduleCode);
-				if(quoteModule==null) {
-					throw new ServiceException("Shipping quote module " + moduleCode + " does not exist");
-				}
-				quoteModule.validateModuleConfiguration(configuration, store);
-				
-			} catch (IntegrationException ie) {
-				throw ie;
-			}
-			
-			try {
-				Map<String,IntegrationConfiguration> modules = new HashMap<String,IntegrationConfiguration>();
-				MerchantConfiguration merchantConfiguration = merchantConfigurationService.getMerchantConfiguration(SHIPPING_MODULES, store);
-				if(merchantConfiguration!=null) {
-					if(!StringUtils.isBlank(merchantConfiguration.getValue())) {
-						
-						String decrypted = encryption.decrypt(merchantConfiguration.getValue());
-						modules = ConfigurationModulesLoader.loadIntegrationConfigurations(decrypted);
-					}
-				} else {
-					merchantConfiguration = new MerchantConfiguration();
-					merchantConfiguration.setMerchantStore(store);
-					merchantConfiguration.setKey(SHIPPING_MODULES);
-				}
-				modules.put(configuration.getModuleCode(), configuration);
-				
-				String configs =  ConfigurationModulesLoader.toJSONString(modules);
-				
-				String encrypted = encryption.encrypt(configs);
-				merchantConfiguration.setValue(encrypted);
-				merchantConfigurationService.saveOrUpdate(merchantConfiguration);
-				
-			} catch (Exception e) {
-				throw new ServiceException(e);
-			}
-	}
-	
-	
-	@Override
-	public void removeShippingQuoteModuleConfiguration(String moduleCode, MerchantStore store) throws ServiceException {
-		
-		
-
-		try {
-			Map<String,IntegrationConfiguration> modules = new HashMap<String,IntegrationConfiguration>();
-			MerchantConfiguration merchantConfiguration = merchantConfigurationService.getMerchantConfiguration(SHIPPING_MODULES, store);
-			if(merchantConfiguration!=null) {
-				if(!StringUtils.isBlank(merchantConfiguration.getValue())) {
-					String decrypted = encryption.decrypt(merchantConfiguration.getValue());
-					modules = ConfigurationModulesLoader.loadIntegrationConfigurations(decrypted);
-				}
-				
-				modules.remove(moduleCode);
-				String configs =  ConfigurationModulesLoader.toJSONString(modules);
-				String encrypted = encryption.encrypt(configs);
-				merchantConfiguration.setValue(encrypted);
-				merchantConfigurationService.saveOrUpdate(merchantConfiguration);
-				
-				
-			} 
-			
-			MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(moduleCode, store);
-			
-			if(configuration!=null) {//custom module
-
-				merchantConfigurationService.delete(configuration);
-			}
-
-			
-		} catch (Exception e) {
-			throw new ServiceException(e);
-		}
-	
-	}
-	
-	@Override
-	public void removeCustomShippingQuoteModuleConfiguration(String moduleCode, MerchantStore store) throws ServiceException {
-		
-		
-
-		try {
-			
-			removeShippingQuoteModuleConfiguration(moduleCode,store);
-			MerchantConfiguration merchantConfiguration = merchantConfigurationService.getMerchantConfiguration(moduleCode, store);
-			if(merchantConfiguration!=null) {
-				merchantConfigurationService.delete(merchantConfiguration);
-			} 
-			
-			
-		} catch (Exception e) {
-			throw new ServiceException(e);
-		}
-	
 	}
 	
 	@Override
@@ -338,19 +279,7 @@ public class ShippingServiceImpl implements ShippingService {
 		
 	}
 	
-	@Override
-	public ShippingSummary getShippingSummary(MerchantStore store, ShippingQuote shippingQuote, ShippingOption selectedShippingOption) throws ServiceException {
-		
-		ShippingSummary shippingSummary = new ShippingSummary();
-		shippingSummary.setFreeShipping(shippingQuote.isFreeShipping());
-		shippingSummary.setHandling(shippingQuote.getHandlingFees());
-		shippingSummary.setShipping(selectedShippingOption.getOptionPrice());
-		shippingSummary.setShippingModule(shippingQuote.getShippingModuleCode());
-		shippingSummary.setShippingOption(selectedShippingOption.getDescription());
-		
-		return shippingSummary;
-	}
-
+	
 	@Override
 	public ShippingQuote getShippingQuote(Long shoppingCartId, MerchantStore store, Delivery delivery, List<ShippingProduct> products, Language language) throws ServiceException  {
 		
@@ -723,30 +652,18 @@ public class ShippingServiceImpl implements ShippingService {
 		return shippingQuote;
 		
 	}
-
+	
 	@Override
-	public List<String> getSupportedCountries(MerchantStore store) throws ServiceException {
+	public ShippingSummary getShippingSummary(MerchantStore store, ShippingQuote shippingQuote, ShippingOption selectedShippingOption) throws ServiceException {
 		
-		List<String> supportedCountries = new ArrayList<String>();
-		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(SUPPORTED_COUNTRIES, store);
+		ShippingSummary shippingSummary = new ShippingSummary();
+		shippingSummary.setFreeShipping(shippingQuote.isFreeShipping());
+		shippingSummary.setHandling(shippingQuote.getHandlingFees());
+		shippingSummary.setShipping(selectedShippingOption.getOptionPrice());
+		shippingSummary.setShippingModule(shippingQuote.getShippingModuleCode());
+		shippingSummary.setShippingOption(selectedShippingOption.getDescription());
 		
-		if(configuration!=null) {
-			
-			String countries = configuration.getValue();
-			if(!StringUtils.isBlank(countries)) {
-
-				Object objRegions=JSONValue.parse(countries); 
-				JSONArray arrayRegions=(JSONArray)objRegions;
-				@SuppressWarnings("rawtypes")
-				Iterator i = arrayRegions.iterator();
-				while(i.hasNext()) {
-					supportedCountries.add((String)i.next());
-				}
-			}
-			
-		}
-		
-		return supportedCountries;
+		return shippingSummary;
 	}
 	
 	@Override
@@ -795,6 +712,204 @@ public class ShippingServiceImpl implements ShippingService {
 
 	}
 	
+	@Override
+	public List<String> getSupportedCountries(MerchantStore store) throws ServiceException {
+		
+		List<String> supportedCountries = new ArrayList<String>();
+		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(SUPPORTED_COUNTRIES, store);
+		
+		if(configuration!=null) {
+			
+			String countries = configuration.getValue();
+			if(!StringUtils.isBlank(countries)) {
+
+				Object objRegions=JSONValue.parse(countries); 
+				JSONArray arrayRegions=(JSONArray)objRegions;
+				@SuppressWarnings("rawtypes")
+				Iterator i = arrayRegions.iterator();
+				while(i.hasNext()) {
+					supportedCountries.add((String)i.next());
+				}
+			}
+			
+		}
+		
+		return supportedCountries;
+	}
+
+	@Override
+	public boolean hasTaxOnShipping(MerchantStore store) throws ServiceException {
+		ShippingConfiguration shippingConfiguration = getShippingConfiguration(store);
+		return shippingConfiguration.isTaxOnShipping();
+	}
+
+	@Override
+	public void removeCustomShippingQuoteModuleConfiguration(String moduleCode, MerchantStore store) throws ServiceException {
+		
+		
+
+		try {
+			
+			removeShippingQuoteModuleConfiguration(moduleCode,store);
+			MerchantConfiguration merchantConfiguration = merchantConfigurationService.getMerchantConfiguration(moduleCode, store);
+			if(merchantConfiguration!=null) {
+				merchantConfigurationService.delete(merchantConfiguration);
+			} 
+			
+			
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		}
+	
+	}
+	
+	@Override
+	public void removeShippingQuoteModuleConfiguration(String moduleCode, MerchantStore store) throws ServiceException {
+		
+		
+
+		try {
+			Map<String,IntegrationConfiguration> modules = new HashMap<String,IntegrationConfiguration>();
+			MerchantConfiguration merchantConfiguration = merchantConfigurationService.getMerchantConfiguration(SHIPPING_MODULES, store);
+			if(merchantConfiguration!=null) {
+				if(!StringUtils.isBlank(merchantConfiguration.getValue())) {
+					String decrypted = encryption.decrypt(merchantConfiguration.getValue());
+					modules = ConfigurationModulesLoader.loadIntegrationConfigurations(decrypted);
+				}
+				
+				modules.remove(moduleCode);
+				String configs =  ConfigurationModulesLoader.toJSONString(modules);
+				String encrypted = encryption.encrypt(configs);
+				merchantConfiguration.setValue(encrypted);
+				merchantConfigurationService.saveOrUpdate(merchantConfiguration);
+				
+				
+			} 
+			
+			MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(moduleCode, store);
+			
+			if(configuration!=null) {//custom module
+
+				merchantConfigurationService.delete(configuration);
+			}
+
+			
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		}
+	
+	}
+	
+
+	@Override
+	public boolean requiresShipping(List<ShoppingCartItem> items,
+			MerchantStore store) throws ServiceException {
+
+		boolean requiresShipping = false;
+		for(ShoppingCartItem item : items) {
+			Product product = item.getProduct();
+			if(!product.isProductVirtual() && product.isProductShipeable()) {
+				requiresShipping = true;
+			}
+		}
+
+		return requiresShipping;		
+	}
+	
+
+	@Override
+	public void saveCustomShippingConfiguration(String moduleCode, CustomIntegrationConfiguration shippingConfiguration, MerchantStore store) throws ServiceException {
+		
+		
+		ShippingQuoteModule quoteModule = (ShippingQuoteModule)shippingModules.get(moduleCode);
+		if(quoteModule==null) {
+			throw new ServiceException("Shipping module " + moduleCode + " does not exist");
+		}
+		
+		String configurationValue = shippingConfiguration.toJSONString();
+		
+		
+		try {
+
+			MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(moduleCode, store);
+	
+			if(configuration==null) {
+
+				configuration = new MerchantConfiguration();
+				configuration.setKey(moduleCode);
+				configuration.setMerchantStore(store);
+			}
+			configuration.setValue(configurationValue);
+			merchantConfigurationService.saveOrUpdate(configuration);
+		
+		} catch (Exception e) {
+			throw new IntegrationException(e);
+		}
+
+		
+		
+	}
+
+	@Override
+	public void saveShippingConfiguration(ShippingConfiguration shippingConfiguration, MerchantStore store) throws ServiceException {
+		
+		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(ShippingConstants.SHIPPING_CONFIGURATION, store);
+
+		if(configuration==null) {
+			configuration = new MerchantConfiguration();
+			configuration.setMerchantStore(store);
+			configuration.setKey(ShippingConstants.SHIPPING_CONFIGURATION);
+		}
+		
+		String value = shippingConfiguration.toJSONString();
+		configuration.setValue(value);
+		merchantConfigurationService.saveOrUpdate(configuration);
+		
+	}
+
+	@Override
+	public void saveShippingQuoteModuleConfiguration(IntegrationConfiguration configuration, MerchantStore store) throws ServiceException {
+		
+			//validate entries
+			try {
+				
+				String moduleCode = configuration.getModuleCode();
+				ShippingQuoteModule quoteModule = (ShippingQuoteModule)shippingModules.get(moduleCode);
+				if(quoteModule==null) {
+					throw new ServiceException("Shipping quote module " + moduleCode + " does not exist");
+				}
+				quoteModule.validateModuleConfiguration(configuration, store);
+				
+			} catch (IntegrationException ie) {
+				throw ie;
+			}
+			
+			try {
+				Map<String,IntegrationConfiguration> modules = new HashMap<String,IntegrationConfiguration>();
+				MerchantConfiguration merchantConfiguration = merchantConfigurationService.getMerchantConfiguration(SHIPPING_MODULES, store);
+				if(merchantConfiguration!=null) {
+					if(!StringUtils.isBlank(merchantConfiguration.getValue())) {
+						
+						String decrypted = encryption.decrypt(merchantConfiguration.getValue());
+						modules = ConfigurationModulesLoader.loadIntegrationConfigurations(decrypted);
+					}
+				} else {
+					merchantConfiguration = new MerchantConfiguration();
+					merchantConfiguration.setMerchantStore(store);
+					merchantConfiguration.setKey(SHIPPING_MODULES);
+				}
+				modules.put(configuration.getModuleCode(), configuration);
+				
+				String configs =  ConfigurationModulesLoader.toJSONString(modules);
+				
+				String encrypted = encryption.encrypt(configs);
+				merchantConfiguration.setValue(encrypted);
+				merchantConfigurationService.saveOrUpdate(merchantConfiguration);
+				
+			} catch (Exception e) {
+				throw new ServiceException(e);
+			}
+	}
 
 	@Override
 	public void setSupportedCountries(MerchantStore store, List<String> countryCodes) throws ServiceException {
@@ -824,7 +939,6 @@ public class ShippingServiceImpl implements ShippingService {
 		}
 
 	}
-	
 
 	private BigDecimal calculateOrderTotal(List<ShippingProduct> products, MerchantStore store) throws Exception {
 		
@@ -839,97 +953,5 @@ public class ShippingServiceImpl implements ShippingService {
 		return total;
 		
 		
-	}
-
-	@Override
-	public List<PackageDetails> getPackagesDetails(
-			List<ShippingProduct> products, MerchantStore store)
-			throws ServiceException {
-		
-		List<PackageDetails> packages = null;
-		
-		ShippingConfiguration shippingConfiguration = this.getShippingConfiguration(store);
-		//determine if the system has to use BOX or ITEM
-		ShippingPackageType shippingPackageType = ShippingPackageType.ITEM;
-		if(shippingConfiguration!=null) {
-			shippingPackageType = shippingConfiguration.getShippingPackageType();
-		}
-		
-		if(shippingPackageType.name().equals(ShippingPackageType.BOX.name())){
-			packages = packaging.getBoxPackagesDetails(products, store);
-		} else {
-			packages = packaging.getItemPackagesDetails(products, store);
-		}
-		
-		return packages;
-		
-	}
-
-	@Override
-	public boolean requiresShipping(List<ShoppingCartItem> items,
-			MerchantStore store) throws ServiceException {
-
-		boolean requiresShipping = false;
-		for(ShoppingCartItem item : items) {
-			Product product = item.getProduct();
-			if(!product.isProductVirtual() && product.isProductShipeable()) {
-				requiresShipping = true;
-			}
-		}
-
-		return requiresShipping;		
-	}
-
-	@Override
-	public ShippingMetaData getShippingMetaData(MerchantStore store)
-			throws ServiceException {
-		
-		ShippingMetaData metaData = new ShippingMetaData();
-		
-		// configured country
-		List<Country> countries = getShipToCountryList(store, store.getDefaultLanguage());
-		metaData.setShipToCountry(countries);
-		
-		// configured modules
-		Map<String,IntegrationConfiguration> modules = getShippingModulesConfigured(store);
-		List<String> moduleKeys = new ArrayList<String>();
-		if(modules!=null) {
-			for(String key : modules.keySet()) {
-				moduleKeys.add(key);
-			}
-		}
-		metaData.setModules(moduleKeys);
-		
-		// pre processors
-		List<ShippingQuotePrePostProcessModule> preProcessors = this.shippingModulePreProcessors;
-		List<String> preProcessorKeys = new ArrayList<String>();
-		if(preProcessors!=null) {
-			for(ShippingQuotePrePostProcessModule processor : preProcessors) {
-				preProcessorKeys.add(processor.getModuleCode());
-				if(SHIPPING_DISTANCE.equals(processor.getModuleCode())) {
-					metaData.setUseDistanceModule(true);
-				}
-			}
-		}
-		metaData.setPreProcessors(preProcessorKeys);
-		
-		//post processors
-		List<ShippingQuotePrePostProcessModule> postProcessors = this.shippingModulePostProcessors;
-		List<String> postProcessorKeys = new ArrayList<String>();
-		if(postProcessors!=null) {
-			for(ShippingQuotePrePostProcessModule processor : postProcessors) {
-				postProcessorKeys.add(processor.getModuleCode());
-			}
-		}
-		metaData.setPostProcessors(postProcessorKeys);
-		
-		
-		return metaData;
-	}
-
-	@Override
-	public boolean hasTaxOnShipping(MerchantStore store) throws ServiceException {
-		ShippingConfiguration shippingConfiguration = getShippingConfiguration(store);
-		return shippingConfiguration.isTaxOnShipping();
 	}
 }

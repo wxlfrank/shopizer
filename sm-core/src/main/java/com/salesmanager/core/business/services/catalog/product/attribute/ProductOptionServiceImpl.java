@@ -32,50 +32,6 @@ public class ProductOptionServiceImpl extends
 	}
 	
 	@Override
-	public List<ProductOption> listByStore(MerchantStore store, Language language) throws ServiceException {
-		
-		
-		return productOptionRepository.findByStoreId(store.getId(), language.getId());
-		
-		
-	}
-	
-	@Override
-	public List<ProductOption> listReadOnly(MerchantStore store, Language language) throws ServiceException {
-
-		return productOptionRepository.findByReadOnly(store.getId(), language.getId(), true);
-		
-		
-	}
-	
-
-	
-	@Override
-	public List<ProductOption> getByName(MerchantStore store, String name, Language language) throws ServiceException {
-		
-		try {
-			return productOptionRepository.findByName(store.getId(), name, language.getId());
-		} catch (Exception e) {
-			throw new ServiceException(e);
-		}
-		
-		
-	}
-	
-	@Override
-	public void saveOrUpdate(ProductOption entity) throws ServiceException {
-		
-		
-		//save or update (persist and attach entities
-		if(entity.getId()!=null && entity.getId()>0) {
-			super.update(entity);
-		} else {
-			super.save(entity);
-		}
-		
-	}
-	
-	@Override
 	public void delete(ProductOption entity) throws ServiceException {
 		
 		//remove all attributes having this option
@@ -96,10 +52,54 @@ public class ProductOptionServiceImpl extends
 	public ProductOption getByCode(MerchantStore store, String optionCode) {
 		return productOptionRepository.findByCode(store.getId(), optionCode);
 	}
+	
 
+	
 	@Override
 	public ProductOption getById(MerchantStore store, Long optionId) {
 		return productOptionRepository.findOne(store.getId(), optionId);
+	}
+	
+	@Override
+	public List<ProductOption> getByName(MerchantStore store, String name, Language language) throws ServiceException {
+		
+		try {
+			return productOptionRepository.findByName(store.getId(), name, language.getId());
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		}
+		
+		
+	}
+	
+	@Override
+	public List<ProductOption> listByStore(MerchantStore store, Language language) throws ServiceException {
+		
+		
+		return productOptionRepository.findByStoreId(store.getId(), language.getId());
+		
+		
+	}
+	
+	@Override
+	public List<ProductOption> listReadOnly(MerchantStore store, Language language) throws ServiceException {
+
+		return productOptionRepository.findByReadOnly(store.getId(), language.getId(), true);
+		
+		
+	}
+
+	@Override
+	public void saveOrUpdate(ProductOption entity) throws ServiceException {
+		
+		
+		//save or update (persist and attach entities
+		if(entity.getId()!=null && entity.getId()>0) {
+			super.update(entity);
+		} else {
+			super.save(entity);
+		}
+		
 	}
 	
 

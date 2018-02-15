@@ -4,6 +4,11 @@ package com.salesmanager.shop.populator.customer;
 import java.math.BigDecimal;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.services.customer.attribute.CustomerOptionService;
 import com.salesmanager.core.business.services.customer.attribute.CustomerOptionValueService;
@@ -25,10 +30,6 @@ import com.salesmanager.core.model.reference.zone.Zone;
 import com.salesmanager.shop.model.customer.Address;
 import com.salesmanager.shop.model.customer.PersistableCustomer;
 import com.salesmanager.shop.model.customer.attribute.PersistableCustomerAttribute;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CustomerPopulator extends
 		AbstractDataPopulator<PersistableCustomer, Customer> {
@@ -44,6 +45,30 @@ public class CustomerPopulator extends
 	
 
 
+
+	public CountryService getCountryService() {
+		return countryService;
+	}
+
+	public CustomerOptionService getCustomerOptionService() {
+		return customerOptionService;
+	}
+
+	public CustomerOptionValueService getCustomerOptionValueService() {
+		return customerOptionValueService;
+	}
+
+	public GroupService getGroupService() {
+		return groupService;
+	}
+
+	public LanguageService getLanguageService() {
+		return languageService;
+	}
+
+	public ZoneService getZoneService() {
+		return zoneService;
+	}
 
 	/**
 	 * Creates a Customer entity ready to be saved
@@ -239,57 +264,33 @@ public class CustomerPopulator extends
 		return target;
 	}
 
-	@Override
-	protected Customer createTarget() {
-		return new Customer();
+	public void setCountryService(CountryService countryService) {
+		this.countryService = countryService;
 	}
 
 	public void setCustomerOptionService(CustomerOptionService customerOptionService) {
 		this.customerOptionService = customerOptionService;
 	}
 
-	public CustomerOptionService getCustomerOptionService() {
-		return customerOptionService;
-	}
-
 	public void setCustomerOptionValueService(CustomerOptionValueService customerOptionValueService) {
 		this.customerOptionValueService = customerOptionValueService;
 	}
 
-	public CustomerOptionValueService getCustomerOptionValueService() {
-		return customerOptionValueService;
-	}
-
-	public CountryService getCountryService() {
-		return countryService;
-	}
-
-	public void setCountryService(CountryService countryService) {
-		this.countryService = countryService;
-	}
-
-	public ZoneService getZoneService() {
-		return zoneService;
-	}
-
-	public void setZoneService(ZoneService zoneService) {
-		this.zoneService = zoneService;
-	}
-
-	public LanguageService getLanguageService() {
-		return languageService;
+	public void setGroupService(GroupService groupService) {
+		this.groupService = groupService;
 	}
 
 	public void setLanguageService(LanguageService languageService) {
 		this.languageService = languageService;
 	}
 	
-	public GroupService getGroupService() {
-		return groupService;
+	public void setZoneService(ZoneService zoneService) {
+		this.zoneService = zoneService;
 	}
 
-	public void setGroupService(GroupService groupService) {
-		this.groupService = groupService;
+	@Override
+	protected Customer createTarget() {
+		return new Customer();
 	}
 
 }

@@ -13,8 +13,7 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 public interface CustomerAttributeService extends
 		SalesManagerEntityService<Long, CustomerAttribute> {
 
-	void saveOrUpdate(CustomerAttribute customerAttribute)
-			throws ServiceException;
+	List<CustomerAttribute> getByCustomer(MerchantStore store, Customer customer);
 
 	CustomerAttribute getByCustomerOptionId(MerchantStore store,
 			Long customerId, Long id);
@@ -25,7 +24,8 @@ public interface CustomerAttributeService extends
 	List<CustomerAttribute> getByOptionId(MerchantStore store, Long id);
 
 
-	List<CustomerAttribute> getByCustomer(MerchantStore store, Customer customer);
+	void saveOrUpdate(CustomerAttribute customerAttribute)
+			throws ServiceException;
 	
 
 }

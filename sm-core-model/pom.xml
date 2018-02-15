@@ -46,14 +46,12 @@
 		<dependency>
 		    <groupId>org.hibernate</groupId>
 		    <artifactId>hibernate-validator</artifactId>
-		    <version>${hibernate-validator-version}</version>
 		</dependency>
 
 		 <!-- http://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
 		<dependency>
 		    <groupId>com.googlecode.json-simple</groupId>
 		    <artifactId>json-simple</artifactId>
-		    <version>${simple-json-version}</version>
 		</dependency>
 		
 		<!-- http://mvnrepository.com/artifact/commons-io/commons-io -->
@@ -75,19 +73,16 @@
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-annotations</artifactId>
-		    <version>${jackson.version}</version>
 		</dependency>
 		<!-- http://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-annotations</artifactId>
-		    <version>${jackson.version}</version>
 		</dependency>
 		<!-- http://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-databind</artifactId>
-		    <version>${jackson.version}</version>
 		</dependency>
 		<!-- http://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
@@ -101,9 +96,5 @@
 		    <groupId>org.springframework.social</groupId>
 		    <artifactId>spring-social-core</artifactId>
 		</dependency>
-		
-
-        
-        
 	</dependencies>
 </project>

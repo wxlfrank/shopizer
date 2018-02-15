@@ -1,23 +1,5 @@
 package com.salesmanager.test.shop.controller.product.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.salesmanager.core.model.catalog.product.attribute.ProductOptionType;
-import com.salesmanager.shop.model.catalog.category.Category;
-import com.salesmanager.shop.model.catalog.manufacturer.Manufacturer;
-import com.salesmanager.shop.model.catalog.manufacturer.ManufacturerDescription;
-import com.salesmanager.shop.model.catalog.manufacturer.PersistableManufacturer;
-import com.salesmanager.shop.model.catalog.product.*;
-import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductOption;
-import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductOptionValue;
-import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescription;
-import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.springframework.http.*;
-import org.springframework.security.crypto.codec.Base64;
-import org.springframework.web.client.RestTemplate;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +7,35 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Ignore;
+import org.junit.Test;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.codec.Base64;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.salesmanager.core.model.catalog.product.attribute.ProductOptionType;
+import com.salesmanager.shop.model.catalog.category.Category;
+import com.salesmanager.shop.model.catalog.manufacturer.Manufacturer;
+import com.salesmanager.shop.model.catalog.manufacturer.ManufacturerDescription;
+import com.salesmanager.shop.model.catalog.manufacturer.PersistableManufacturer;
+import com.salesmanager.shop.model.catalog.product.PersistableProduct;
+import com.salesmanager.shop.model.catalog.product.PersistableProductPrice;
+import com.salesmanager.shop.model.catalog.product.PersistableProductReview;
+import com.salesmanager.shop.model.catalog.product.ProductDescription;
+import com.salesmanager.shop.model.catalog.product.ReadableProduct;
+import com.salesmanager.shop.model.catalog.product.RentalOwner;
+import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductOption;
+import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductOptionValue;
+import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionDescription;
+import com.salesmanager.shop.model.catalog.product.attribute.ProductOptionValueDescription;
 
 
 @Ignore
@@ -36,18 +47,6 @@ public class ProductManagementAPITest {
 	
 	private Long testProductID;
 
-	
-	public HttpHeaders getHeader(){
-		HttpHeaders headers = new HttpHeaders();
-		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
-		//MediaType.APPLICATION_JSON //for application/json
-		headers.setContentType(mediaType);
-		//Basic Authentication
-		String authorisation = "admin" + ":" + "password";
-		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
-		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
-		return headers;
-	}
 	
 	/**
 	 * Creates a Manufacturer reference object that can be used when creating
@@ -98,118 +97,12 @@ public class ProductManagementAPITest {
 		
 		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
 
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/manufacturer", entity, PersistableManufacturer.class);
+		ResponseEntity<PersistableManufacturer> response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/manufacturer", entity, PersistableManufacturer.class);
 
 		PersistableManufacturer manuf = (PersistableManufacturer) response.getBody();
 		System.out.println("New Manufacturer ID : " + manuf.getId());
 		
 		
-	}
-	
-	/**
-	 * Creates a ProductReview
-	 * requires an existing Customer and an existing Product
-	 * @throws Exception
-	 */
-	@Test
-	@Ignore
-	public void createProductReview() throws Exception {
-		
-		//requires an existing product
-		//requires an existing customer
-		PersistableProductReview review = new PersistableProductReview();
-		review.setCustomerId(1L);
-		review.setProductId(1L);
-		review.setLanguage("en");
-		review.setRating(2D);//rating is on 5
-		review.setDescription("Not as good as expected. From what i understood that was supposed to be premium quality but unfortunately i had to return the item after one week... Verry disapointed !");
-		review.setDate("2013-06-06");
-
-		ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
-		String json = writer.writeValueAsString(review);
-		
-		System.out.println(json);
-		
-		/**
-		 * {
-  			"description" : "Excellent product !",
-  			"productId" : 1,
-  			"rating" : 4.5,
-  			"customerId" : 1,
-  			"date" : "2013-06-06",
-  			"language" : "en"
-			}
-		 */
-
-		
-		restTemplate = new RestTemplate();
-
-		
-		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
-
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/product/review", entity, PersistableProductReview.class);
-
-		PersistableProductReview rev = (PersistableProductReview) response.getBody();
-		System.out.println("New ProductReview ID : " + rev.getId());
-		
-		
-	}
-	
-	/**
-	 * Creates a product option value that can be used to create a product attribute
-	 * when creating a new product
-	 * @throws Exception
-	 */
-	@Test
-	@Ignore
-	public void createOptionValue() throws Exception {
-		
-		ProductOptionValueDescription description = new ProductOptionValueDescription();
-		description.setLanguage("en");
-		description.setName("Red");
-		
-		List<ProductOptionValueDescription> descriptions = new ArrayList<ProductOptionValueDescription>();
-		descriptions.add(description);
-		
-		PersistableProductOptionValue optionValue = new PersistableProductOptionValue();
-		optionValue.setOrder(1);
-		optionValue.setCode("colorred");
-		optionValue.setDescriptions(descriptions);
-		
-
-		ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
-		String json = writer.writeValueAsString(optionValue);
-		
-		System.out.println(json);
-		
-		/**
-		 * {
-			  "descriptions" : [ {
-			    "name" : "Red",
-			    "description" : null,
-			    "friendlyUrl" : null,
-			    "keyWords" : null,
-			    "highlights" : null,
-			    "metaDescription" : null,
-			    "title" : null,
-			    "language" : "en",
-			    "id" : 0
-			  } ],
-			  "order" : 1,
-			  "code" : "color-red",
-			  "id" : 0
-			}
-		 */
-
-		restTemplate = new RestTemplate();
-
-		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
-
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/product/optionValue", entity, PersistableProductOptionValue.class);
-
-		PersistableProductOptionValue opt = (PersistableProductOptionValue) response.getBody();
-		System.out.println("New optionValue ID : " + opt.getId());
-
 	}
 	
 	/**
@@ -263,13 +156,157 @@ public class ProductManagementAPITest {
 
 		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
 
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/product/option", entity, PersistableProductOption.class);
+		ResponseEntity<PersistableProductOption> response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/product/option", entity, PersistableProductOption.class);
 
 		PersistableProductOption opt = (PersistableProductOption) response.getBody();
 		System.out.println("New option ID : " + opt.getId());
 
 	}
+	
+	/**
+	 * Creates a product option value that can be used to create a product attribute
+	 * when creating a new product
+	 * @throws Exception
+	 */
+	@Test
+	@Ignore
+	public void createOptionValue() throws Exception {
 		
+		ProductOptionValueDescription description = new ProductOptionValueDescription();
+		description.setLanguage("en");
+		description.setName("Red");
+		
+		List<ProductOptionValueDescription> descriptions = new ArrayList<ProductOptionValueDescription>();
+		descriptions.add(description);
+		
+		PersistableProductOptionValue optionValue = new PersistableProductOptionValue();
+		optionValue.setOrder(1);
+		optionValue.setCode("colorred");
+		optionValue.setDescriptions(descriptions);
+		
+
+		ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
+		String json = writer.writeValueAsString(optionValue);
+		
+		System.out.println(json);
+		
+		/**
+		 * {
+			  "descriptions" : [ {
+			    "name" : "Red",
+			    "description" : null,
+			    "friendlyUrl" : null,
+			    "keyWords" : null,
+			    "highlights" : null,
+			    "metaDescription" : null,
+			    "title" : null,
+			    "language" : "en",
+			    "id" : 0
+			  } ],
+			  "order" : 1,
+			  "code" : "color-red",
+			  "id" : 0
+			}
+		 */
+
+		restTemplate = new RestTemplate();
+
+		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
+
+		ResponseEntity<PersistableProductOptionValue> response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/product/optionValue", entity, PersistableProductOptionValue.class);
+
+		PersistableProductOptionValue opt = (PersistableProductOptionValue) response.getBody();
+		System.out.println("New optionValue ID : " + opt.getId());
+
+	}
+	
+	/**
+	 * Creates a ProductReview
+	 * requires an existing Customer and an existing Product
+	 * @throws Exception
+	 */
+	@Test
+	@Ignore
+	public void createProductReview() throws Exception {
+		
+		//requires an existing product
+		//requires an existing customer
+		PersistableProductReview review = new PersistableProductReview();
+		review.setCustomerId(1L);
+		review.setProductId(1L);
+		review.setLanguage("en");
+		review.setRating(2D);//rating is on 5
+		review.setDescription("Not as good as expected. From what i understood that was supposed to be premium quality but unfortunately i had to return the item after one week... Verry disapointed !");
+		review.setDate("2013-06-06");
+
+		ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
+		String json = writer.writeValueAsString(review);
+		
+		System.out.println(json);
+		
+		/**
+		 * {
+  			"description" : "Excellent product !",
+  			"productId" : 1,
+  			"rating" : 4.5,
+  			"customerId" : 1,
+  			"date" : "2013-06-06",
+  			"language" : "en"
+			}
+		 */
+
+		
+		restTemplate = new RestTemplate();
+
+		
+		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
+
+		ResponseEntity<PersistableProductReview> response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/product/review", entity, PersistableProductReview.class);
+
+		PersistableProductReview rev = (PersistableProductReview) response.getBody();
+		System.out.println("New ProductReview ID : " + rev.getId());
+		
+		
+	}
+	
+	@Test
+	@Ignore
+	public void deleteProduct() throws Exception {
+		restTemplate = new RestTemplate();
+		
+		HttpEntity<String> httpEntity = new HttpEntity<String>(getHeader());
+		
+		restTemplate.exchange("http://localhost:8080/sm-shop/services/rest/products/DEFAULT/en/"+testCategoryID+"/"+testProductID, HttpMethod.DELETE, httpEntity, ReadableProduct.class);
+		System.out.println("Product "+testProductID+" Deleted.");
+	}
+		
+	
+	/** private helper methods **/
+	public byte[] extractBytes (File imgPath) throws Exception {
+ 
+        FileInputStream fis = new FileInputStream(imgPath);
+        
+        BufferedInputStream inputStream = new BufferedInputStream(fis);
+        byte[] fileBytes = new byte[(int) imgPath.length()];
+        inputStream.read(fileBytes);
+        inputStream.close();
+         
+        return fileBytes;
+
+		
+	}
+	
+	public HttpHeaders getHeader(){
+		HttpHeaders headers = new HttpHeaders();
+		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
+		//MediaType.APPLICATION_JSON //for application/json
+		headers.setContentType(mediaType);
+		//Basic Authentication
+		String authorisation = "admin" + ":" + "password";
+		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
+		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
+		return headers;
+	}
 	
 	@Test
 	@Ignore
@@ -285,15 +322,6 @@ public class ProductManagementAPITest {
 		}else{
 			System.out.println(response.getBody().length + " Product records found.");
 		}
-	}
-	
-	@Test
-	@Ignore
-	public void putProduct() throws Exception {
-		restTemplate = new RestTemplate();
-		
-		//TODO: Put Product
-		
 	}
 	
 	@Test
@@ -334,10 +362,10 @@ public class ProductManagementAPITest {
 		product.setProductShipeable(true);//all items are shipeable
 		
 		/** images **/
-		String image = "/Users/carlsamson/Documents/csti/IMG_4626.jpg";
+//		String image = "/Users/carlsamson/Documents/csti/IMG_4626.jpg";
 		//String image = "C:/personal/em/pictures-misc/IMG_2675.JPG";
 
-		File imgPath = new File(image);
+//		File imgPath = new File(image);
 			
 		//PersistableImage persistableImage = new PersistableImage();
 			
@@ -412,12 +440,12 @@ public class ProductManagementAPITest {
 		System.out.println(json);
 		
 		
-		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
+//		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
 
 		//post to create category web service
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/api/v1/product", entity, PersistableProduct.class);
+//		ResponseEntity<PersistableProduct> response = restTemplate.postForEntity("http://localhost:8080/api/v1/product", entity, PersistableProduct.class);
 
-		PersistableProduct prod = (PersistableProduct) response.getBody();
+//		PersistableProduct prod = (PersistableProduct) response.getBody();
 		
 
 		
@@ -432,27 +460,10 @@ public class ProductManagementAPITest {
 	
 	@Test
 	@Ignore
-	public void deleteProduct() throws Exception {
+	public void putProduct() throws Exception {
 		restTemplate = new RestTemplate();
 		
-		HttpEntity<String> httpEntity = new HttpEntity<String>(getHeader());
-		
-		restTemplate.exchange("http://localhost:8080/sm-shop/services/rest/products/DEFAULT/en/"+testCategoryID+"/"+testProductID, HttpMethod.DELETE, httpEntity, ReadableProduct.class);
-		System.out.println("Product "+testProductID+" Deleted.");
-	}
-	
-	/** private helper methods **/
-	public byte[] extractBytes (File imgPath) throws Exception {
- 
-        FileInputStream fis = new FileInputStream(imgPath);
-        
-        BufferedInputStream inputStream = new BufferedInputStream(fis);
-        byte[] fileBytes = new byte[(int) imgPath.length()];
-        inputStream.read(fileBytes);
-        inputStream.close();
-         
-        return fileBytes;
-
+		//TODO: Put Product
 		
 	}
 	

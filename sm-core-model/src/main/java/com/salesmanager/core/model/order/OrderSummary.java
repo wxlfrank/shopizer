@@ -17,31 +17,31 @@ import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
 public class OrderSummary implements Serializable {
 	
 	
+	private static final long serialVersionUID = 1L;
 	/**
 	 * 
 	 */
 	private OrderSummaryType orderSummaryType = OrderSummaryType.ORDERTOTAL;
-	private static final long serialVersionUID = 1L;
 	private ShippingSummary shippingSummary;
 	private List<ShoppingCartItem> products = new ArrayList<ShoppingCartItem>();
 
-	public void setProducts(List<ShoppingCartItem> products) {
-		this.products = products;
+	public OrderSummaryType getOrderSummaryType() {
+		return orderSummaryType;
 	}
 	public List<ShoppingCartItem> getProducts() {
 		return products;
 	}
-	public void setShippingSummary(ShippingSummary shippingSummary) {
-		this.shippingSummary = shippingSummary;
-	}
 	public ShippingSummary getShippingSummary() {
 		return shippingSummary;
 	}
-	public OrderSummaryType getOrderSummaryType() {
-		return orderSummaryType;
-	}
 	public void setOrderSummaryType(OrderSummaryType orderSummaryType) {
 		this.orderSummaryType = orderSummaryType;
+	}
+	public void setProducts(List<ShoppingCartItem> products) {
+		this.products = products;
+	}
+	public void setShippingSummary(ShippingSummary shippingSummary) {
+		this.shippingSummary = shippingSummary;
 	}
 
 }

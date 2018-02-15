@@ -34,9 +34,11 @@ public class PermissionServiceImpl extends
 	}
 
 	@Override
-	public List<Permission> getByName() {
-		// TODO Auto-generated method stub
-		return null;
+	public void deletePermission(Permission permission) throws ServiceException {
+		permission = this.getById(permission.getId());//Prevents detached entity error
+		permission.setGroups(null);
+		
+		this.delete(permission);
 	}
 
 
@@ -48,20 +50,16 @@ public class PermissionServiceImpl extends
 
 
 	@Override
-	public void deletePermission(Permission permission) throws ServiceException {
-		permission = this.getById(permission.getId());//Prevents detached entity error
-		permission.setGroups(null);
-		
-		this.delete(permission);
+	public List<Permission> getByName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<Permission> getPermissions(List<Integer> groupIds)
 			throws ServiceException {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		Set ids = new HashSet(groupIds);
+		Set<Integer> ids = new HashSet<Integer>(groupIds);
 		return permissionRepository.findByGroups(ids);
 	}
 
@@ -72,17 +70,17 @@ public class PermissionServiceImpl extends
 	}
 
 	@Override
+	public List<Permission> listPermission() throws ServiceException {
+		return permissionRepository.findAll();
+	}
+
+	@Override
 	public void removePermission(Permission permission,Group group) throws ServiceException {
 		permission = this.getById(permission.getId());//Prevents detached entity error
 	
 		permission.getGroups().remove(group);
 		
 
-	}
-
-	@Override
-	public List<Permission> listPermission() throws ServiceException {
-		return permissionRepository.findAll();
 	}
 
 

@@ -19,23 +19,90 @@ import com.salesmanager.shop.constants.Constants;
 public abstract class AbstractimageFilePath implements ImageFilePath {
 
 
-	public abstract String getBasePath();
-
-	public abstract void setBasePath(String basePath);
-	
 	protected static final String CONTEXT_PATH = "CONTEXT_PATH";
-	
+
 	public @Resource(name="shopizer-properties") Properties properties = new Properties();//shopizer-properties
+	
+	/**
+	 * Builds a large product image file path that can be used by the image servlet
+	 * @param store
+	 * @param sku
+	 * @param imageName
+	 * @return
+	 */
+	public String buildLargeProductImageUtils(MerchantStore store, String sku, String imageName) {
+		return new StringBuilder().append(getBasePath()).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH)
+				.append(sku).append(Constants.SLASH).append(Constants.SMALL_IMAGE).append(Constants.SLASH).append(imageName).toString();
+	}
+	
+	/**
+	 * Builds a manufacturer image file path that can be used by image servlet
+	 * utility for getting the physical image
+	 * @param store
+	 * @param manufacturer
+	 * @param imageName
+	 * @return
+	 */
+	public String buildManufacturerImageUtils(MerchantStore store, Manufacturer manufacturer, String imageName) {
+		return new StringBuilder().append(getBasePath()).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).
+				append(FileContentType.MANUFACTURER.name()).append(Constants.SLASH)
+				.append(manufacturer.getId()).append(Constants.SLASH)
+				.append(imageName).toString();
+	}
 
 	
-	public Properties getProperties() {
-		return properties;
+	/**
+	 * Builds a product image file path that can be used by image servlet
+	 * utility for getting the physical image
+	 * @param store
+	 * @param product
+	 * @param imageName
+	 * @return
+	 */
+	public String buildProductImageUtils(MerchantStore store, Product product, String imageName) {
+		return new StringBuilder().append(getBasePath()).append(Constants.PRODUCTS_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).append(Constants.SLASH)
+				.append(product.getSku()).append(Constants.SLASH).append(Constants.SMALL_IMAGE).append(Constants.SLASH).append(imageName).toString();
 	}
 
-	public void setProperties(Properties properties) {
-		this.properties = properties;
+	/**
+	 * Builds a default product image file path that can be used by image servlet
+	 * utility for getting the physical image
+	 * @param store
+	 * @param sku
+	 * @param imageName
+	 * @return
+	 */
+	public String buildProductImageUtils(MerchantStore store, String sku, String imageName) {
+		return new StringBuilder().append(getBasePath()).append(Constants.PRODUCTS_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH)
+				.append(sku).append(Constants.SLASH).append(Constants.SMALL_IMAGE).append(Constants.SLASH).append(imageName).toString();
 	}
 
+	/**
+	 * Builds product property image url path
+	 * @param store
+	 * @param imageName
+	 * @return
+	 */
+	public String buildProductPropertyImageFilePath(MerchantStore store, String imageName) {
+		return new StringBuilder().append(getBasePath()).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).append(FileContentType.PROPERTY).append(Constants.SLASH)
+				.append(imageName).toString();
+	}
+	
+	public String buildProductPropertyImageUtils(MerchantStore store, String imageName) {
+		return new StringBuilder().append(getBasePath()).append(Constants.FILES_URI).append(Constants.SLASH).append(store.getCode()).append("/").append(FileContentType.PROPERTY).append("/")
+				.append(imageName).toString();
+	}
+	
+	/**
+	 * Builds static file url path
+	 * @param store
+	 * @param imageName
+	 * @return
+	 */
+	public String buildStaticContentFilePath(MerchantStore store, String fileName) {
+		return new StringBuilder().append(getBasePath()).append(Constants.FILES_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).append(fileName).toString();
+	}
+	
 	/**
 	 * Builds a static content image file path that can be used by image servlet
 	 * utility for getting the physical image
@@ -69,61 +136,6 @@ public abstract class AbstractimageFilePath implements ImageFilePath {
 	}
 	
 	/**
-	 * Builds a manufacturer image file path that can be used by image servlet
-	 * utility for getting the physical image
-	 * @param store
-	 * @param manufacturer
-	 * @param imageName
-	 * @return
-	 */
-	public String buildManufacturerImageUtils(MerchantStore store, Manufacturer manufacturer, String imageName) {
-		return new StringBuilder().append(getBasePath()).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).
-				append(FileContentType.MANUFACTURER.name()).append(Constants.SLASH)
-				.append(manufacturer.getId()).append(Constants.SLASH)
-				.append(imageName).toString();
-	}
-	
-	/**
-	 * Builds a product image file path that can be used by image servlet
-	 * utility for getting the physical image
-	 * @param store
-	 * @param product
-	 * @param imageName
-	 * @return
-	 */
-	public String buildProductImageUtils(MerchantStore store, Product product, String imageName) {
-		return new StringBuilder().append(getBasePath()).append(Constants.PRODUCTS_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).append(Constants.SLASH)
-				.append(product.getSku()).append(Constants.SLASH).append(Constants.SMALL_IMAGE).append(Constants.SLASH).append(imageName).toString();
-	}
-	
-	/**
-	 * Builds a default product image file path that can be used by image servlet
-	 * utility for getting the physical image
-	 * @param store
-	 * @param sku
-	 * @param imageName
-	 * @return
-	 */
-	public String buildProductImageUtils(MerchantStore store, String sku, String imageName) {
-		return new StringBuilder().append(getBasePath()).append(Constants.PRODUCTS_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH)
-				.append(sku).append(Constants.SLASH).append(Constants.SMALL_IMAGE).append(Constants.SLASH).append(imageName).toString();
-	}
-	
-	/**
-	 * Builds a large product image file path that can be used by the image servlet
-	 * @param store
-	 * @param sku
-	 * @param imageName
-	 * @return
-	 */
-	public String buildLargeProductImageUtils(MerchantStore store, String sku, String imageName) {
-		return new StringBuilder().append(getBasePath()).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH)
-				.append(sku).append(Constants.SLASH).append(Constants.SMALL_IMAGE).append(Constants.SLASH).append(imageName).toString();
-	}
-
-
-	
-	/**
 	 * Builds a merchant store logo path
 	 * @param store
 	 * @return
@@ -132,31 +144,19 @@ public abstract class AbstractimageFilePath implements ImageFilePath {
 		return new StringBuilder().append(getBasePath()).append(Constants.FILES_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).append(FileContentType.LOGO).append(Constants.SLASH)
 				.append(store.getStoreLogo()).toString();
 	}
+
+
 	
-	/**
-	 * Builds product property image url path
-	 * @param store
-	 * @param imageName
-	 * @return
-	 */
-	public String buildProductPropertyImageFilePath(MerchantStore store, String imageName) {
-		return new StringBuilder().append(getBasePath()).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).append(FileContentType.PROPERTY).append(Constants.SLASH)
-				.append(imageName).toString();
+	public abstract String getBasePath();
+	
+	public Properties getProperties() {
+		return properties;
 	}
 	
-	public String buildProductPropertyImageUtils(MerchantStore store, String imageName) {
-		return new StringBuilder().append(getBasePath()).append(Constants.FILES_URI).append(Constants.SLASH).append(store.getCode()).append("/").append(FileContentType.PROPERTY).append("/")
-				.append(imageName).toString();
-	}
+	public abstract void setBasePath(String basePath);
 	
-	/**
-	 * Builds static file url path
-	 * @param store
-	 * @param imageName
-	 * @return
-	 */
-	public String buildStaticContentFilePath(MerchantStore store, String fileName) {
-		return new StringBuilder().append(getBasePath()).append(Constants.FILES_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).append(fileName).toString();
+	public void setProperties(Properties properties) {
+		this.properties = properties;
 	}
 	
 

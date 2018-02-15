@@ -60,81 +60,81 @@ public class OrderProduct extends SalesManagerEntity<Long, OrderProduct> {
 	public OrderProduct() {
 	}
 
+	public Set<OrderProductDownload> getDownloads() {
+		return downloads;
+	}
+
 	public Long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+
+	public BigDecimal getOneTimeCharge() {
+		return oneTimeCharge;
 	}
-
-
-	public String getProductName() {
-		return productName;
-	}
-
-	public void setProductName(String productName) {
-		this.productName = productName;
-	}
-
-	public int getProductQuantity() {
-		return productQuantity;
-	}
-
-	public void setProductQuantity(int productQuantity) {
-		this.productQuantity = productQuantity;
-	}
-
-
 
 	public Order getOrder() {
 		return order;
 	}
 
-	public void setOrder(Order order) {
-		this.order = order;
-	}
-
-
 	public Set<OrderProductAttribute> getOrderAttributes() {
 		return orderAttributes;
-	}
-
-	public void setOrderAttributes(Set<OrderProductAttribute> orderAttributes) {
-		this.orderAttributes = orderAttributes;
 	}
 
 	public Set<OrderProductPrice> getPrices() {
 		return prices;
 	}
 
-	public void setPrices(Set<OrderProductPrice> prices) {
-		this.prices = prices;
+
+
+	public String getProductName() {
+		return productName;
 	}
 
-	public Set<OrderProductDownload> getDownloads() {
-		return downloads;
+	public int getProductQuantity() {
+		return productQuantity;
+	}
+
+
+	public String getSku() {
+		return sku;
 	}
 
 	public void setDownloads(Set<OrderProductDownload> downloads) {
 		this.downloads = downloads;
 	}
 
-
-	public void setSku(String sku) {
-		this.sku = sku;
-	}
-
-	public String getSku() {
-		return sku;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public void setOneTimeCharge(BigDecimal oneTimeCharge) {
 		this.oneTimeCharge = oneTimeCharge;
 	}
 
-	public BigDecimal getOneTimeCharge() {
-		return oneTimeCharge;
+	public void setOrder(Order order) {
+		this.order = order;
+	}
+
+	public void setOrderAttributes(Set<OrderProductAttribute> orderAttributes) {
+		this.orderAttributes = orderAttributes;
+	}
+
+
+	public void setPrices(Set<OrderProductPrice> prices) {
+		this.prices = prices;
+	}
+
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
+	public void setProductQuantity(int productQuantity) {
+		this.productQuantity = productQuantity;
+	}
+
+	public void setSku(String sku) {
+		this.sku = sku;
 	}
 	
 }

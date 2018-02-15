@@ -17,51 +17,6 @@ import com.salesmanager.core.model.catalog.product.availability.ProductAvailabil
 public class CatalogServiceHelper {
 	
 	/**
-	 * Filters descriptions and set the appropriate language
-	 * @param p
-	 * @param language
-	 */
-	public static void setToLanguage(Product p, int language) {
-		
-		
-	Set<ProductAttribute> attributes = p.getAttributes();
-		if(attributes!=null) {
-			
-			for(ProductAttribute attribute : attributes) {
-
-				ProductOption po = attribute.getProductOption();
-				Set<ProductOptionDescription> spod = po.getDescriptions();
-				if(spod!=null) {
-					Set<ProductOptionDescription> podDescriptions = new HashSet<ProductOptionDescription>();
-					for(ProductOptionDescription pod : spod) {
-						//System.out.println("    ProductOptionDescription : " + pod.getProductOptionName());
-						if(pod.getLanguage().getId()==language) {
-							podDescriptions.add(pod);
-						}
-					}
-					po.setDescriptions(podDescriptions);
-				}
-				
-				ProductOptionValue pov = attribute.getProductOptionValue();
-				
-				
-				Set<ProductOptionValueDescription> spovd = pov.getDescriptions();
-				if(spovd!=null) {
-					Set<ProductOptionValueDescription> povdDescriptions = new HashSet();
-					for(ProductOptionValueDescription povd : spovd) {
-						if(povd.getLanguage().getId()==language) {
-							povdDescriptions.add(povd);
-						}
-					}
-					pov.setDescriptions(povdDescriptions);
-				}
-					
-			}
-		}
-		
-	}
-	
-	/**
 	 * Overwrites the availability in order to return 1 price / region
 	 * @param product
 	 * @param locale
@@ -93,6 +48,51 @@ public class CatalogServiceHelper {
 				productAvailabilities.add(localeAvailability);
 			}
 			product.setAvailabilities(productAvailabilities);
+		}
+		
+	}
+	
+	/**
+	 * Filters descriptions and set the appropriate language
+	 * @param p
+	 * @param language
+	 */
+	public static void setToLanguage(Product p, int language) {
+		
+		
+	Set<ProductAttribute> attributes = p.getAttributes();
+		if(attributes!=null) {
+			
+			for(ProductAttribute attribute : attributes) {
+
+				ProductOption po = attribute.getProductOption();
+				Set<ProductOptionDescription> spod = po.getDescriptions();
+				if(spod!=null) {
+					Set<ProductOptionDescription> podDescriptions = new HashSet<ProductOptionDescription>();
+					for(ProductOptionDescription pod : spod) {
+						//System.out.println("    ProductOptionDescription : " + pod.getProductOptionName());
+						if(pod.getLanguage().getId()==language) {
+							podDescriptions.add(pod);
+						}
+					}
+					po.setDescriptions(podDescriptions);
+				}
+				
+				ProductOptionValue pov = attribute.getProductOptionValue();
+				
+				
+				Set<ProductOptionValueDescription> spovd = pov.getDescriptions();
+				if(spovd!=null) {
+					Set<ProductOptionValueDescription> povdDescriptions = new HashSet<ProductOptionValueDescription>();
+					for(ProductOptionValueDescription povd : spovd) {
+						if(povd.getLanguage().getId()==language) {
+							povdDescriptions.add(povd);
+						}
+					}
+					pov.setDescriptions(povdDescriptions);
+				}
+					
+			}
 		}
 		
 	}

@@ -1,8 +1,8 @@
 package com.salesmanager.shop.admin.model.catalog;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
 import java.io.Serializable;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Post keyword from the admin
@@ -19,23 +19,23 @@ public class Keyword implements Serializable {
 	private String languageCode;
 	@NotEmpty
 	private String keyword;
-	public void setProductId(long productId) {
-		this.productId = productId;
-	}
-	public long getProductId() {
-		return productId;
-	}
-	public void setLanguageCode(String languageCode) {
-		this.languageCode = languageCode;
+	public String getKeyword() {
+		return keyword;
 	}
 	public String getLanguageCode() {
 		return languageCode;
 	}
+	public long getProductId() {
+		return productId;
+	}
 	public void setKeyword(String keyword) {
 		this.keyword = keyword;
 	}
-	public String getKeyword() {
-		return keyword;
+	public void setLanguageCode(String languageCode) {
+		this.languageCode = languageCode;
+	}
+	public void setProductId(long productId) {
+		this.productId = productId;
 	}
 
 }

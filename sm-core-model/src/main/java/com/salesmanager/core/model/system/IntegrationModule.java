@@ -87,18 +87,6 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 	private Map<String,String> details = new HashMap<String,String>();
 
 	
-	public Map<String, String> getDetails() {
-		return details;
-	}
-
-
-
-	public void setDetails(Map<String, String> details) {
-		this.details = details;
-	}
-
-
-
 	@Embedded
 	private AuditSection auditSection = new AuditSection();
 
@@ -111,10 +99,26 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 
 
 
-	@Override
-	public void setAuditSection(AuditSection audit) {
-		this.auditSection = audit;
-		
+	public String getCode() {
+		return code;
+	}
+
+
+
+	public String getConfigDetails() {
+		return configDetails;
+	}
+
+
+
+	public String getConfiguration() {
+		return configuration;
+	}
+
+
+
+	public Map<String, String> getDetails() {
+		return details;
 	}
 
 
@@ -126,9 +130,8 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 
 
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
+	public String getImage() {
+		return image;
 	}
 
 
@@ -139,8 +142,8 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 
 
 
-	public void setModule(String module) {
-		this.module = module;
+	public Map<String,ModuleConfig> getModuleConfigs() {
+		return moduleConfigs;
 	}
 
 
@@ -151,32 +154,28 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 
 
 
-	public void setRegions(String regions) {
-		this.regions = regions;
-	}
-
-
-
-	public String getConfiguration() {
-		return configuration;
-	}
-
-
-
-	public void setConfiguration(String configuration) {
-		this.configuration = configuration;
-	}
-
-
-
-	public void setRegionsSet(Set<String> regionsSet) {
-		this.regionsSet = regionsSet;
-	}
-
-
-
 	public Set<String> getRegionsSet() {
 		return regionsSet;
+	}
+
+
+
+	public String getType() {
+		return type;
+	}
+
+
+
+	public boolean isCustomModule() {
+		return customModule;
+	}
+
+
+
+	@Override
+	public void setAuditSection(AuditSection audit) {
+		this.auditSection = audit;
+		
 	}
 
 
@@ -188,32 +187,14 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 
 
 
-	public String getCode() {
-		return code;
+	public void setConfigDetails(String configDetails) {
+		this.configDetails = configDetails;
 	}
 
 
 
-	public void setModuleConfigs(Map<String,ModuleConfig> moduleConfigs) {
-		this.moduleConfigs = moduleConfigs;
-	}
-
-
-
-	public Map<String,ModuleConfig> getModuleConfigs() {
-		return moduleConfigs;
-	}
-
-
-
-	public void setImage(String image) {
-		this.image = image;
-	}
-
-
-
-	public String getImage() {
-		return image;
+	public void setConfiguration(String configuration) {
+		this.configuration = configuration;
 	}
 
 
@@ -224,30 +205,49 @@ public class IntegrationModule extends SalesManagerEntity<Long, IntegrationModul
 
 
 
-	public boolean isCustomModule() {
-		return customModule;
-	}
-
-	public String getConfigDetails() {
-		return configDetails;
+	public void setDetails(Map<String, String> details) {
+		this.details = details;
 	}
 
 
 
-	public void setConfigDetails(String configDetails) {
-		this.configDetails = configDetails;
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+
+
+	public void setModule(String module) {
+		this.module = module;
+	}
+
+	public void setModuleConfigs(Map<String,ModuleConfig> moduleConfigs) {
+		this.moduleConfigs = moduleConfigs;
+	}
+
+
+
+	public void setRegions(String regions) {
+		this.regions = regions;
+	}
+
+
+
+	public void setRegionsSet(Set<String> regionsSet) {
+		this.regionsSet = regionsSet;
 	}
 
 
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-
-
-	public String getType() {
-		return type;
 	}
 
 

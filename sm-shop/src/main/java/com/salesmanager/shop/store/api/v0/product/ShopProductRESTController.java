@@ -1,5 +1,29 @@
 package com.salesmanager.shop.store.api.v0.product;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
 import com.salesmanager.core.business.services.catalog.product.PricingService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
@@ -10,7 +34,6 @@ import com.salesmanager.core.business.services.catalog.product.review.ProductRev
 import com.salesmanager.core.business.services.customer.CustomerService;
 import com.salesmanager.core.business.services.merchant.MerchantStoreService;
 import com.salesmanager.core.business.services.reference.language.LanguageService;
-import com.salesmanager.core.business.services.tax.TaxClassService;
 import com.salesmanager.core.model.catalog.category.Category;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.catalog.product.ProductCriteria;
@@ -19,7 +42,11 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.catalog.manufacturer.PersistableManufacturer;
-import com.salesmanager.shop.model.catalog.product.*;
+import com.salesmanager.shop.model.catalog.product.PersistableProduct;
+import com.salesmanager.shop.model.catalog.product.PersistableProductReview;
+import com.salesmanager.shop.model.catalog.product.ProductPriceEntity;
+import com.salesmanager.shop.model.catalog.product.ReadableProduct;
+import com.salesmanager.shop.model.catalog.product.ReadableProductList;
 import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductOption;
 import com.salesmanager.shop.model.catalog.product.attribute.PersistableProductOptionValue;
 import com.salesmanager.shop.populator.catalog.PersistableProductOptionPopulator;
@@ -27,27 +54,10 @@ import com.salesmanager.shop.populator.catalog.PersistableProductOptionValuePopu
 import com.salesmanager.shop.populator.catalog.PersistableProductReviewPopulator;
 import com.salesmanager.shop.populator.catalog.ReadableProductPopulator;
 import com.salesmanager.shop.populator.manufacturer.PersistableManufacturerPopulator;
-import com.salesmanager.shop.store.controller.items.facade.ProductItemsFacade;
 import com.salesmanager.shop.store.controller.product.facade.ProductFacade;
 import com.salesmanager.shop.store.model.filter.QueryFilter;
 import com.salesmanager.shop.store.model.filter.QueryFilterType;
 import com.salesmanager.shop.utils.ImageFilePath;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * API to create, read, update and delete a Product
@@ -58,6 +68,8 @@ import java.util.Map;
 @Controller
 @RequestMapping("/api/v0")
 public class ShopProductRESTController {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ShopProductRESTController.class);
 	
 	@Inject
 	private MerchantStoreService merchantStoreService;
@@ -74,23 +86,23 @@ public class ShopProductRESTController {
 	@Inject
 	private ProductFacade productFacade;
 	
-	@Inject
-	private ProductItemsFacade productItemsFacade;
+//	@Inject
+//	private ProductItemsFacade productItemsFacade;
 	
 	@Inject
 	private ProductReviewService productReviewService;
-	
+
 	@Inject
 	private PricingService pricingService;
-
+	
 	@Inject
 	private ProductOptionService productOptionService;
 	
 	@Inject
 	private ProductOptionValueService productOptionValueService;
 	
-	@Inject
-	private TaxClassService taxClassService;
+//	@Inject
+//	private TaxClassService taxClassService;
 	
 	@Inject
 	private ManufacturerService manufacturerService;
@@ -98,70 +110,12 @@ public class ShopProductRESTController {
 	@Inject
 	private LanguageService languageService;
 	
+
+	
 	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 	
-
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ShopProductRESTController.class);
-	
-	
-	/**
-	 * Create new product for a given MerchantStore
-	 */
-	@RequestMapping( value="/private/{store}/product", method=RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	@ResponseBody
-	public PersistableProduct createProduct(@PathVariable final String store, @Valid @RequestBody PersistableProduct product, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		try {
-			
-			MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
-			if(merchantStore!=null) {
-				if(!merchantStore.getCode().equals(store)) {
-					merchantStore = null;
-				}
-			}
-			
-			if(merchantStore== null) {
-				merchantStore = merchantStoreService.getByCode(store);
-			}
-			
-			if(merchantStore==null) {
-				LOGGER.error("Merchant store is null for code " + store);
-				response.sendError(503, "Merchant store is null for code " + store);
-				return null;
-			}
-			
-			productFacade.saveProduct(merchantStore, product, merchantStore.getDefaultLanguage());
-			
-			return product;
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while saving product",e);
-			try {
-				response.sendError(503, "Error while saving product " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
-		
-	}
-	
-
-	@RequestMapping( value="/private/{store}/product/{id}", method=RequestMethod.DELETE)
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void deleteProduct(@PathVariable final String store, @PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Product product = productService.getById(id);
-		if(product != null && product.getMerchantStore().getCode().equalsIgnoreCase(store)){
-			productService.delete(product);
-		}else{
-			response.sendError(404, "No Product found for ID : " + id);
-		}
-	}
 	
 	/**
 	 * Method for creating a manufacturer
@@ -222,6 +176,99 @@ public class ShopProductRESTController {
 		
 	}
 	
+
+	/**
+	 * Create new product for a given MerchantStore
+	 */
+	@RequestMapping( value="/private/{store}/product", method=RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseBody
+	public PersistableProduct createProduct(@PathVariable final String store, @Valid @RequestBody PersistableProduct product, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		try {
+			
+			MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
+			if(merchantStore!=null) {
+				if(!merchantStore.getCode().equals(store)) {
+					merchantStore = null;
+				}
+			}
+			
+			if(merchantStore== null) {
+				merchantStore = merchantStoreService.getByCode(store);
+			}
+			
+			if(merchantStore==null) {
+				LOGGER.error("Merchant store is null for code " + store);
+				response.sendError(503, "Merchant store is null for code " + store);
+				return null;
+			}
+			
+			productFacade.saveProduct(merchantStore, product, merchantStore.getDefaultLanguage());
+			
+			return product;
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while saving product",e);
+			try {
+				response.sendError(503, "Error while saving product " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return null;
+		}
+		
+	}
+	
+	@RequestMapping( value="/private/{store}/product/option", method=RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseBody
+	public PersistableProductOption createProductOption(@PathVariable final String store, @Valid @RequestBody PersistableProductOption option, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		try {
+			
+			MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
+			if(merchantStore!=null) {
+				if(!merchantStore.getCode().equals(store)) {
+					merchantStore = null;
+				}
+			}
+			
+			if(merchantStore== null) {
+				merchantStore = merchantStoreService.getByCode(store);
+			}
+			
+			if(merchantStore==null) {
+				LOGGER.error("Merchant store is null for code " + store);
+				response.sendError(503, "Merchant store is null for code " + store);
+				return null;
+			}
+
+			PersistableProductOptionPopulator populator = new PersistableProductOptionPopulator();
+			populator.setLanguageService(languageService);
+			
+			com.salesmanager.core.model.catalog.product.attribute.ProductOption opt = new com.salesmanager.core.model.catalog.product.attribute.ProductOption();
+			populator.populate(option, opt, merchantStore, merchantStore.getDefaultLanguage());
+		
+			productOptionService.save(opt);
+			
+			option.setId(opt.getId());
+			
+			return option;
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while saving product option",e);
+			try {
+				response.sendError(503, "Error while saving product option" + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return null;
+		}
+	}
+	
 	
 	@RequestMapping( value="/private/{store}/product/optionValue", method=RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
@@ -270,55 +317,6 @@ public class ShopProductRESTController {
 			return null;
 		}
 		
-	}
-	
-	
-	@RequestMapping( value="/private/{store}/product/option", method=RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	@ResponseBody
-	public PersistableProductOption createProductOption(@PathVariable final String store, @Valid @RequestBody PersistableProductOption option, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		try {
-			
-			MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
-			if(merchantStore!=null) {
-				if(!merchantStore.getCode().equals(store)) {
-					merchantStore = null;
-				}
-			}
-			
-			if(merchantStore== null) {
-				merchantStore = merchantStoreService.getByCode(store);
-			}
-			
-			if(merchantStore==null) {
-				LOGGER.error("Merchant store is null for code " + store);
-				response.sendError(503, "Merchant store is null for code " + store);
-				return null;
-			}
-
-			PersistableProductOptionPopulator populator = new PersistableProductOptionPopulator();
-			populator.setLanguageService(languageService);
-			
-			com.salesmanager.core.model.catalog.product.attribute.ProductOption opt = new com.salesmanager.core.model.catalog.product.attribute.ProductOption();
-			populator.populate(option, opt, merchantStore, merchantStore.getDefaultLanguage());
-		
-			productOptionService.save(opt);
-			
-			option.setId(opt.getId());
-			
-			return option;
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while saving product option",e);
-			try {
-				response.sendError(503, "Error while saving product option" + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
 	}
 	
 	
@@ -389,22 +387,33 @@ public class ShopProductRESTController {
 		}
 	}
 	
+	
+	@RequestMapping( value="/private/{store}/product/{id}", method=RequestMethod.DELETE)
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteProduct(@PathVariable final String store, @PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		Product product = productService.getById(id);
+		if(product != null && product.getMerchantStore().getCode().equalsIgnoreCase(store)){
+			productService.delete(product);
+		}else{
+			response.sendError(404, "No Product found for ID : " + id);
+		}
+	}
+	
 
-	@RequestMapping("/public/products/{store}")
+	@RequestMapping(value = "/public/{store}/product/{id}", method=RequestMethod.GET)
 	@ResponseBody
-	public ReadableProductList getProducts(@PathVariable String store, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ReadableProduct getProduct(@PathVariable String store, @PathVariable final Long id, @RequestParam String lang, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
 		
-		
-		/** default routine **/
-		
+		/** bcz of the filter **/
 		MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
 		if(merchantStore!=null) {
 			if(!merchantStore.getCode().equals(store)) {
 				merchantStore = null;
 			}
 		}
-		
-		if(merchantStore== null) {
+
+		if(store!=null) {
 			merchantStore = merchantStoreService.getByCode(store);
 		}
 		
@@ -413,24 +422,26 @@ public class ShopProductRESTController {
 			response.sendError(503, "Merchant store is null for code " + store);
 			return null;
 		}
+
+		Language language = null;
 		
-		Language l = merchantStore.getDefaultLanguage();
-		
-		String lang = l.getCode();
-		
-		if(!StringUtils.isBlank(request.getParameter(Constants.LANG))) {
-			
-			lang = request.getParameter(Constants.LANG);
-			
+		if(!StringUtils.isBlank(lang)) {
+			language = languageService.getByCode(lang);
 		}
 		
+		if(language==null) {
+			language = merchantStore.getDefaultLanguage();
+		}
 		
-		/** end default routine **/
+		ReadableProduct product = productFacade.getProduct(merchantStore, id, language);
 		
+		if(product==null) {
+			response.sendError(404, "Product not fount for id " + id);
+			return null;
+		}
 		
-
+		return product;
 		
-		return this.getProducts(0, 10000, store, lang, null, null, request, response);
 	}
 	
 /*	*//**
@@ -517,6 +528,50 @@ public class ShopProductRESTController {
 	}*/
 	
 	
+	@RequestMapping("/public/products/{store}")
+	@ResponseBody
+	public ReadableProductList getProducts(@PathVariable String store, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		
+		/** default routine **/
+		
+		MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
+		if(merchantStore!=null) {
+			if(!merchantStore.getCode().equals(store)) {
+				merchantStore = null;
+			}
+		}
+		
+		if(merchantStore== null) {
+			merchantStore = merchantStoreService.getByCode(store);
+		}
+		
+		if(merchantStore==null) {
+			LOGGER.error("Merchant store is null for code " + store);
+			response.sendError(503, "Merchant store is null for code " + store);
+			return null;
+		}
+		
+		Language l = merchantStore.getDefaultLanguage();
+		
+		String lang = l.getCode();
+		
+		if(!StringUtils.isBlank(request.getParameter(Constants.LANG))) {
+			
+			lang = request.getParameter(Constants.LANG);
+			
+		}
+		
+		
+		/** end default routine **/
+		
+		
+
+		
+		return this.getProducts(0, 10000, store, lang, null, null, request, response);
+	}
+	
+	
 	/**
 	 * An entry point for filtering by another entity such as Manufacturer
 	 * filter=BRAND&filter-value=123
@@ -556,6 +611,141 @@ public class ShopProductRESTController {
 	}
 	
 	
+	/**
+	 * Update the price of an item
+	 * ?lang=en|fr otherwise default store language
+	 */
+	@RequestMapping( value="/private/{store}/product/price/{sku}", method=RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseBody
+	public ReadableProduct updateProductPrice(@PathVariable final String store, @Valid @RequestBody ProductPriceEntity price, @PathVariable final String sku, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		try {
+			
+			MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
+			if(merchantStore!=null) {
+				if(!merchantStore.getCode().equals(store)) {
+					merchantStore = null;
+				}
+			}
+			
+			String lang = request.getParameter("lang");
+			Language language = null;
+			
+			if(merchantStore== null) {
+				merchantStore = merchantStoreService.getByCode(store);
+			}
+			
+			if(merchantStore==null) {
+				LOGGER.error("Merchant store is null for code " + store);
+				response.sendError(503, "Merchant store is null for code " + store);
+				return null;
+			}
+			
+			if(StringUtils.isBlank(lang)) {
+				language = merchantStore.getDefaultLanguage();
+			} else {
+				language = languageService.getByCode(lang);
+			}
+			
+			if(language==null) {
+				language = merchantStore.getDefaultLanguage();
+			}
+			
+			ReadableProduct product = productFacade.getProduct(merchantStore, sku, language);
+			
+			if(product==null) {
+				LOGGER.error("Product is null for sku " +sku);
+				response.sendError(503, "Product is null for sku " +sku);
+				return null;
+			}
+			
+			product = productFacade.updateProductPrice(product, price, language);
+			
+			return product;
+
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while saving product",e);
+			try {
+				response.sendError(503, "Error while updating product " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return null;
+		}
+		
+	}
+
+	
+	/**
+	 * Update the quantity of an item
+	 * ?lang=en|fr otherwise default store language
+	 */
+	@RequestMapping( value="/private/{store}/product/quantity/{sku}/{qty}", method=RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseBody
+	public ReadableProduct updateProductQuantity(@PathVariable final String store, @PathVariable final String sku, @PathVariable final int qty, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		try {
+			
+			MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
+			if(merchantStore!=null) {
+				if(!merchantStore.getCode().equals(store)) {
+					merchantStore = null;
+				}
+			}
+			
+			String lang = request.getParameter("lang");
+			Language language = null;
+			
+			if(merchantStore== null) {
+				merchantStore = merchantStoreService.getByCode(store);
+			}
+			
+			if(merchantStore==null) {
+				LOGGER.error("Merchant store is null for code " + store);
+				response.sendError(503, "Merchant store is null for code " + store);
+				return null;
+			}
+			
+			if(StringUtils.isBlank(lang)) {
+				language = merchantStore.getDefaultLanguage();
+			} else {
+				language = languageService.getByCode(lang);
+			}
+			
+			if(language==null) {
+				language = merchantStore.getDefaultLanguage();
+			}
+			
+			ReadableProduct product = productFacade.getProduct(merchantStore, sku, language);
+			
+			if(product==null) {
+				LOGGER.error("Product is null for sku " +sku);
+				response.sendError(503, "Product is null for sku " +sku);
+				return null;
+			}
+			
+			product = productFacade.updateProductQuantity(product, qty, language);
+			
+			return product;
+
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while saving product",e);
+			try {
+				response.sendError(503, "Error while updating product " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return null;
+		}
+		
+	}
+
 	private ReadableProductList getProducts(final int start, final int max, final String store, final String language, final String category, final List<QueryFilter> filters, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		
@@ -664,186 +854,6 @@ public class ShopProductRESTController {
 		
 		return null;
 
-	}
-	
-	
-	@RequestMapping(value = "/public/{store}/product/{id}", method=RequestMethod.GET)
-	@ResponseBody
-	public ReadableProduct getProduct(@PathVariable String store, @PathVariable final Long id, @RequestParam String lang, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		/** bcz of the filter **/
-		MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
-		if(merchantStore!=null) {
-			if(!merchantStore.getCode().equals(store)) {
-				merchantStore = null;
-			}
-		}
-
-		if(store!=null) {
-			merchantStore = merchantStoreService.getByCode(store);
-		}
-		
-		if(merchantStore==null) {
-			LOGGER.error("Merchant store is null for code " + store);
-			response.sendError(503, "Merchant store is null for code " + store);
-			return null;
-		}
-
-		Language language = null;
-		
-		if(!StringUtils.isBlank(lang)) {
-			language = languageService.getByCode(lang);
-		}
-		
-		if(language==null) {
-			language = merchantStore.getDefaultLanguage();
-		}
-		
-		ReadableProduct product = productFacade.getProduct(merchantStore, id, language);
-		
-		if(product==null) {
-			response.sendError(404, "Product not fount for id " + id);
-			return null;
-		}
-		
-		return product;
-		
-	}
-
-	
-	/**
-	 * Update the price of an item
-	 * ?lang=en|fr otherwise default store language
-	 */
-	@RequestMapping( value="/private/{store}/product/price/{sku}", method=RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	@ResponseBody
-	public ReadableProduct updateProductPrice(@PathVariable final String store, @Valid @RequestBody ProductPriceEntity price, @PathVariable final String sku, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		try {
-			
-			MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
-			if(merchantStore!=null) {
-				if(!merchantStore.getCode().equals(store)) {
-					merchantStore = null;
-				}
-			}
-			
-			String lang = request.getParameter("lang");
-			Language language = null;
-			
-			if(merchantStore== null) {
-				merchantStore = merchantStoreService.getByCode(store);
-			}
-			
-			if(merchantStore==null) {
-				LOGGER.error("Merchant store is null for code " + store);
-				response.sendError(503, "Merchant store is null for code " + store);
-				return null;
-			}
-			
-			if(StringUtils.isBlank(lang)) {
-				language = merchantStore.getDefaultLanguage();
-			} else {
-				language = languageService.getByCode(lang);
-			}
-			
-			if(language==null) {
-				language = merchantStore.getDefaultLanguage();
-			}
-			
-			ReadableProduct product = productFacade.getProduct(merchantStore, sku, language);
-			
-			if(product==null) {
-				LOGGER.error("Product is null for sku " +sku);
-				response.sendError(503, "Product is null for sku " +sku);
-				return null;
-			}
-			
-			product = productFacade.updateProductPrice(product, price, language);
-			
-			return product;
-
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while saving product",e);
-			try {
-				response.sendError(503, "Error while updating product " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
-		
-	}
-
-	/**
-	 * Update the quantity of an item
-	 * ?lang=en|fr otherwise default store language
-	 */
-	@RequestMapping( value="/private/{store}/product/quantity/{sku}/{qty}", method=RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	@ResponseBody
-	public ReadableProduct updateProductQuantity(@PathVariable final String store, @PathVariable final String sku, @PathVariable final int qty, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		try {
-			
-			MerchantStore merchantStore = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
-			if(merchantStore!=null) {
-				if(!merchantStore.getCode().equals(store)) {
-					merchantStore = null;
-				}
-			}
-			
-			String lang = request.getParameter("lang");
-			Language language = null;
-			
-			if(merchantStore== null) {
-				merchantStore = merchantStoreService.getByCode(store);
-			}
-			
-			if(merchantStore==null) {
-				LOGGER.error("Merchant store is null for code " + store);
-				response.sendError(503, "Merchant store is null for code " + store);
-				return null;
-			}
-			
-			if(StringUtils.isBlank(lang)) {
-				language = merchantStore.getDefaultLanguage();
-			} else {
-				language = languageService.getByCode(lang);
-			}
-			
-			if(language==null) {
-				language = merchantStore.getDefaultLanguage();
-			}
-			
-			ReadableProduct product = productFacade.getProduct(merchantStore, sku, language);
-			
-			if(product==null) {
-				LOGGER.error("Product is null for sku " +sku);
-				response.sendError(503, "Product is null for sku " +sku);
-				return null;
-			}
-			
-			product = productFacade.updateProductQuantity(product, qty, language);
-			
-			return product;
-
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while saving product",e);
-			try {
-				response.sendError(503, "Error while updating product " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
-		
 	}	
 
 }

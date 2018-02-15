@@ -68,18 +68,8 @@ public class MerchantLog extends SalesManagerEntity<Long, MerchantLog> implement
 	}
 
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-
-	public MerchantStore getStore() {
-		return store;
-	}
-
-
-	public void setStore(MerchantStore store) {
-		this.store = store;
+	public String getLog() {
+		return log;
 	}
 
 
@@ -88,18 +78,28 @@ public class MerchantLog extends SalesManagerEntity<Long, MerchantLog> implement
 	}
 
 
-	public void setModule(String module) {
-		this.module = module;
+	public MerchantStore getStore() {
+		return store;
 	}
 
 
-	public String getLog() {
-		return log;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 
 	public void setLog(String log) {
 		this.log = log;
+	}
+
+
+	public void setModule(String module) {
+		this.module = module;
+	}
+
+
+	public void setStore(MerchantStore store) {
+		this.store = store;
 	}
 
 

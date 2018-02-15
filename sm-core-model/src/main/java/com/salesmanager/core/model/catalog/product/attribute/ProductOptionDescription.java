@@ -34,18 +34,18 @@ public class ProductOptionDescription extends Description {
 	public ProductOptionDescription() {
 	}
 	
-	public String getProductOptionComment() {
-		return productOptionComment;
-	}
-	public void setProductOptionComment(String productOptionComment) {
-		this.productOptionComment = productOptionComment;
-	}
-
 	public ProductOption getProductOption() {
 		return productOption;
+	}
+	public String getProductOptionComment() {
+		return productOptionComment;
 	}
 
 	public void setProductOption(ProductOption productOption) {
 		this.productOption = productOption;
+	}
+
+	public void setProductOptionComment(String productOptionComment) {
+		this.productOptionComment = productOptionComment;
 	}
 }

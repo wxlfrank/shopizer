@@ -30,32 +30,16 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 		this.repository = repository;
 	}
 	
-	protected final Class<E> getObjectClass() {
-		return objectClass;
+	public Long count() {
+		return repository.count();
 	}
 
 
-	public E getById(K id) {
-		return repository.findOne(id);
-	}
-
-	
-	public void save(E entity) throws ServiceException {
-		repository.saveAndFlush(entity);
-	}
-	
-	
 	public void create(E entity) throws ServiceException {
 		save(entity);
 	}
 
 	
-	
-	public void update(E entity) throws ServiceException {
-		save(entity);
-	}
-	
-
 	public void delete(E entity) throws ServiceException {
 		repository.delete(entity);
 	}
@@ -64,16 +48,32 @@ public abstract class SalesManagerEntityServiceImpl<K extends Serializable & Com
 	public void flush() {
 		repository.flush();
 	}
-	
 
 	
+	
+	public E getById(K id) {
+		return repository.findOne(id);
+	}
+	
+
 	public List<E> list() {
 		return repository.findAll();
 	}
 	
+	
+	public void save(E entity) throws ServiceException {
+		repository.saveAndFlush(entity);
+	}
+	
 
-	public Long count() {
-		return repository.count();
+	
+	public void update(E entity) throws ServiceException {
+		save(entity);
+	}
+	
+
+	protected final Class<E> getObjectClass() {
+		return objectClass;
 	}
 
 }

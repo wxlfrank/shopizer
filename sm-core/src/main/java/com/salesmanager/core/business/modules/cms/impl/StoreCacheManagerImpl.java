@@ -16,14 +16,6 @@ public class StoreCacheManagerImpl extends CacheManagerImpl {
 
 	
 
-	private StoreCacheManagerImpl() {
-		
-		super.init(NAMED_CACHE);
-		
-		
-	}
-
-	
 	public static StoreCacheManagerImpl getInstance() {
 		
 		if(cacheManager==null) {
@@ -32,6 +24,14 @@ public class StoreCacheManagerImpl extends CacheManagerImpl {
 		}
 		
 		return cacheManager;
+		
+		
+	}
+
+	
+	private StoreCacheManagerImpl() {
+		
+		super.init(NAMED_CACHE);
 		
 		
 	}

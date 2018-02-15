@@ -11,35 +11,35 @@ public class Criteria {
 	private CriteriaOrderBy orderBy = CriteriaOrderBy.DESC;
 	
 	
-	public int getMaxCount() {
-		return maxCount;
-	}
-	public void setMaxCount(int maxCount) {
-		this.maxCount = maxCount;
-	}
-	public int getStartIndex() {
-		return startIndex;
-	}
-	public void setStartIndex(int startIndex) {
-		this.startIndex = startIndex;
-	}
 	public String getCode() {
 		return code;
-	}
-	public void setCode(String code) {
-		this.code = code;
-	}
-	public void setOrderBy(CriteriaOrderBy orderBy) {
-		this.orderBy = orderBy;
-	}
-	public CriteriaOrderBy getOrderBy() {
-		return orderBy;
 	}
 	public String getLanguage() {
 		return language;
 	}
+	public int getMaxCount() {
+		return maxCount;
+	}
+	public CriteriaOrderBy getOrderBy() {
+		return orderBy;
+	}
+	public int getStartIndex() {
+		return startIndex;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
 	public void setLanguage(String language) {
 		this.language = language;
+	}
+	public void setMaxCount(int maxCount) {
+		this.maxCount = maxCount;
+	}
+	public void setOrderBy(CriteriaOrderBy orderBy) {
+		this.orderBy = orderBy;
+	}
+	public void setStartIndex(int startIndex) {
+		this.startIndex = startIndex;
 	}
 
 

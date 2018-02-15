@@ -1,14 +1,25 @@
 package com.salesmanager.shop.store.controller.order;
 
-import com.salesmanager.core.business.services.catalog.product.PricingService;
-import com.salesmanager.core.business.services.catalog.product.ProductService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import com.salesmanager.core.business.services.order.OrderService;
 import com.salesmanager.core.business.services.order.orderproduct.OrderProductDownloadService;
-import com.salesmanager.core.business.services.payments.PaymentService;
 import com.salesmanager.core.business.services.reference.country.CountryService;
 import com.salesmanager.core.business.services.reference.zone.ZoneService;
-import com.salesmanager.core.business.services.shipping.ShippingService;
-import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.order.Order;
 import com.salesmanager.core.model.order.orderproduct.OrderProductDownload;
@@ -21,25 +32,8 @@ import com.salesmanager.shop.model.order.ReadableOrderProductDownload;
 import com.salesmanager.shop.populator.order.ReadableOrderProductDownloadPopulator;
 import com.salesmanager.shop.store.controller.AbstractController;
 import com.salesmanager.shop.store.controller.ControllerConstants;
-import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
 import com.salesmanager.shop.store.controller.order.facade.OrderFacade;
-import com.salesmanager.shop.store.controller.shoppingCart.facade.ShoppingCartFacade;
 import com.salesmanager.shop.utils.LabelUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 @Controller
 @RequestMapping(Constants.SHOP_URI+"/order")
@@ -48,26 +42,26 @@ public class ShoppingOrderConfirmationController extends AbstractController {
 	private static final Logger LOGGER = LoggerFactory
 	.getLogger(ShoppingOrderConfirmationController.class);
 	
-	@Inject
-	private ShoppingCartFacade shoppingCartFacade;
-	
-    @Inject
-    private ShoppingCartService shoppingCartService;
-	
-
-	
-	@Inject
-	private PaymentService paymentService;
-	
-	@Inject
-	private ShippingService shippingService;
+//	@Inject
+//	private ShoppingCartFacade shoppingCartFacade;
+//	
+//    @Inject
+//    private ShoppingCartService shoppingCartService;
+//	
+//
+//	
+//	@Inject
+//	private PaymentService paymentService;
+//	
+//	@Inject
+//	private ShippingService shippingService;
 	
 
 	@Inject
 	private OrderService orderService;
 	
-	@Inject
-	private ProductService productService;
+//	@Inject
+//	private ProductService productService;
 	
 	@Inject
 	private CountryService countryService;
@@ -81,14 +75,14 @@ public class ShoppingOrderConfirmationController extends AbstractController {
 	@Inject
 	private LabelUtils messages;
 	
-	@Inject
-	private PricingService pricingService;
-
-    @Inject
-    private  CustomerFacade customerFacade;
-	
-	@Inject
-    private AuthenticationManager customerAuthenticationManager;
+//	@Inject
+//	private PricingService pricingService;
+//
+//    @Inject
+//    private  CustomerFacade customerFacade;
+//	
+//	@Inject
+//    private AuthenticationManager customerAuthenticationManager;
 	
 	@Inject
 	private OrderProductDownloadService orderProdctDownloadService;

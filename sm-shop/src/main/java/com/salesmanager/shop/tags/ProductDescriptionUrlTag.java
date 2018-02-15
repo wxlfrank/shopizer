@@ -34,6 +34,10 @@ public class ProductDescriptionUrlTag extends RequestContextAwareTag {
 	@Inject
 	private FilePathUtils filePathUtils;
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
 	/**
 	 * Created the product url for the store front
 	 */
@@ -83,16 +87,12 @@ public class ProductDescriptionUrlTag extends RequestContextAwareTag {
 		return SKIP_BODY;
 	}
 
-	public int doEndTag() {
-		return EVAL_PAGE;
+	public ProductDescription getProductDescription() {
+		return productDescription;
 	}
 
 	public void setProductDescription(ProductDescription productDescription) {
 		this.productDescription = productDescription;
-	}
-
-	public ProductDescription getProductDescription() {
-		return productDescription;
 	}
 
 

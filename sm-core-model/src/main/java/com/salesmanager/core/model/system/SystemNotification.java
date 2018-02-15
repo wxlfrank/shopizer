@@ -74,8 +74,8 @@ public class SystemNotification extends SalesManagerEntity<Long, SystemNotificat
 		return auditSection;
 	}
 
-	public void setAuditSection(AuditSection auditSection) {
-		this.auditSection = auditSection;
+	public Date getEndDate() {
+		return endDate;
 	}
 
 	@Override
@@ -83,56 +83,56 @@ public class SystemNotification extends SalesManagerEntity<Long, SystemNotificat
 		return id;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public String getKey() {
 		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
-
-	public Date getStartDate() {
-		return startDate;
-	}
-
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
 	}
 
 	public MerchantStore getMerchantStore() {
 		return merchantStore;
 	}
 
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setAuditSection(AuditSection auditSection) {
+		this.auditSection = auditSection;
+	}
+
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
 
-	public Date getEndDate() {
-		return endDate;
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
 	}
 
 	public void setUser(User user) {
 		this.user = user;
 	}
 
-	public User getUser() {
-		return user;
+	public void setValue(String value) {
+		this.value = value;
 	}
 }

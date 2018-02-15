@@ -29,72 +29,72 @@ public class ReadableProduct extends ProductEntity implements Serializable {
 	private RentalOwner owner;
 	
 		
-	public ProductDescription getDescription() {
-		return description;
-	}
-	public void setDescription(ProductDescription description) {
-		this.description = description;
-	}
-	public String getFinalPrice() {
-		return finalPrice;
-	}
-	public void setFinalPrice(String finalPrice) {
-		this.finalPrice = finalPrice;
-	}
-	public String getOriginalPrice() {
-		return originalPrice;
-	}
-	public void setOriginalPrice(String originalPrice) {
-		this.originalPrice = originalPrice;
-	}
-	public boolean isDiscounted() {
-		return discounted;
-	}
-	public void setDiscounted(boolean discounted) {
-		this.discounted = discounted;
-	}
-
-	public void setImages(List<ReadableImage> images) {
-		this.images = images;
-	}
-	public List<ReadableImage> getImages() {
-		return images;
-	}
-	public void setImage(ReadableImage image) {
-		this.image = image;
-	}
-	public ReadableImage getImage() {
-		return image;
-	}
-	public void setAttributes(List<ReadableProductAttribute> attributes) {
-		this.attributes = attributes;
-	}
 	public List<ReadableProductAttribute> getAttributes() {
 		return attributes;
-	}
-	public void setManufacturer(ReadableManufacturer manufacturer) {
-		this.manufacturer = manufacturer;
-	}
-	public ReadableManufacturer getManufacturer() {
-		return manufacturer;
-	}
-	public boolean isCanBePurchased() {
-		return canBePurchased;
-	}
-	public void setCanBePurchased(boolean canBePurchased) {
-		this.canBePurchased = canBePurchased;
-	}
-	public RentalOwner getOwner() {
-		return owner;
-	}
-	public void setOwner(RentalOwner owner) {
-		this.owner = owner;
 	}
 	public List<ReadableCategory> getCategories() {
 		return categories;
 	}
+	public ProductDescription getDescription() {
+		return description;
+	}
+	public String getFinalPrice() {
+		return finalPrice;
+	}
+	public ReadableImage getImage() {
+		return image;
+	}
+	public List<ReadableImage> getImages() {
+		return images;
+	}
+	public ReadableManufacturer getManufacturer() {
+		return manufacturer;
+	}
+	public String getOriginalPrice() {
+		return originalPrice;
+	}
+
+	public RentalOwner getOwner() {
+		return owner;
+	}
+	public boolean isCanBePurchased() {
+		return canBePurchased;
+	}
+	public boolean isDiscounted() {
+		return discounted;
+	}
+	public void setAttributes(List<ReadableProductAttribute> attributes) {
+		this.attributes = attributes;
+	}
+	public void setCanBePurchased(boolean canBePurchased) {
+		this.canBePurchased = canBePurchased;
+	}
 	public void setCategories(List<ReadableCategory> categories) {
 		this.categories = categories;
+	}
+	public void setDescription(ProductDescription description) {
+		this.description = description;
+	}
+	public void setDiscounted(boolean discounted) {
+		this.discounted = discounted;
+	}
+	public void setFinalPrice(String finalPrice) {
+		this.finalPrice = finalPrice;
+	}
+	public void setImage(ReadableImage image) {
+		this.image = image;
+	}
+	public void setImages(List<ReadableImage> images) {
+		this.images = images;
+	}
+	public void setManufacturer(ReadableManufacturer manufacturer) {
+		this.manufacturer = manufacturer;
+	}
+	public void setOriginalPrice(String originalPrice) {
+		this.originalPrice = originalPrice;
+	}
+	public void setOwner(RentalOwner owner) {
+		this.owner = owner;
 	}
 
 }

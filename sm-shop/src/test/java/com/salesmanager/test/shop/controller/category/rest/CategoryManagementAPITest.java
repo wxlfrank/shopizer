@@ -1,20 +1,26 @@
 package com.salesmanager.test.shop.controller.category.rest;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Ignore;
+import org.junit.Test;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.codec.Base64;
+import org.springframework.web.client.RestTemplate;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.salesmanager.shop.model.catalog.category.Category;
 import com.salesmanager.shop.model.catalog.category.CategoryDescription;
 import com.salesmanager.shop.model.catalog.category.PersistableCategory;
 import com.salesmanager.shop.model.catalog.category.ReadableCategory;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.springframework.http.*;
-import org.springframework.security.crypto.codec.Base64;
-import org.springframework.web.client.RestTemplate;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 @Ignore
 public class CategoryManagementAPITest {
@@ -22,16 +28,15 @@ public class CategoryManagementAPITest {
 	private RestTemplate restTemplate;
 
 
-	private HttpHeaders getHeader(){
-		HttpHeaders headers = new HttpHeaders();
-		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
-		//MediaType.APPLICATION_JSON //for application/json
-		headers.setContentType(mediaType);
-		//Basic Authentication
-		String authorisation = "admin" + ":" + "password";
-		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
-		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
-		return headers;
+	@Test
+	@Ignore
+	public void deleteCategory() throws Exception {
+		restTemplate = new RestTemplate();
+		
+		HttpEntity<String> httpEntity = new HttpEntity<String>(getHeader());
+		
+		restTemplate.exchange("http://localhost:8080/sm-shop/services/DEFAULT/category/100", HttpMethod.DELETE, httpEntity, Category.class);
+		System.out.println("Category id 100 Deleted.");
 	}
 	
 	/**
@@ -94,7 +99,7 @@ public class CategoryManagementAPITest {
 		
 		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
 
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/category", entity, PersistableCategory.class);
+		ResponseEntity<PersistableCategory> response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/category", entity, PersistableCategory.class);
 
 		PersistableCategory cat = (PersistableCategory) response.getBody();
 		System.out.println("New Category ID : " + cat.getId());
@@ -262,22 +267,23 @@ public class CategoryManagementAPITest {
 		
 		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
 
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/category", entity, PersistableCategory.class);
+		ResponseEntity<PersistableCategory> response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/category", entity, PersistableCategory.class);
 
 		PersistableCategory cat = (PersistableCategory) response.getBody();
 		System.out.println("New Category ID : " + cat.getId());
 	}
 	
 	
-	@Test
-	@Ignore
-	public void deleteCategory() throws Exception {
-		restTemplate = new RestTemplate();
-		
-		HttpEntity<String> httpEntity = new HttpEntity<String>(getHeader());
-		
-		restTemplate.exchange("http://localhost:8080/sm-shop/services/DEFAULT/category/100", HttpMethod.DELETE, httpEntity, Category.class);
-		System.out.println("Category id 100 Deleted.");
+	private HttpHeaders getHeader(){
+		HttpHeaders headers = new HttpHeaders();
+		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
+		//MediaType.APPLICATION_JSON //for application/json
+		headers.setContentType(mediaType);
+		//Basic Authentication
+		String authorisation = "admin" + ":" + "password";
+		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
+		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
+		return headers;
 	}
 
 	

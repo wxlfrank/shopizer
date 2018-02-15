@@ -35,6 +35,8 @@ import com.salesmanager.shop.utils.LanguageUtils;
 @RequestMapping("/api/v1")
 public class ProductReviewApi {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProductReviewApi.class);
+	
 	@Inject
 	private ProductFacade productFacade;
 	
@@ -49,8 +51,6 @@ public class ProductReviewApi {
 	
 	@Inject
 	private ProductReviewService productReviewService;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProductReviewApi.class);
 	
 	
 	
@@ -80,89 +80,6 @@ public class ProductReviewApi {
 			
 			review.setProductId(id);
 			
-			
-
-			productFacade.saveOrUpdateReview(review, merchantStore, language);
-			
-			return review;
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while saving product review",e);
-			try {
-				response.sendError(503, "Error while saving product review" + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
-	}
-	
-	@RequestMapping( value="/products/{id}/reviews", method=RequestMethod.GET)
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public List<ReadableProductReview> getAll(@PathVariable final Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		try {
-			
-			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
-			
-			//product exist
-			Product product = productService.getById(id);
-
-			if(product==null) {
-				response.sendError(404, "Product id " + id + " does not exists");
-				return null;
-			}
-			
-
-
-			List<ReadableProductReview> reviews = productFacade.getProductReviews(product, merchantStore, language);
-			
-			return reviews;
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while getting product reviews",e);
-			try {
-				response.sendError(503, "Error while getting product reviews" + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
-	}
-	
-	
-	@RequestMapping( value={"/private/products/{id}/reviews/{reviewid}","/auth/products/{id}/reviews/{reviewid}"}, method=RequestMethod.PUT)
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public PersistableProductReview update(@PathVariable final Long id, @PathVariable final Long reviewId, @Valid @RequestBody PersistableProductReview review, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		try {
-			
-			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
-			
-			ProductReview prodReview = productReviewService.getById(reviewId);
-			if(prodReview==null) {
-				response.sendError(404, "Product review with id " + reviewId + " does not exist");
-				return null;
-			}
-			
-			if(prodReview.getCustomer().getId().longValue() != review.getCustomerId().longValue()) {
-				response.sendError(404, "Product review with id " + reviewId + " does not exist");
-				return null;
-			}
-			
-			//rating maximum 5
-			if(review.getRating()>Constants.MAX_REVIEW_RATING_SCORE) {
-				response.sendError(503, "Maximum rating score is " + Constants.MAX_REVIEW_RATING_SCORE);
-				return null;
-			}
-			
-			review.setProductId(id);
 			
 
 			productFacade.saveOrUpdateReview(review, merchantStore, language);
@@ -215,6 +132,89 @@ public class ProductReviewApi {
 			}
 			
 			return;
+		}
+	}
+	
+	
+	@RequestMapping( value="/products/{id}/reviews", method=RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<ReadableProductReview> getAll(@PathVariable final Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		try {
+			
+			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
+			
+			//product exist
+			Product product = productService.getById(id);
+
+			if(product==null) {
+				response.sendError(404, "Product id " + id + " does not exists");
+				return null;
+			}
+			
+
+
+			List<ReadableProductReview> reviews = productFacade.getProductReviews(product, merchantStore, language);
+			
+			return reviews;
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while getting product reviews",e);
+			try {
+				response.sendError(503, "Error while getting product reviews" + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return null;
+		}
+	}
+	
+	@RequestMapping( value={"/private/products/{id}/reviews/{reviewid}","/auth/products/{id}/reviews/{reviewid}"}, method=RequestMethod.PUT)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public PersistableProductReview update(@PathVariable final Long id, @PathVariable final Long reviewId, @Valid @RequestBody PersistableProductReview review, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		try {
+			
+			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
+			
+			ProductReview prodReview = productReviewService.getById(reviewId);
+			if(prodReview==null) {
+				response.sendError(404, "Product review with id " + reviewId + " does not exist");
+				return null;
+			}
+			
+			if(prodReview.getCustomer().getId().longValue() != review.getCustomerId().longValue()) {
+				response.sendError(404, "Product review with id " + reviewId + " does not exist");
+				return null;
+			}
+			
+			//rating maximum 5
+			if(review.getRating()>Constants.MAX_REVIEW_RATING_SCORE) {
+				response.sendError(503, "Maximum rating score is " + Constants.MAX_REVIEW_RATING_SCORE);
+				return null;
+			}
+			
+			review.setProductId(id);
+			
+
+			productFacade.saveOrUpdateReview(review, merchantStore, language);
+			
+			return review;
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while saving product review",e);
+			try {
+				response.sendError(503, "Error while saving product review" + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return null;
 		}
 	}
 

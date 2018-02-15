@@ -46,26 +46,7 @@ public class ProductRelationship extends SalesManagerEntity<Long, ProductRelatio
 	@Column(name="ACTIVE")
 	private boolean active = true;
 	
-	public Product getProduct() {
-		return product;
-	}
-
-
-
-	public void setProduct(Product product) {
-		this.product = product;
-	}
-
-
-
-	public Product getRelatedProduct() {
-		return relatedProduct;
-	}
-
-
-
-	public void setRelatedProduct(Product relatedProduct) {
-		this.relatedProduct = relatedProduct;
+	public ProductRelationship() {
 	}
 
 
@@ -76,8 +57,26 @@ public class ProductRelationship extends SalesManagerEntity<Long, ProductRelatio
 
 
 
-	public void setCode(String code) {
-		this.code = code;
+	public Long getId() {
+		return id;
+	}
+
+
+
+	public Product getProduct() {
+		return product;
+	}
+
+
+
+	public Product getRelatedProduct() {
+		return relatedProduct;
+	}
+
+
+
+	public MerchantStore getStore() {
+		return store;
 	}
 
 
@@ -94,25 +93,26 @@ public class ProductRelationship extends SalesManagerEntity<Long, ProductRelatio
 
 
 
-	public ProductRelationship() {
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 
 
-	public MerchantStore getStore() {
-		return store;
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
+	public void setRelatedProduct(Product relatedProduct) {
+		this.relatedProduct = relatedProduct;
 	}
 
 	public void setStore(MerchantStore store) {
 		this.store = store;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 

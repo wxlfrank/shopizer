@@ -54,41 +54,49 @@ public class Country extends SalesManagerEntity<Integer, Country> {
 	@Transient
 	private String name;
 	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public Country() {
 	}
-	
+
 	public Country(String isoCode) {
 		this.setIsoCode(isoCode);
 	}
-	
-	public boolean getSupported() {
-		return supported;
-	}
 
-	public void setSupported(boolean supported) {
-		this.supported = supported;
+	public List<CountryDescription> getDescriptions() {
+		return descriptions;
+	}
+	
+	public GeoZone getGeoZone() {
+		return geoZone;
+	}
+	
+	@Override
+	public Integer getId() {
+		return id;
 	}
 
 	public String getIsoCode() {
 		return isoCode;
 	}
 
-	public void setIsoCode(String isoCode) {
-		this.isoCode = isoCode;
+	public String getName() {
+		return name;
+	}
+
+	public boolean getSupported() {
+		return supported;
 	}
 
 
-	@Override
-	public Integer getId() {
-		return id;
+	public List<Zone> getZones() {
+		return zones;
+	}
+
+	public void setDescriptions(List<CountryDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+	public void setGeoZone(GeoZone geoZone) {
+		this.geoZone = geoZone;
 	}
 
 	@Override
@@ -96,28 +104,20 @@ public class Country extends SalesManagerEntity<Integer, Country> {
 		this.id = id;
 	}
 
-	public List<Zone> getZones() {
-		return zones;
+	public void setIsoCode(String isoCode) {
+		this.isoCode = isoCode;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setSupported(boolean supported) {
+		this.supported = supported;
 	}
 
 	public void setZones(List<Zone> zones) {
 		this.zones = zones;
-	}
-
-	public List<CountryDescription> getDescriptions() {
-		return descriptions;
-	}
-
-	public void setDescriptions(List<CountryDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-
-	public GeoZone getGeoZone() {
-		return geoZone;
-	}
-
-	public void setGeoZone(GeoZone geoZone) {
-		this.geoZone = geoZone;
 	}
 
 /*	public GeoZone getGeoZone() {

@@ -7,9 +7,9 @@ package com.salesmanager.core.modules;
  */
 public interface Module {
 	
-	String getName();
-	void setName(String name);
 	String getCode();
+	String getName();
 	void setCode(String code);
+	void setName(String name);
 
 }

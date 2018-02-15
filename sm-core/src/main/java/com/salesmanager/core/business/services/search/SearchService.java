@@ -9,15 +9,6 @@ import com.salesmanager.core.model.search.SearchResponse;
 public interface SearchService {
 	
 	/**
-	 * The indexing service for products. The index service must be invoked when a product is
-	 * created or updated
-	 * @param store
-	 * @param product
-	 * @throws ServiceException
-	 */
-	void index(MerchantStore store, Product product) throws ServiceException;
-
-	/**
 	 * Deletes an index in the appropriate language. Must be invoked when a product is deleted
 	 * @param store
 	 * @param product
@@ -27,16 +18,18 @@ public interface SearchService {
 			throws ServiceException;
 
 	/**
-	 * Similar keywords based on a a series of characters. Used in the auto-complete
-	 * functionality
-	 * @param collectionName
-	 * @param jsonString
-	 * @param entriesCount
-	 * @return
+	 * The indexing service for products. The index service must be invoked when a product is
+	 * created or updated
+	 * @param store
+	 * @param product
 	 * @throws ServiceException
 	 */
-	SearchKeywords searchForKeywords(String collectionName,
-			String jsonString, int entriesCount) throws ServiceException;
+	void index(MerchantStore store, Product product) throws ServiceException;
+
+	/**
+	 * Initializes search service in order to avoid lazy initialization
+	 */
+	void initService();
 
 	/**
 	 * Search products based on user entry
@@ -51,8 +44,15 @@ public interface SearchService {
 			int entriesCount, int startIndex) throws ServiceException;
 
 	/**
-	 * Initializes search service in order to avoid lazy initialization
+	 * Similar keywords based on a a series of characters. Used in the auto-complete
+	 * functionality
+	 * @param collectionName
+	 * @param jsonString
+	 * @param entriesCount
+	 * @return
+	 * @throws ServiceException
 	 */
-	void initService();
+	SearchKeywords searchForKeywords(String collectionName,
+			String jsonString, int entriesCount) throws ServiceException;
 
 }

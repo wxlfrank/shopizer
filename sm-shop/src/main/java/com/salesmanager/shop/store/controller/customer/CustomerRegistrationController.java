@@ -1,5 +1,28 @@
 package com.salesmanager.shop.store.controller.customer;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import javax.inject.Inject;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.product.PricingService;
@@ -29,29 +52,6 @@ import com.salesmanager.shop.utils.CaptchaRequestUtils;
 import com.salesmanager.shop.utils.EmailTemplatesUtils;
 import com.salesmanager.shop.utils.ImageFilePath;
 import com.salesmanager.shop.utils.LabelUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import javax.inject.Inject;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 
 //import com.salesmanager.core.business.customer.CustomerRegistrationException;
 
@@ -61,7 +61,6 @@ import java.util.Locale;
  *
  */
 
-@SuppressWarnings( "deprecation" )
 // http://stackoverflow.com/questions/17444258/how-to-use-new-passwordencoder-from-spring-security
 @Controller
 @RequestMapping("/shop/customer")
@@ -84,8 +83,8 @@ public class CustomerRegistrationController extends AbstractController {
 	@Inject
 	private ZoneService zoneService;
 
-	@Inject
-	private PasswordEncoder passwordEncoder;
+//	@Inject
+//	private PasswordEncoder passwordEncoder;
 
 	@Inject
 	EmailService emailService;
@@ -96,8 +95,8 @@ public class CustomerRegistrationController extends AbstractController {
 	@Inject
 	private CustomerFacade customerFacade;
 	
-	@Inject
-    private AuthenticationManager customerAuthenticationManager;
+//	@Inject
+//    private AuthenticationManager customerAuthenticationManager;
 	
 	@Inject
 	private EmailTemplatesUtils emailTemplatesUtils;
@@ -141,7 +140,40 @@ public class CustomerRegistrationController extends AbstractController {
 
 	}
 
-    @RequestMapping( value = "/register.html", method = RequestMethod.POST )
+    @ModelAttribute("countryList")
+	public List<Country> getCountries(final HttpServletRequest request){
+	    
+        Language language = (Language) request.getAttribute( "LANGUAGE" );
+        try
+        {
+            if ( language == null )
+            {
+                language = (Language) request.getAttribute( "LANGUAGE" );
+            }
+
+            if ( language == null )
+            {
+                language = languageService.getByCode( Constants.DEFAULT_LANGUAGE );
+            }
+            
+            List<Country> countryList=countryService.getCountries( language );
+            return countryList;
+        }
+        catch ( ServiceException e )
+        {
+            LOGGER.error( "Error while fetching country list ", e );
+
+        }
+        return Collections.emptyList();
+    }
+	
+	
+	@ModelAttribute("zoneList")
+    public List<Zone> getZones(final HttpServletRequest request){
+	    return zoneService.list();
+	}
+	
+	@RequestMapping( value = "/register.html", method = RequestMethod.POST )
     public String registerCustomer( @Valid
     @ModelAttribute("customer") SecuredShopPersistableCustomer customer, BindingResult bindingResult, Model model,
                                     HttpServletRequest request, HttpServletResponse response, final Locale locale )
@@ -294,39 +326,6 @@ public class CustomerRegistrationController extends AbstractController {
         return template.toString();
 
     }
-	
-	
-	@ModelAttribute("countryList")
-	public List<Country> getCountries(final HttpServletRequest request){
-	    
-        Language language = (Language) request.getAttribute( "LANGUAGE" );
-        try
-        {
-            if ( language == null )
-            {
-                language = (Language) request.getAttribute( "LANGUAGE" );
-            }
-
-            if ( language == null )
-            {
-                language = languageService.getByCode( Constants.DEFAULT_LANGUAGE );
-            }
-            
-            List<Country> countryList=countryService.getCountries( language );
-            return countryList;
-        }
-        catch ( ServiceException e )
-        {
-            LOGGER.error( "Error while fetching country list ", e );
-
-        }
-        return Collections.emptyList();
-    }
-	
-	@ModelAttribute("zoneList")
-    public List<Zone> getZones(final HttpServletRequest request){
-	    return zoneService.list();
-	}
 	
 	
 	

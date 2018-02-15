@@ -3,14 +3,16 @@
  */
 package com.salesmanager.shop.admin.model.digital;
 
-import com.salesmanager.core.model.catalog.product.Product;
-import com.salesmanager.core.model.catalog.product.file.DigitalProduct;
+import java.io.Serializable;
+import java.util.List;
+
+import javax.validation.Valid;
+
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
-import java.io.Serializable;
-import java.util.List;
+import com.salesmanager.core.model.catalog.product.Product;
+import com.salesmanager.core.model.catalog.product.file.DigitalProduct;
 
 /**
  * A bean class responsible for getting form data from shop Admin for uploading
@@ -33,16 +35,15 @@ public class ProductFiles implements Serializable
     private DigitalProduct digitalProduct;
     private Product product;
 
+    public DigitalProduct getDigitalProduct() {
+		return digitalProduct;
+	}
+
     @NotEmpty(message="{product.files.invalid}")
     @Valid
     public List<MultipartFile> getFile()
     {
         return file;
-    }
-
-    public void setFile( final List<MultipartFile> file )
-    {
-        this.file = file;
     }
 
 
@@ -51,16 +52,17 @@ public class ProductFiles implements Serializable
 		return product;
 	}
 
-	public void setProduct(Product product) {
-		this.product = product;
-	}
-
 	public void setDigitalProduct(DigitalProduct digitalProduct) {
 		this.digitalProduct = digitalProduct;
 	}
 
-	public DigitalProduct getDigitalProduct() {
-		return digitalProduct;
+	public void setFile( final List<MultipartFile> file )
+    {
+        this.file = file;
+    }
+
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
 

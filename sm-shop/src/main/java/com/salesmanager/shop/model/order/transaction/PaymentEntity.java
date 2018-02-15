@@ -12,17 +12,17 @@ public class PaymentEntity implements Serializable {
 	private String paymentModule;//stripe|paypal|braintree|moneyorder ...
 	private String amount;
 	
-	public String getPaymentModule() {
-		return paymentModule;
-	}
-	public void setPaymentModule(String paymentModule) {
-		this.paymentModule = paymentModule;
-	}
 	public String getAmount() {
 		return amount;
 	}
+	public String getPaymentModule() {
+		return paymentModule;
+	}
 	public void setAmount(String amount) {
 		this.amount = amount;
+	}
+	public void setPaymentModule(String paymentModule) {
+		this.paymentModule = paymentModule;
 	}
 
 }

@@ -1,19 +1,16 @@
 package com.salesmanager.shop.admin.controller.tax;
-import com.salesmanager.core.business.services.reference.country.CountryService;
-import com.salesmanager.core.business.services.reference.zone.ZoneService;
-import com.salesmanager.core.business.services.tax.TaxClassService;
-import com.salesmanager.core.business.services.tax.TaxRateService;
-import com.salesmanager.core.business.utils.ajax.AjaxResponse;
-import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.model.reference.country.Country;
-import com.salesmanager.core.model.reference.language.Language;
-import com.salesmanager.core.model.reference.zone.Zone;
-import com.salesmanager.core.model.tax.taxclass.TaxClass;
-import com.salesmanager.core.model.tax.taxrate.TaxRate;
-import com.salesmanager.core.model.tax.taxrate.TaxRateDescription;
-import com.salesmanager.shop.admin.model.web.Menu;
-import com.salesmanager.shop.constants.Constants;
-import com.salesmanager.shop.utils.LabelUtils;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,16 +28,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import com.salesmanager.core.business.services.reference.country.CountryService;
+import com.salesmanager.core.business.services.reference.zone.ZoneService;
+import com.salesmanager.core.business.services.tax.TaxClassService;
+import com.salesmanager.core.business.services.tax.TaxRateService;
+import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.reference.country.Country;
+import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.core.model.reference.zone.Zone;
+import com.salesmanager.core.model.tax.taxclass.TaxClass;
+import com.salesmanager.core.model.tax.taxrate.TaxRate;
+import com.salesmanager.core.model.tax.taxrate.TaxRateDescription;
+import com.salesmanager.shop.admin.model.web.Menu;
+import com.salesmanager.shop.constants.Constants;
+import com.salesmanager.shop.utils.LabelUtils;
 
 
 @Controller
@@ -102,7 +104,63 @@ public class TaxRatesController {
 		return com.salesmanager.shop.admin.controller.ControllerConstants.Tiles.Tax.taxRates;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@PreAuthorize("hasRole('TAX')")
+	@RequestMapping(value="/admin/tax/taxrates/edit.html", method=RequestMethod.GET)
+	public String editTaxRate(@ModelAttribute("id") String id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		
+		setMenu(model,request);
+
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		Language language = (Language)request.getAttribute("LANGUAGE");
+
+		TaxRate taxRate = null;
+		try {
+			Long taxRateId = Long.parseLong(id);
+			taxRate = taxRateService.getById(taxRateId);
+		} catch (Exception e) {
+			LOGGER.error("Cannot parse taxRateId " + id);
+			return "redirect:/admin/tax/taxrates/list.html";
+		}
+		
+		if(taxRate==null || taxRate.getMerchantStore().getId()!=store.getId()) {
+			return "redirect:/admin/tax/taxrates/list.html";
+		}
+		
+		
+		NumberFormat nf = null;
+
+		
+		nf = NumberFormat.getInstance(Locale.US);
+
+		nf.setMaximumFractionDigits(Integer.parseInt(Character
+					.toString(DECIMALCOUNT)));
+		nf.setMinimumFractionDigits(Integer.parseInt(Character
+					.toString(DECIMALCOUNT)));
+		
+		taxRate.setRateText(nf.format(taxRate.getTaxRate()));
+		
+		
+		
+		List<TaxClass> taxClasses = taxClassService.listByStore(store);
+		
+		
+
+		List<Country> countries = countryService.getCountries(language);
+		List<TaxRate> taxRates = taxRateService.listByStore(store);
+		
+
+		model.addAttribute("countries", countries);
+		model.addAttribute("taxRates", taxRates);
+		model.addAttribute("taxClasses", taxClasses);
+		
+		model.addAttribute("taxRate", taxRate);
+		
+		return com.salesmanager.shop.admin.controller.ControllerConstants.Tiles.Tax.taxRate;
+		
+		
+		
+	}
+	
 	@PreAuthorize("hasRole('TAX')")
 	@RequestMapping(value = "/admin/tax/taxrates/page.html", method = RequestMethod.POST)
 	public @ResponseBody
@@ -131,7 +189,7 @@ public class TaxRatesController {
 			if(taxRates!=null) {
 				for (TaxRate rate : taxRates) {
 
-					Map entry = new HashMap ();
+					Map<String, String> entry = new HashMap<String, String> ();
 					entry.put("taxRateId", String.valueOf(rate.getId()));
 					entry.put("code", rate.getCode());
 					List<TaxRateDescription> descriptions = rate.getDescriptions();
@@ -148,9 +206,9 @@ public class TaxRatesController {
 					}
 					
 					entry.put("name", name);
-					entry.put("priority", rate.getTaxPriority());
+					entry.put("priority", rate.getTaxPriority().toString());
 					
-					entry.put("piggyback", rate.isPiggyback());
+					entry.put("piggyback", "" + rate.isPiggyback());
 					entry.put("country", rate.getCountry().getIsoCode());
 					entry.put("taxClass", rate.getTaxClass().getCode());
 					
@@ -178,6 +236,77 @@ public class TaxRatesController {
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	
+	
+	@PreAuthorize("hasRole('TAX')")
+	@RequestMapping(value="/admin/tax/taxrates/remove.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> removeTaxRate(HttpServletRequest request, Locale locale) throws Exception {
+		
+		//do not remove super admin
+		
+		String taxRateId = request.getParameter("taxRateId");
+
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		try {
+			
+
+			/**
+			 * In order to remove a User the logged in must be STORE_ADMIN
+			 * or SUPER_USER
+			 */
+			
+
+			if(taxRateId==null){
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			long ltaxRateId;
+			try {
+				ltaxRateId = Long.parseLong(taxRateId);
+			} catch (Exception e) {
+				LOGGER.error("Invalid taxRateId " + taxRateId);
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			TaxRate taxRate = taxRateService.getById(ltaxRateId);
+			
+			if(taxRate==null) {
+				LOGGER.error("Invalid taxRateId " + taxRateId);
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+
+			
+			
+			taxRateService.delete(taxRate);
+			
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+
+		
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting tax rate", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		
 	}
 	
 	@PreAuthorize("hasRole('TAX')")
@@ -213,8 +342,7 @@ public class TaxRatesController {
 		
 	}
 	
-	
-	
+
 	@PreAuthorize("hasRole('TAX')")
 	@RequestMapping(value="/admin/tax/taxrates/update.html", method=RequestMethod.POST)
 	public String updateTaxRate(@Valid @ModelAttribute("taxRate") TaxRate taxRate, BindingResult result, Model model, HttpServletRequest request, Locale locale) throws Exception {
@@ -249,6 +377,28 @@ public class TaxRatesController {
 
 		
 	}
+	
+	private void setMenu(Model model, HttpServletRequest request)
+	throws Exception {
+
+		// display menu
+		Map<String, String> activeMenus = new HashMap<String, String>();
+		activeMenus.put("tax", "tax");
+		activeMenus.put("taxrates", "taxrates");
+		
+		@SuppressWarnings("unchecked")
+		Map<String, Menu> menus = (Map<String, Menu>) request
+				.getAttribute("MENUMAP");
+		
+		Menu currentMenu = (Menu) menus.get("tax");
+		model.addAttribute("currentMenu", currentMenu);
+		model.addAttribute("activeMenus", activeMenus);
+		//
+
+	}
+
+	
+	
 	
 	private void validateTaxRate(Model model, TaxRate taxRate, BindingResult result, MerchantStore store, Language language, Locale locale) throws Exception {
 		
@@ -321,155 +471,6 @@ public class TaxRatesController {
 		
 		return;
 		
-	}
-	
-
-	@PreAuthorize("hasRole('TAX')")
-	@RequestMapping(value="/admin/tax/taxrates/remove.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> removeTaxRate(HttpServletRequest request, Locale locale) throws Exception {
-		
-		//do not remove super admin
-		
-		String taxRateId = request.getParameter("taxRateId");
-
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-
-		try {
-			
-
-			/**
-			 * In order to remove a User the logged in must be STORE_ADMIN
-			 * or SUPER_USER
-			 */
-			
-
-			if(taxRateId==null){
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			long ltaxRateId;
-			try {
-				ltaxRateId = Long.parseLong(taxRateId);
-			} catch (Exception e) {
-				LOGGER.error("Invalid taxRateId " + taxRateId);
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			TaxRate taxRate = taxRateService.getById(ltaxRateId);
-			
-			if(taxRate==null) {
-				LOGGER.error("Invalid taxRateId " + taxRateId);
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-
-			
-			
-			taxRateService.delete(taxRate);
-			
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-
-		
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting tax rate", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		
-	}
-	
-	@PreAuthorize("hasRole('TAX')")
-	@RequestMapping(value="/admin/tax/taxrates/edit.html", method=RequestMethod.GET)
-	public String editTaxRate(@ModelAttribute("id") String id, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		
-		setMenu(model,request);
-
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		Language language = (Language)request.getAttribute("LANGUAGE");
-
-		TaxRate taxRate = null;
-		try {
-			Long taxRateId = Long.parseLong(id);
-			taxRate = taxRateService.getById(taxRateId);
-		} catch (Exception e) {
-			LOGGER.error("Cannot parse taxRateId " + id);
-			return "redirect:/admin/tax/taxrates/list.html";
-		}
-		
-		if(taxRate==null || taxRate.getMerchantStore().getId()!=store.getId()) {
-			return "redirect:/admin/tax/taxrates/list.html";
-		}
-		
-		
-		NumberFormat nf = null;
-
-		
-		nf = NumberFormat.getInstance(Locale.US);
-
-		nf.setMaximumFractionDigits(Integer.parseInt(Character
-					.toString(DECIMALCOUNT)));
-		nf.setMinimumFractionDigits(Integer.parseInt(Character
-					.toString(DECIMALCOUNT)));
-		
-		taxRate.setRateText(nf.format(taxRate.getTaxRate()));
-		
-		
-		
-		List<TaxClass> taxClasses = taxClassService.listByStore(store);
-		
-		
-
-		List<Country> countries = countryService.getCountries(language);
-		List<TaxRate> taxRates = taxRateService.listByStore(store);
-		
-
-		model.addAttribute("countries", countries);
-		model.addAttribute("taxRates", taxRates);
-		model.addAttribute("taxClasses", taxClasses);
-		
-		model.addAttribute("taxRate", taxRate);
-		
-		return com.salesmanager.shop.admin.controller.ControllerConstants.Tiles.Tax.taxRate;
-		
-		
-		
-	}
-
-	
-	
-	
-	private void setMenu(Model model, HttpServletRequest request)
-	throws Exception {
-
-		// display menu
-		Map<String, String> activeMenus = new HashMap<String, String>();
-		activeMenus.put("tax", "tax");
-		activeMenus.put("taxrates", "taxrates");
-		
-		@SuppressWarnings("unchecked")
-		Map<String, Menu> menus = (Map<String, Menu>) request
-				.getAttribute("MENUMAP");
-		
-		Menu currentMenu = (Menu) menus.get("tax");
-		model.addAttribute("currentMenu", currentMenu);
-		model.addAttribute("activeMenus", activeMenus);
-		//
-
 	}
 
 }

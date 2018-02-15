@@ -1,8 +1,20 @@
 package com.salesmanager.shop.utils;
 
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+
 import com.salesmanager.core.business.modules.email.Email;
 import com.salesmanager.core.business.services.catalog.product.PricingService;
-import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.reference.country.CountryService;
 import com.salesmanager.core.business.services.reference.zone.ZoneService;
 import com.salesmanager.core.business.services.system.EmailService;
@@ -19,18 +31,6 @@ import com.salesmanager.shop.constants.ApplicationConstants;
 import com.salesmanager.shop.constants.EmailConstants;
 import com.salesmanager.shop.model.customer.PersistableCustomer;
 import com.salesmanager.shop.model.shop.ContactForm;
-import org.apache.commons.lang3.StringUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
 
 
 @Component
@@ -38,44 +38,174 @@ public class EmailTemplatesUtils {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(EmailTemplatesUtils.class);
 	
+	private final static String LINE_BREAK = "<br/>";
+
+	private final static String TABLE = "<table width=\"100%\">";
+	
+	private final static String CLOSING_TABLE = "</table>";
+	
+	private final static String TR = "<tr>";
+	
+	private final static String TR_BORDER = "<tr class=\"border\">";
+	
+	private final static String CLOSING_TR = "</tr>";
+	
+	private final static String TD = "<td valign=\"top\">";
+	
+	private final static String CLOSING_TD = "</td>";
+	
 	@Inject
 	private EmailService emailService;
-
+	
 	@Inject
 	private LabelUtils messages;
-	
 	@Inject
 	private CountryService countryService;
-	
-	@Inject
-	private ProductService productService;
-	
+//	@Inject
+//	private ProductService productService;
 	@Inject
 	private ZoneService zoneService;
-	
 	@Inject
 	private PricingService pricingService;
-	
 	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
-	
 	@Inject
 	private EmailUtils emailUtils;
-	
 	@Inject
 	private FilePathUtils filePathUtils;
 	
-	private final static String LINE_BREAK = "<br/>";
-	private final static String TABLE = "<table width=\"100%\">";
-	private final static String CLOSING_TABLE = "</table>";
-	private final static String TR = "<tr>";
-	private final static String TR_BORDER = "<tr class=\"border\">";
-	private final static String CLOSING_TR = "</tr>";
-	private final static String TD = "<td valign=\"top\">";
-	private final static String CLOSING_TD = "</td>";
-	
 
+	/**
+	 * Sends a change password notification email to the Customer
+	 * @param customer
+	 * @param merchantStore
+	 * @param customerLocale
+	 * @param contextPath
+	 */
+	@Async
+	public void changePasswordNotificationEmail(
+			Customer customer, MerchantStore merchantStore,
+			Locale customerLocale, String contextPath) {
+	       LOGGER.debug( "Sending change password email" );
+	       try {
+
+
+				Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(contextPath, merchantStore, messages, customerLocale);
+				
+		        templateTokens.put(EmailConstants.LABEL_HI, messages.getMessage("label.generic.hi", customerLocale));
+		        templateTokens.put(EmailConstants.EMAIL_CUSTOMER_FIRSTNAME, customer.getBilling().getFirstName());
+		        templateTokens.put(EmailConstants.EMAIL_CUSTOMER_LASTNAME, customer.getBilling().getLastName());
+				
+		        String[] date = {DateUtil.formatLongDate(new Date())};
+		        
+		        templateTokens.put(EmailConstants.EMAIL_NOTIFICATION_MESSAGE, messages.getMessage("label.notification.message.passwordchanged", date, customerLocale));
+		        
+
+				Email email = new Email();
+				email.setFrom(merchantStore.getStorename());
+				email.setFromEmail(merchantStore.getStoreEmailAddress());
+				email.setSubject(messages.getMessage("label.notification.title.passwordchanged",customerLocale));
+				email.setTo(customer.getEmailAddress());
+				email.setTemplateName(EmailConstants.EMAIL_NOTIFICATION_TMPL);
+				email.setTemplateTokens(templateTokens);
+	
+	
+				
+				emailService.sendHtmlEmail(merchantStore, email);
+
+	       } catch (Exception e) {
+	           LOGGER.error("Error occured while sending change password email ",e);
+	       }
+		
+	}
+	
+	public void sendContactEmail(
+			ContactForm contact, MerchantStore merchantStore,
+				Locale storeLocale, String contextPath) {
+			   /** issue with putting that elsewhere **/ 
+		       LOGGER.info( "Sending welcome email to customer" );
+		       try {
+
+		           Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(contextPath, merchantStore, messages, storeLocale);
+		           
+		           templateTokens.put(EmailConstants.EMAIL_CONTACT_NAME, contact.getName());
+		           templateTokens.put(EmailConstants.EMAIL_CONTACT_EMAIL, contact.getEmail());
+		           templateTokens.put(EmailConstants.EMAIL_CONTACT_CONTENT, contact.getComment());
+		           
+		           String[] contactSubject = {contact.getSubject()};
+		           
+		           templateTokens.put(EmailConstants.EMAIL_CUSTOMER_CONTACT, messages.getMessage("email.contact",contactSubject, storeLocale));
+		           templateTokens.put(EmailConstants.EMAIL_CONTACT_NAME_LABEL, messages.getMessage("label.entity.name",storeLocale));
+		           templateTokens.put(EmailConstants.EMAIL_CONTACT_EMAIL_LABEL, messages.getMessage("label.generic.email",storeLocale));
+
+
+
+		           Email email = new Email();
+		           email.setFrom(merchantStore.getStorename());
+		           email.setFromEmail(contact.getEmail());
+		           email.setSubject(messages.getMessage("email.contact.title",storeLocale));
+		           email.setTo(merchantStore.getStoreEmailAddress());
+		           email.setTemplateName(EmailConstants.EMAIL_CONTACT_TMPL);
+		           email.setTemplateTokens(templateTokens);
+
+		           LOGGER.debug( "Sending contact email");
+		           emailService.sendHtmlEmail(merchantStore, email);
+
+		       } catch (Exception e) {
+		           LOGGER.error("Error occured while sending contact email ",e);
+		       }
+			
+		}
+	
+	/**
+	 * Send download email instructions to customer
+	 * @param customer
+	 * @param order
+	 * @param merchantStore
+	 * @param customerLocale
+	 * @param contextPath
+	 */
+	@Async
+	public void sendOrderDownloadEmail(
+			Customer customer, Order order, MerchantStore merchantStore,
+			Locale customerLocale, String contextPath) {
+		   /** issue with putting that elsewhere **/ 
+	       LOGGER.info( "Sending download email to customer" );
+	       try {
+
+	           Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(contextPath, merchantStore, messages, customerLocale);
+	           templateTokens.put(EmailConstants.LABEL_HI, messages.getMessage("label.generic.hi", customerLocale));
+	           templateTokens.put(EmailConstants.EMAIL_CUSTOMER_FIRSTNAME, customer.getBilling().getFirstName());
+	           templateTokens.put(EmailConstants.EMAIL_CUSTOMER_LASTNAME, customer.getBilling().getLastName());
+	           String[] downloadMessage = {String.valueOf(ApplicationConstants.MAX_DOWNLOAD_DAYS), String.valueOf(order.getId()), filePathUtils.buildCustomerUri(merchantStore, contextPath), merchantStore.getStoreEmailAddress()};
+	           templateTokens.put(EmailConstants.EMAIL_ORDER_DOWNLOAD, messages.getMessage("email.order.download.text", downloadMessage, customerLocale));
+	           templateTokens.put(EmailConstants.CUSTOMER_ACCESS_LABEL, messages.getMessage("label.customer.accessportal",customerLocale));
+	           templateTokens.put(EmailConstants.ACCESS_NOW_LABEL, messages.getMessage("label.customer.accessnow",customerLocale));
+
+	           //shop url
+	           String customerUrl = filePathUtils.buildStoreUri(merchantStore, contextPath);
+	           templateTokens.put(EmailConstants.CUSTOMER_ACCESS_URL, customerUrl);
+
+	           String[] orderInfo = {String.valueOf(order.getId())};
+	           
+	           Email email = new Email();
+	           email.setFrom(merchantStore.getStorename());
+	           email.setFromEmail(merchantStore.getStoreEmailAddress());
+	           email.setSubject(messages.getMessage("email.order.download.title", orderInfo, customerLocale));
+	           email.setTo(customer.getEmailAddress());
+	           email.setTemplateName(EmailConstants.EMAIL_ORDER_DOWNLOAD_TPL);
+	           email.setTemplateTokens(templateTokens);
+
+	           LOGGER.debug( "Sending email to {} with download info",customer.getEmailAddress() );
+	           emailService.sendHtmlEmail(merchantStore, email);
+
+	       } catch (Exception e) {
+	           LOGGER.error("Error occured while sending order download email ",e);
+	       }
+		
+	}
+	
 	/**
 	 * Sends an email to the customer after a completed order
 	 * @param customer
@@ -306,44 +436,6 @@ public class EmailTemplatesUtils {
 		
 	}
 	
-	public void sendContactEmail(
-			ContactForm contact, MerchantStore merchantStore,
-				Locale storeLocale, String contextPath) {
-			   /** issue with putting that elsewhere **/ 
-		       LOGGER.info( "Sending welcome email to customer" );
-		       try {
-
-		           Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(contextPath, merchantStore, messages, storeLocale);
-		           
-		           templateTokens.put(EmailConstants.EMAIL_CONTACT_NAME, contact.getName());
-		           templateTokens.put(EmailConstants.EMAIL_CONTACT_EMAIL, contact.getEmail());
-		           templateTokens.put(EmailConstants.EMAIL_CONTACT_CONTENT, contact.getComment());
-		           
-		           String[] contactSubject = {contact.getSubject()};
-		           
-		           templateTokens.put(EmailConstants.EMAIL_CUSTOMER_CONTACT, messages.getMessage("email.contact",contactSubject, storeLocale));
-		           templateTokens.put(EmailConstants.EMAIL_CONTACT_NAME_LABEL, messages.getMessage("label.entity.name",storeLocale));
-		           templateTokens.put(EmailConstants.EMAIL_CONTACT_EMAIL_LABEL, messages.getMessage("label.generic.email",storeLocale));
-
-
-
-		           Email email = new Email();
-		           email.setFrom(merchantStore.getStorename());
-		           email.setFromEmail(contact.getEmail());
-		           email.setSubject(messages.getMessage("email.contact.title",storeLocale));
-		           email.setTo(merchantStore.getStoreEmailAddress());
-		           email.setTemplateName(EmailConstants.EMAIL_CONTACT_TMPL);
-		           email.setTemplateTokens(templateTokens);
-
-		           LOGGER.debug( "Sending contact email");
-		           emailService.sendHtmlEmail(merchantStore, email);
-
-		       } catch (Exception e) {
-		           LOGGER.error("Error occured while sending contact email ",e);
-		       }
-			
-		}
-	
 	/**
 	 * Send an email to the customer with last order status
 	 * @param request
@@ -395,98 +487,6 @@ public class EmailTemplatesUtils {
 
 	       } catch (Exception e) {
 	           LOGGER.error("Error occured while sending order download email ",e);
-	       }
-		
-	}
-	
-	/**
-	 * Send download email instructions to customer
-	 * @param customer
-	 * @param order
-	 * @param merchantStore
-	 * @param customerLocale
-	 * @param contextPath
-	 */
-	@Async
-	public void sendOrderDownloadEmail(
-			Customer customer, Order order, MerchantStore merchantStore,
-			Locale customerLocale, String contextPath) {
-		   /** issue with putting that elsewhere **/ 
-	       LOGGER.info( "Sending download email to customer" );
-	       try {
-
-	           Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(contextPath, merchantStore, messages, customerLocale);
-	           templateTokens.put(EmailConstants.LABEL_HI, messages.getMessage("label.generic.hi", customerLocale));
-	           templateTokens.put(EmailConstants.EMAIL_CUSTOMER_FIRSTNAME, customer.getBilling().getFirstName());
-	           templateTokens.put(EmailConstants.EMAIL_CUSTOMER_LASTNAME, customer.getBilling().getLastName());
-	           String[] downloadMessage = {String.valueOf(ApplicationConstants.MAX_DOWNLOAD_DAYS), String.valueOf(order.getId()), filePathUtils.buildCustomerUri(merchantStore, contextPath), merchantStore.getStoreEmailAddress()};
-	           templateTokens.put(EmailConstants.EMAIL_ORDER_DOWNLOAD, messages.getMessage("email.order.download.text", downloadMessage, customerLocale));
-	           templateTokens.put(EmailConstants.CUSTOMER_ACCESS_LABEL, messages.getMessage("label.customer.accessportal",customerLocale));
-	           templateTokens.put(EmailConstants.ACCESS_NOW_LABEL, messages.getMessage("label.customer.accessnow",customerLocale));
-
-	           //shop url
-	           String customerUrl = filePathUtils.buildStoreUri(merchantStore, contextPath);
-	           templateTokens.put(EmailConstants.CUSTOMER_ACCESS_URL, customerUrl);
-
-	           String[] orderInfo = {String.valueOf(order.getId())};
-	           
-	           Email email = new Email();
-	           email.setFrom(merchantStore.getStorename());
-	           email.setFromEmail(merchantStore.getStoreEmailAddress());
-	           email.setSubject(messages.getMessage("email.order.download.title", orderInfo, customerLocale));
-	           email.setTo(customer.getEmailAddress());
-	           email.setTemplateName(EmailConstants.EMAIL_ORDER_DOWNLOAD_TPL);
-	           email.setTemplateTokens(templateTokens);
-
-	           LOGGER.debug( "Sending email to {} with download info",customer.getEmailAddress() );
-	           emailService.sendHtmlEmail(merchantStore, email);
-
-	       } catch (Exception e) {
-	           LOGGER.error("Error occured while sending order download email ",e);
-	       }
-		
-	}
-	
-	/**
-	 * Sends a change password notification email to the Customer
-	 * @param customer
-	 * @param merchantStore
-	 * @param customerLocale
-	 * @param contextPath
-	 */
-	@Async
-	public void changePasswordNotificationEmail(
-			Customer customer, MerchantStore merchantStore,
-			Locale customerLocale, String contextPath) {
-	       LOGGER.debug( "Sending change password email" );
-	       try {
-
-
-				Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(contextPath, merchantStore, messages, customerLocale);
-				
-		        templateTokens.put(EmailConstants.LABEL_HI, messages.getMessage("label.generic.hi", customerLocale));
-		        templateTokens.put(EmailConstants.EMAIL_CUSTOMER_FIRSTNAME, customer.getBilling().getFirstName());
-		        templateTokens.put(EmailConstants.EMAIL_CUSTOMER_LASTNAME, customer.getBilling().getLastName());
-				
-		        String[] date = {DateUtil.formatLongDate(new Date())};
-		        
-		        templateTokens.put(EmailConstants.EMAIL_NOTIFICATION_MESSAGE, messages.getMessage("label.notification.message.passwordchanged", date, customerLocale));
-		        
-
-				Email email = new Email();
-				email.setFrom(merchantStore.getStorename());
-				email.setFromEmail(merchantStore.getStoreEmailAddress());
-				email.setSubject(messages.getMessage("label.notification.title.passwordchanged",customerLocale));
-				email.setTo(customer.getEmailAddress());
-				email.setTemplateName(EmailConstants.EMAIL_NOTIFICATION_TMPL);
-				email.setTemplateTokens(templateTokens);
-	
-	
-				
-				emailService.sendHtmlEmail(merchantStore, email);
-
-	       } catch (Exception e) {
-	           LOGGER.error("Error occured while sending change password email ",e);
 	       }
 		
 	}

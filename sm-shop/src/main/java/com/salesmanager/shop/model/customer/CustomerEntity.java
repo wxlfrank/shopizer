@@ -39,60 +39,17 @@ public class CustomerEntity extends Customer implements Serializable {
 	private Double rating = 0D;
 	private int ratingCount;
 	
-	public void setUserName(final String userName) {
-		this.userName = userName;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-
-	public void setStoreCode(final String storeCode) {
-		this.storeCode = storeCode;
-	}
-
-
-	public String getStoreCode() {
-		return storeCode;
-	}
-
-
-	public void setEmailAddress(final String emailAddress) {
-		this.emailAddress = emailAddress;
-	}
-	
-
-	public String getEmailAddress() {
-		return emailAddress;
-	}
-
-
-	public void setLanguage(final String language) {
-		this.language = language;
-	}
-	public String getLanguage() {
-		return language;
-	}
-	
-
 	public Address getBilling() {
 		return billing;
 	}
-	public void setBilling(final Address billing) {
-		this.billing = billing;
-	}
+
 	public Address getDelivery() {
 		return delivery;
 	}
-	public void setDelivery(final Address delivery) {
-		this.delivery = delivery;
-	}
-	public void setGender(final String gender) {
-		this.gender = gender;
-	}
-	public String getGender() {
-		return gender;
+
+
+	public String getEmailAddress() {
+		return emailAddress;
 	}
 
 
@@ -101,13 +58,61 @@ public class CustomerEntity extends Customer implements Serializable {
 	}
 
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+	public String getGender() {
+		return gender;
+	}
+	
+
+	public String getLanguage() {
+		return language;
 	}
 
 
 	public String getLastName() {
 		return lastName;
+	}
+	public String getProvider() {
+		return provider;
+	}
+	
+
+	public Double getRating() {
+		return rating;
+	}
+	public int getRatingCount() {
+		return ratingCount;
+	}
+	public String getStoreCode() {
+		return storeCode;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setBilling(final Address billing) {
+		this.billing = billing;
+	}
+	public void setDelivery(final Address delivery) {
+		this.delivery = delivery;
+	}
+
+
+	public void setEmailAddress(final String emailAddress) {
+		this.emailAddress = emailAddress;
+	}
+
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+
+	public void setGender(final String gender) {
+		this.gender = gender;
+	}
+
+
+	public void setLanguage(final String language) {
+		this.language = language;
 	}
 
 
@@ -115,29 +120,24 @@ public class CustomerEntity extends Customer implements Serializable {
 		this.lastName = lastName;
 	}
 
-
-	public int getRatingCount() {
-		return ratingCount;
-	}
-
-	public void setRatingCount(int ratingCount) {
-		this.ratingCount = ratingCount;
-	}
-
-	public Double getRating() {
-		return rating;
+	public void setProvider(String provider) {
+		this.provider = provider;
 	}
 
 	public void setRating(Double rating) {
 		this.rating = rating;
 	}
 
-	public String getProvider() {
-		return provider;
+	public void setRatingCount(int ratingCount) {
+		this.ratingCount = ratingCount;
 	}
 
-	public void setProvider(String provider) {
-		this.provider = provider;
+	public void setStoreCode(final String storeCode) {
+		this.storeCode = storeCode;
+	}
+
+	public void setUserName(final String userName) {
+		this.userName = userName;
 	}
 
 

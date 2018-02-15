@@ -12,49 +12,62 @@ public class ShippingInputParameters {
 	private int price;//integer should be rounded from BigBecimal
 	private String priceQuote;
 	
-	public String getModuleName() {
-		return moduleName;
-	}
-	public void setModuleName(String moduleName) {
-		this.moduleName = moduleName;
-	}
-	public long getWeight() {
-		return weight;
-	}
-	public void setWeight(long weight) {
-		this.weight = weight;
-	}
-	public long getVolume() {
-		return volume;
-	}
-	public void setVolume(long volume) {
-		this.volume = volume;
-	}
 	public String getCountry() {
 		return country;
-	}
-	public void setCountry(String country) {
-		this.country = country;
-	}
-	public String getProvince() {
-		return province;
-	}
-	public void setProvince(String province) {
-		this.province = province;
 	}
 	public long getDistance() {
 		return distance;
 	}
-	public void setDistance(long distance) {
-		this.distance = distance;
+	public String getModuleName() {
+		return moduleName;
+	}
+	public int getPrice() {
+		return price;
 	}
 	public String getPriceQuote() {
 		return priceQuote;
+	}
+	public String getProvince() {
+		return province;
+	}
+	public long getSize() {
+		return size;
+	}
+	public long getVolume() {
+		return volume;
+	}
+	public long getWeight() {
+		return weight;
+	}
+	public void setCountry(String country) {
+		this.country = country;
+	}
+	public void setDistance(long distance) {
+		this.distance = distance;
+	}
+	public void setModuleName(String moduleName) {
+		this.moduleName = moduleName;
+	}
+	public void setPrice(int price) {
+		this.price = price;
 	}
 	public void setPriceQuote(String priceQuote) {
 		this.priceQuote = priceQuote;
 	}
 	
+	public void setProvince(String province) {
+		this.province = province;
+	}
+	
+	public void setSize(long size) {
+		this.size = size;
+	}
+	public void setVolume(long volume) {
+		this.volume = volume;
+	}
+	public void setWeight(long weight) {
+		this.weight = weight;
+	}
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" weight : ").append(this.getWeight());
@@ -65,19 +78,6 @@ public class ShippingInputParameters {
 		.append(" price : ").append(this.getPrice())
 		.append(" country : ").append(this.getCountry());
 		return sb.toString();	
-	}
-	
-	public long getSize() {
-		return size;
-	}
-	public void setSize(long size) {
-		this.size = size;
-	}
-	public int getPrice() {
-		return price;
-	}
-	public void setPrice(int price) {
-		this.price = price;
 	}
 
 

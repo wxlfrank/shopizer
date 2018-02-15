@@ -20,17 +20,17 @@ public class QueryFilter {
 	public String getFilterCode() {
 		return filterCode;
 	}
-	public void setFilterCode(String filterCode) {
-		this.filterCode = filterCode;
-	}
 	public Long getFilterId() {
 		return filterId;
 	}
-	public void setFilterId(Long filterId) {
-		this.filterId = filterId;
-	}
 	public QueryFilterType getFilterType() {
 		return filterType;
+	}
+	public void setFilterCode(String filterCode) {
+		this.filterCode = filterCode;
+	}
+	public void setFilterId(Long filterId) {
+		this.filterId = filterId;
 	}
 	public void setFilterType(QueryFilterType filterType) {
 		this.filterType = filterType;

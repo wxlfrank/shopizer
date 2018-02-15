@@ -9,13 +9,13 @@ import java.lang.reflect.Method;
 
 public class BeanUtils
 {
- private BeanUtils(){
-        
-    }
+ public static BeanUtils newInstance(){
+    return new BeanUtils();
+}
     
-    public static BeanUtils newInstance(){
-        return new BeanUtils();
-    }
+    private BeanUtils(){
+	        
+	    }
     
     @SuppressWarnings( "nls" )
     public Object getPropertyValue( Object bean, String property )

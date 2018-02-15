@@ -1,5 +1,21 @@
 package com.salesmanager.shop.store.controller.customer;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
 import com.salesmanager.core.business.services.customer.attribute.CustomerOptionSetService;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.customer.attribute.CustomerAttribute;
@@ -14,21 +30,6 @@ import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.populator.customer.ReadableCustomerOptionPopulator;
 import com.salesmanager.shop.store.controller.AbstractController;
 import com.salesmanager.shop.store.controller.ControllerConstants;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Entry point for logged in customers
@@ -39,8 +40,8 @@ import java.util.Set;
 @RequestMapping("/shop/customer")
 public class CustomerDashboardController extends AbstractController {
 	
-	@Inject
-    private AuthenticationManager customerAuthenticationManager;
+//	@Inject
+//    private AuthenticationManager customerAuthenticationManager;
 	
 	@Inject
 	private CustomerOptionSetService customerOptionSetService;

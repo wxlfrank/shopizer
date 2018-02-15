@@ -29,50 +29,50 @@ public class ShoppingCartData extends ShopEntity implements Serializable {
 	private List<ShoppingCartItem> unavailables;
 	
 	
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
 	public String getCode() {
 		return code;
 	}
-	public void setCode(String code) {
-		this.code = code;
+	public String getMessage() {
+		return message;
 	}
 	public int getQuantity() {
 		return quantity;
 	}
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-	public String getTotal() {
-		return total;
-	}
-	public void setTotal(String total) {
-		this.total = total;
-	}
 	public List<ShoppingCartItem> getShoppingCartItems() {
 		return shoppingCartItems;
-	}
-	public void setShoppingCartItems(List<ShoppingCartItem> shoppingCartItems) {
-		this.shoppingCartItems = shoppingCartItems;
 	}
 	public String getSubTotal() {
 		return subTotal;
 	}
-	public void setSubTotal(String subTotal) {
-		this.subTotal = subTotal;
+	public String getTotal() {
+		return total;
 	}
 	public List<OrderTotal> getTotals() {
 		return totals;
 	}
-	public void setTotals(List<OrderTotal> totals) {
-		this.totals = totals;
-	}
 	public List<ShoppingCartItem> getUnavailables() {
 		return unavailables;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+	public void setShoppingCartItems(List<ShoppingCartItem> shoppingCartItems) {
+		this.shoppingCartItems = shoppingCartItems;
+	}
+	public void setSubTotal(String subTotal) {
+		this.subTotal = subTotal;
+	}
+	public void setTotal(String total) {
+		this.total = total;
+	}
+	public void setTotals(List<OrderTotal> totals) {
+		this.totals = totals;
 	}
 	public void setUnavailables(List<ShoppingCartItem> unavailables) {
 		this.unavailables = unavailables;

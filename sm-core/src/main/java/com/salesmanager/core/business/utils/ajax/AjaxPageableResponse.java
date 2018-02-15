@@ -9,8 +9,29 @@ public class AjaxPageableResponse extends AjaxResponse {
 	
 	
 	private int startRow;
+	private int endRow;
+
+
+
+	private int totalRow;
+
+
+
+	public int getEndRow() {
+		return endRow;
+	}
 	public int getStartRow() {
 		return startRow;
+	}
+	
+	public int getTotalRow() {
+		return totalRow;
+	}
+	
+	
+	
+	public void setEndRow(int endRow) {
+		this.endRow = endRow;
 	}
 
 
@@ -21,22 +42,12 @@ public class AjaxPageableResponse extends AjaxResponse {
 
 
 
-	private int endRow;
-	private int totalRow;
-	
-	protected String getPageInfo() {
-		
-		StringBuilder returnString = new StringBuilder();
-		returnString.append("\"startRow\"").append(":");
-		returnString.append(this.startRow).append(",");
-		returnString.append("\"endRow\"").append(":").append(this.endRow).append(",");
-		returnString.append("\"totalRows\"").append(":").append(super.getData().size());
-		return returnString.toString();
-		
+	public void setTotalRow(int totalRow) {
+		this.totalRow = totalRow;
 	}
-	
-	
-	
+
+
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public String toJSONString() {
@@ -49,7 +60,7 @@ public class AjaxPageableResponse extends AjaxResponse {
 		if(this.getData().size()>0) {
 			StringBuilder dataEntries = null;
 			int count = 0;
-			for(Map keyValue : this.getData()) {
+			for(Map<String, String> keyValue : this.getData()) {
 				if(dataEntries == null) {
 					dataEntries = new StringBuilder();
 				}
@@ -83,26 +94,15 @@ public class AjaxPageableResponse extends AjaxResponse {
 
 
 
-	public int getEndRow() {
-		return endRow;
-	}
-
-
-
-	public void setEndRow(int endRow) {
-		this.endRow = endRow;
-	}
-
-
-
-	public int getTotalRow() {
-		return totalRow;
-	}
-
-
-
-	public void setTotalRow(int totalRow) {
-		this.totalRow = totalRow;
+	protected String getPageInfo() {
+		
+		StringBuilder returnString = new StringBuilder();
+		returnString.append("\"startRow\"").append(":");
+		returnString.append(this.startRow).append(",");
+		returnString.append("\"endRow\"").append(":").append(this.endRow).append(",");
+		returnString.append("\"totalRows\"").append(":").append(super.getData().size());
+		return returnString.toString();
+		
 	}
 
 }

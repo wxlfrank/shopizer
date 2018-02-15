@@ -23,11 +23,6 @@ public class ReadableCustomerOptionPopulator extends
 		return optionSet;
 	}
 
-	public void setOptionSet(CustomerOptionSet optionSet) {
-		this.optionSet = optionSet;
-	}
-	
-
 	@Override
 	public CustomerOption populate(
 			com.salesmanager.core.model.customer.attribute.CustomerOption source,
@@ -58,6 +53,11 @@ public class ReadableCustomerOptionPopulator extends
 		
 		return customerOption;
 
+	}
+	
+
+	public void setOptionSet(CustomerOptionSet optionSet) {
+		this.optionSet = optionSet;
 	}
 
     @Override

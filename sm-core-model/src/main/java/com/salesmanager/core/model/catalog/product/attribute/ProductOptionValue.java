@@ -21,9 +21,9 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Pattern;
-import org.springframework.web.multipart.MultipartFile;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.salesmanager.core.constants.SchemaConstant;
 import com.salesmanager.core.model.generic.SalesManagerEntity;
@@ -62,74 +62,28 @@ public class ProductOptionValue extends SalesManagerEntity<Long, ProductOptionVa
 	@Transient
 	private MultipartFile image = null;
 	
-	public MultipartFile getImage() {
-		return image;
-	}
-
-	public void setImage(MultipartFile image) {
-		this.image = image;
-	}
-
 	@Transient
 	private List<ProductOptionValueDescription> descriptionsList = new ArrayList<ProductOptionValueDescription>();
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="MERCHANT_ID", nullable=false)
 	private MerchantStore merchantStore;
-	
+
 	public ProductOptionValue() {
 	}
 
-	@Override
-	public Long getId() {
-		return id;
+	public String getCode() {
+		return code;
 	}
-
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Integer getProductOptionValueSortOrder() {
-		return productOptionValueSortOrder;
-	}
-
-	public void setProductOptionValueSortOrder(Integer productOptionValueSortOrder) {
-		this.productOptionValueSortOrder = productOptionValueSortOrder;
-	}
-
-	public String getProductOptionValueImage() {
-		return productOptionValueImage;
-	}
-
-	public void setProductOptionValueImage(String productOptionValueImage) {
-		this.productOptionValueImage = productOptionValueImage;
-	}
-
+	
 	public Set<ProductOptionValueDescription> getDescriptions() {
 		return descriptions;
-	}
-
-	public void setDescriptions(Set<ProductOptionValueDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
-	}
-
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
-	}
-
-	public void setDescriptionsList(List<ProductOptionValueDescription> descriptionsList) {
-		this.descriptionsList = descriptionsList;
 	}
 
 	public List<ProductOptionValueDescription> getDescriptionsList() {
 		return descriptionsList; 
 	}
-	
+
 	public List<ProductOptionValueDescription> getDescriptionsSettoList() {
 		if(descriptionsList==null || descriptionsList.size()==0) {
 			descriptionsList = new ArrayList<ProductOptionValueDescription>(this.getDescriptions());
@@ -137,20 +91,66 @@ public class ProductOptionValue extends SalesManagerEntity<Long, ProductOptionVa
 		return descriptionsList;
 	}
 
-	public boolean isProductOptionDisplayOnly() {
-		return productOptionDisplayOnly;
+	@Override
+	public Long getId() {
+		return id;
 	}
 
-	public void setProductOptionDisplayOnly(boolean productOptionDisplayOnly) {
-		this.productOptionDisplayOnly = productOptionDisplayOnly;
+	public MultipartFile getImage() {
+		return image;
+	}
+
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
+	}
+
+	public String getProductOptionValueImage() {
+		return productOptionValueImage;
+	}
+
+	public Integer getProductOptionValueSortOrder() {
+		return productOptionValueSortOrder;
+	}
+
+	public boolean isProductOptionDisplayOnly() {
+		return productOptionDisplayOnly;
 	}
 
 	public void setCode(String code) {
 		this.code = code;
 	}
 
-	public String getCode() {
-		return code;
+	public void setDescriptions(Set<ProductOptionValueDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+	public void setDescriptionsList(List<ProductOptionValueDescription> descriptionsList) {
+		this.descriptionsList = descriptionsList;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	public void setImage(MultipartFile image) {
+		this.image = image;
+	}
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
+
+	public void setProductOptionDisplayOnly(boolean productOptionDisplayOnly) {
+		this.productOptionDisplayOnly = productOptionDisplayOnly;
+	}
+
+	public void setProductOptionValueImage(String productOptionValueImage) {
+		this.productOptionValueImage = productOptionValueImage;
+	}
+
+	public void setProductOptionValueSortOrder(Integer productOptionValueSortOrder) {
+		this.productOptionValueSortOrder = productOptionValueSortOrder;
 	}
 
 

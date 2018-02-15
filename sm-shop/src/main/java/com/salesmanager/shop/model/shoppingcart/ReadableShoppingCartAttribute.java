@@ -15,11 +15,11 @@ public class ReadableShoppingCartAttribute extends ShopEntity {
 	public ReadableShoppingCartAttributeOption getOption() {
 		return option;
 	}
-	public void setOption(ReadableShoppingCartAttributeOption option) {
-		this.option = option;
-	}
 	public ReadableShoppingCartAttributeOptionValue getOptionValue() {
 		return optionValue;
+	}
+	public void setOption(ReadableShoppingCartAttributeOption option) {
+		this.option = option;
 	}
 	public void setOptionValue(ReadableShoppingCartAttributeOptionValue optionValue) {
 		this.optionValue = optionValue;

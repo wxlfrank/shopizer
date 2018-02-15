@@ -65,45 +65,57 @@ public class Manufacturer extends SalesManagerEntity<Long, Manufacturer> impleme
 	}
 
 	@Override
-	public Long getId() {
-		return id;
-	}
-
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	@Override
 	public AuditSection getAuditSection() {
 		return auditSection;
 	}
+
+	public String getCode() {
+		return code;
+	}
+	
+	public Set<ManufacturerDescription> getDescriptions() {
+		return descriptions;
+	}
 	
 	@Override
-	public void setAuditSection(AuditSection auditSection) {
-		this.auditSection = auditSection;
+	public Long getId() {
+		return id;
 	}
 
 	public String getImage() {
 		return image;
 	}
 
-	public void setImage(String image) {
-		this.image = image;
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
 	}
 
-	public Set<ManufacturerDescription> getDescriptions() {
-		return descriptions;
+	public Integer getOrder() {
+		return order;
+	}
+
+	@Override
+	public void setAuditSection(AuditSection auditSection) {
+		this.auditSection = auditSection;
+	}
+
+
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	public void setDescriptions(Set<ManufacturerDescription> descriptions) {
 		this.descriptions = descriptions;
 	}
 
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
+	public void setImage(String image) {
+		this.image = image;
 	}
 
 	public void setMerchantStore(MerchantStore merchantStore) {
@@ -112,18 +124,6 @@ public class Manufacturer extends SalesManagerEntity<Long, Manufacturer> impleme
 
 	public void setOrder(Integer order) {
 		this.order = order;
-	}
-
-	public Integer getOrder() {
-		return order;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
 	}
 
 

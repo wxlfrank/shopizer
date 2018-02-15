@@ -1,7 +1,6 @@
 package com.salesmanager.test.merchant;
 
 import org.junit.Ignore;
-import org.junit.Test;
 
 import com.salesmanager.test.common.AbstractSalesManagerCoreTestCase;
 

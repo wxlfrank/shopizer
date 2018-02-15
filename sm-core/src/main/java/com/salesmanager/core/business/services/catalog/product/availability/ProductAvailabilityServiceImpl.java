@@ -15,6 +15,7 @@ public class ProductAvailabilityServiceImpl extends
 		ProductAvailabilityService {
 
 	
+	@SuppressWarnings("unused")
 	private ProductAvailabilityRepository productAvailabilityRepository;
 	
 	@Inject

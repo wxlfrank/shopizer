@@ -1,5 +1,40 @@
 package com.salesmanager.shop.admin.controller.customers;
 
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.modules.email.Email;
 import com.salesmanager.core.business.services.customer.CustomerService;
 import com.salesmanager.core.business.services.customer.attribute.CustomerAttributeService;
@@ -36,32 +71,6 @@ import com.salesmanager.shop.populator.customer.ReadableCustomerOptionPopulator;
 import com.salesmanager.shop.utils.EmailUtils;
 import com.salesmanager.shop.utils.LabelUtils;
 import com.salesmanager.shop.utils.LocaleUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.*;
-import java.util.regex.Pattern;
 
 
 
@@ -179,64 +188,205 @@ public class CustomerController {
 		
 	}
 	
-	private void getCustomerOptions(Model model, Customer customer, MerchantStore store, Language language) throws Exception {
+	/**
+	 * List of customers
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/admin/customers/list.html", method=RequestMethod.GET)
+	public String displayCustomers(Model model,HttpServletRequest request) throws Exception {
+		
+		
+		this.setMenu(model, request);
+	
+		return "admin-customers";
+		
+		
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value="/admin/customers/page.html", method=RequestMethod.POST)
+	public @ResponseBody
+	ResponseEntity<String>  pageCustomers(HttpServletRequest request,HttpServletResponse response) {
 
-		Map<Long,CustomerOption> options = new HashMap<Long,CustomerOption>();
-		//get options
-		List<CustomerOptionSet> optionSet = customerOptionSetService.listByStore(store, language);
-		if(!CollectionUtils.isEmpty(optionSet)) {
-			
-			
-			ReadableCustomerOptionPopulator optionPopulator = new ReadableCustomerOptionPopulator();
-			
-			Set<CustomerAttribute> customerAttributes = customer.getAttributes();
-			
-			for(CustomerOptionSet optSet : optionSet) {
-				
-				com.salesmanager.core.model.customer.attribute.CustomerOption custOption = optSet.getCustomerOption();
-				if(!custOption.isActive()) {
-					continue;
-				}
-				CustomerOption customerOption = options.get(custOption.getId());
-				
-				optionPopulator.setOptionSet(optSet);
-				
-				
-				
-				if(customerOption==null) {
-					customerOption = new CustomerOption();
-					customerOption.setId(custOption.getId());
-					customerOption.setType(custOption.getCustomerOptionType());
-					customerOption.setName(custOption.getDescriptionsSettoList().get(0).getName());
-					
-				} 
-				
-				optionPopulator.populate(custOption, customerOption, store, language);
-				options.put(customerOption.getId(), customerOption);
 
-				if(!CollectionUtils.isEmpty(customerAttributes)) {
-					for(CustomerAttribute customerAttribute : customerAttributes) {
-						if(customerAttribute.getCustomerOption().getId().longValue()==customerOption.getId()){
-							CustomerOptionValue selectedValue = new CustomerOptionValue();
-							com.salesmanager.core.model.customer.attribute.CustomerOptionValue attributeValue = customerAttribute.getCustomerOptionValue();
-							selectedValue.setId(attributeValue.getId());
-							CustomerOptionValueDescription optValue = attributeValue.getDescriptionsSettoList().get(0);
-							selectedValue.setName(optValue.getName());
-							customerOption.setDefaultValue(selectedValue);
-							if(customerOption.getType().equalsIgnoreCase(CustomerOptionType.Text.name())) {
-								selectedValue.setName(customerAttribute.getTextValue());
-							} 
-						}
-					}
-				}
+		AjaxPageableResponse resp = new AjaxPageableResponse();
+		
+		//Language language = (Language)request.getAttribute("LANGUAGE");
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		
+		try {
+			
+
+			
+			//Map<String,Country> countriesMap = countryService.getCountriesMap(language);
+			
+			
+			int startRow = Integer.parseInt(request.getParameter("_startRow"));
+			int endRow = Integer.parseInt(request.getParameter("_endRow"));
+			String	email = request.getParameter("email");
+			String name = request.getParameter("name");
+			String firstName = request.getParameter("firstName");
+			String lastName = request.getParameter("lastName");
+			String	country = request.getParameter("country");
+			
+			
+			CustomerCriteria criteria = new CustomerCriteria();
+			criteria.setStartIndex(startRow);
+			criteria.setMaxCount(endRow);
+			
+			if(!StringUtils.isBlank(email)) {
+				criteria.setEmail(email);
 			}
+			
+			if(!StringUtils.isBlank(name)) {
+				criteria.setName(name);
+			}
+			
+			if(!StringUtils.isBlank(country)) {
+				criteria.setCountry(country);
+			}
+			
+			if(!StringUtils.isBlank(firstName)) {
+				criteria.setFirstName(firstName);
+			}
+			
+			if(!StringUtils.isBlank(lastName)) {
+				criteria.setLastName(lastName);
+			}
+			
+
+			CustomerList customerList = customerService.listByStore(store,criteria);
+			
+			if(customerList.getCustomers()!=null) {
+			
+				for(Customer customer : customerList.getCustomers()) {
+					@SuppressWarnings("rawtypes")
+					Map entry = new HashMap();
+					entry.put("id", customer.getId());
+					entry.put("firstName", customer.getBilling().getFirstName());
+					entry.put("lastName", customer.getBilling().getLastName());
+					entry.put("email", customer.getEmailAddress());
+					entry.put("country", customer.getBilling().getCountry().getIsoCode());
+					resp.addDataEntry(entry);
+					
+				}
+			
+			}
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while paging orders", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+		}
+		
+		String returnString = resp.toJSONString();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		
+	
+	}
+	
+	@PreAuthorize("hasRole('CUSTOMER')")
+	@RequestMapping(value="/admin/customers/resetPassword.html", method=RequestMethod.POST)
+	public @ResponseBody
+	ResponseEntity<String> resetPassword(HttpServletRequest request,HttpServletResponse response) {
+		
+		String customerId = request.getParameter("customerId");
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		
+		
+		try {
+			
+			Long id = Long.parseLong(customerId);
+			
+			Customer customer = customerService.getById(id);
+			
+			if(customer==null) {
+				resp.setErrorString("Customer does not exist");
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			if(customer.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+				resp.setErrorString("Invalid customer id");
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			Language userLanguage = customer.getDefaultLanguage();
+			
+			Locale customerLocale = LocaleUtils.getLocale(userLanguage);
+			
+			String password = UserReset.generateRandomString();
+			String encodedPassword = passwordEncoder.encode(password);
+			
+			customer.setPassword(encodedPassword);
+			
+			customerService.saveOrUpdate(customer);
+			
+			//send email
+			
+			try {
+
+				//creation of a user, send an email
+				String[] storeEmail = {store.getStoreEmailAddress()};
+				
+				
+				Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(request.getContextPath(), store, messages, customerLocale);
+				templateTokens.put(EmailConstants.LABEL_HI, messages.getMessage("label.generic.hi", customerLocale));
+		        templateTokens.put(EmailConstants.EMAIL_CUSTOMER_FIRSTNAME, customer.getBilling().getFirstName());
+		        templateTokens.put(EmailConstants.EMAIL_CUSTOMER_LASTNAME, customer.getBilling().getLastName());
+				templateTokens.put(EmailConstants.EMAIL_RESET_PASSWORD_TXT, messages.getMessage("email.customer.resetpassword.text", customerLocale));
+				templateTokens.put(EmailConstants.EMAIL_CONTACT_OWNER, messages.getMessage("email.contactowner", storeEmail, customerLocale));
+				templateTokens.put(EmailConstants.EMAIL_PASSWORD_LABEL, messages.getMessage("label.generic.password",customerLocale));
+				templateTokens.put(EmailConstants.EMAIL_CUSTOMER_PASSWORD, password);
+
+
+				Email email = new Email();
+				email.setFrom(store.getStorename());
+				email.setFromEmail(store.getStoreEmailAddress());
+				email.setSubject(messages.getMessage("label.generic.changepassword",customerLocale));
+				email.setTo(customer.getEmailAddress());
+				email.setTemplateName(RESET_PASSWORD_TPL);
+				email.setTemplateTokens(templateTokens);
+	
+	
+				
+				emailService.sendHtmlEmail(store, email);
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_SUCCESS);
+			
+			} catch (Exception e) {
+				LOGGER.error("Cannot send email to user",e);
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			}
+			
+			
+			
+			
+		} catch (Exception e) {
+			LOGGER.error("An exception occured while changing password",e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
 		}
 		
 		
-		model.addAttribute("options", options.values());
-
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		
 		
 	}
+
+
 	
 	@PreAuthorize("hasRole('CUSTOMER')")
 	@RequestMapping(value="/admin/customers/save.html", method=RequestMethod.POST)
@@ -413,6 +563,8 @@ public class CustomerController {
 		
 	}
 	
+	
+	
 	/**
 	 * Deserves shop and admin
 	 * @param request
@@ -554,209 +706,6 @@ public class CustomerController {
 		
 
 	}
-
-
-	
-	/**
-	 * List of customers
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value="/admin/customers/list.html", method=RequestMethod.GET)
-	public String displayCustomers(Model model,HttpServletRequest request) throws Exception {
-		
-		
-		this.setMenu(model, request);
-	
-		return "admin-customers";
-		
-		
-		
-	}
-	
-	
-	
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value="/admin/customers/page.html", method=RequestMethod.POST)
-	public @ResponseBody
-	ResponseEntity<String>  pageCustomers(HttpServletRequest request,HttpServletResponse response) {
-
-
-		AjaxPageableResponse resp = new AjaxPageableResponse();
-		
-		//Language language = (Language)request.getAttribute("LANGUAGE");
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		
-		try {
-			
-
-			
-			//Map<String,Country> countriesMap = countryService.getCountriesMap(language);
-			
-			
-			int startRow = Integer.parseInt(request.getParameter("_startRow"));
-			int endRow = Integer.parseInt(request.getParameter("_endRow"));
-			String	email = request.getParameter("email");
-			String name = request.getParameter("name");
-			String firstName = request.getParameter("firstName");
-			String lastName = request.getParameter("lastName");
-			String	country = request.getParameter("country");
-			
-			
-			CustomerCriteria criteria = new CustomerCriteria();
-			criteria.setStartIndex(startRow);
-			criteria.setMaxCount(endRow);
-			
-			if(!StringUtils.isBlank(email)) {
-				criteria.setEmail(email);
-			}
-			
-			if(!StringUtils.isBlank(name)) {
-				criteria.setName(name);
-			}
-			
-			if(!StringUtils.isBlank(country)) {
-				criteria.setCountry(country);
-			}
-			
-			if(!StringUtils.isBlank(firstName)) {
-				criteria.setFirstName(firstName);
-			}
-			
-			if(!StringUtils.isBlank(lastName)) {
-				criteria.setLastName(lastName);
-			}
-			
-
-			CustomerList customerList = customerService.listByStore(store,criteria);
-			
-			if(customerList.getCustomers()!=null) {
-			
-				for(Customer customer : customerList.getCustomers()) {
-					@SuppressWarnings("rawtypes")
-					Map entry = new HashMap();
-					entry.put("id", customer.getId());
-					entry.put("firstName", customer.getBilling().getFirstName());
-					entry.put("lastName", customer.getBilling().getLastName());
-					entry.put("email", customer.getEmailAddress());
-					entry.put("country", customer.getBilling().getCountry().getIsoCode());
-					resp.addDataEntry(entry);
-					
-				}
-			
-			}
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while paging orders", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-		}
-		
-		String returnString = resp.toJSONString();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		
-	
-	}
-	
-	
-	@PreAuthorize("hasRole('CUSTOMER')")
-	@RequestMapping(value="/admin/customers/resetPassword.html", method=RequestMethod.POST)
-	public @ResponseBody
-	ResponseEntity<String> resetPassword(HttpServletRequest request,HttpServletResponse response) {
-		
-		String customerId = request.getParameter("customerId");
-		
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		
-		
-		
-		try {
-			
-			Long id = Long.parseLong(customerId);
-			
-			Customer customer = customerService.getById(id);
-			
-			if(customer==null) {
-				resp.setErrorString("Customer does not exist");
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			if(customer.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-				resp.setErrorString("Invalid customer id");
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			Language userLanguage = customer.getDefaultLanguage();
-			
-			Locale customerLocale = LocaleUtils.getLocale(userLanguage);
-			
-			String password = UserReset.generateRandomString();
-			String encodedPassword = passwordEncoder.encode(password);
-			
-			customer.setPassword(encodedPassword);
-			
-			customerService.saveOrUpdate(customer);
-			
-			//send email
-			
-			try {
-
-				//creation of a user, send an email
-				String[] storeEmail = {store.getStoreEmailAddress()};
-				
-				
-				Map<String, String> templateTokens = emailUtils.createEmailObjectsMap(request.getContextPath(), store, messages, customerLocale);
-				templateTokens.put(EmailConstants.LABEL_HI, messages.getMessage("label.generic.hi", customerLocale));
-		        templateTokens.put(EmailConstants.EMAIL_CUSTOMER_FIRSTNAME, customer.getBilling().getFirstName());
-		        templateTokens.put(EmailConstants.EMAIL_CUSTOMER_LASTNAME, customer.getBilling().getLastName());
-				templateTokens.put(EmailConstants.EMAIL_RESET_PASSWORD_TXT, messages.getMessage("email.customer.resetpassword.text", customerLocale));
-				templateTokens.put(EmailConstants.EMAIL_CONTACT_OWNER, messages.getMessage("email.contactowner", storeEmail, customerLocale));
-				templateTokens.put(EmailConstants.EMAIL_PASSWORD_LABEL, messages.getMessage("label.generic.password",customerLocale));
-				templateTokens.put(EmailConstants.EMAIL_CUSTOMER_PASSWORD, password);
-
-
-				Email email = new Email();
-				email.setFrom(store.getStorename());
-				email.setFromEmail(store.getStoreEmailAddress());
-				email.setSubject(messages.getMessage("label.generic.changepassword",customerLocale));
-				email.setTo(customer.getEmailAddress());
-				email.setTemplateName(RESET_PASSWORD_TPL);
-				email.setTemplateTokens(templateTokens);
-	
-	
-				
-				emailService.sendHtmlEmail(store, email);
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_SUCCESS);
-			
-			} catch (Exception e) {
-				LOGGER.error("Cannot send email to user",e);
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			}
-			
-			
-			
-			
-		} catch (Exception e) {
-			LOGGER.error("An exception occured while changing password",e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-		}
-		
-		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		
-		
-	}
 	
 	
 	@PreAuthorize("hasRole('CUSTOMER')")
@@ -802,9 +751,9 @@ public class CustomerController {
 				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 			}
 			
-			Language userLanguage = customer.getDefaultLanguage();
+//			Language userLanguage = customer.getDefaultLanguage();
 			
-			Locale customerLocale = LocaleUtils.getLocale(userLanguage);
+//			Locale customerLocale = LocaleUtils.getLocale(userLanguage);
 
 			String encodedPassword = passwordEncoder.encode(password);
 			
@@ -861,6 +810,66 @@ public class CustomerController {
 		String returnString = resp.toJSONString();
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 		
+		
+	}
+	
+	
+	private void getCustomerOptions(Model model, Customer customer, MerchantStore store, Language language) throws Exception {
+
+		Map<Long,CustomerOption> options = new HashMap<Long,CustomerOption>();
+		//get options
+		List<CustomerOptionSet> optionSet = customerOptionSetService.listByStore(store, language);
+		if(!CollectionUtils.isEmpty(optionSet)) {
+			
+			
+			ReadableCustomerOptionPopulator optionPopulator = new ReadableCustomerOptionPopulator();
+			
+			Set<CustomerAttribute> customerAttributes = customer.getAttributes();
+			
+			for(CustomerOptionSet optSet : optionSet) {
+				
+				com.salesmanager.core.model.customer.attribute.CustomerOption custOption = optSet.getCustomerOption();
+				if(!custOption.isActive()) {
+					continue;
+				}
+				CustomerOption customerOption = options.get(custOption.getId());
+				
+				optionPopulator.setOptionSet(optSet);
+				
+				
+				
+				if(customerOption==null) {
+					customerOption = new CustomerOption();
+					customerOption.setId(custOption.getId());
+					customerOption.setType(custOption.getCustomerOptionType());
+					customerOption.setName(custOption.getDescriptionsSettoList().get(0).getName());
+					
+				} 
+				
+				optionPopulator.populate(custOption, customerOption, store, language);
+				options.put(customerOption.getId(), customerOption);
+
+				if(!CollectionUtils.isEmpty(customerAttributes)) {
+					for(CustomerAttribute customerAttribute : customerAttributes) {
+						if(customerAttribute.getCustomerOption().getId().longValue()==customerOption.getId()){
+							CustomerOptionValue selectedValue = new CustomerOptionValue();
+							com.salesmanager.core.model.customer.attribute.CustomerOptionValue attributeValue = customerAttribute.getCustomerOptionValue();
+							selectedValue.setId(attributeValue.getId());
+							CustomerOptionValueDescription optValue = attributeValue.getDescriptionsSettoList().get(0);
+							selectedValue.setName(optValue.getName());
+							customerOption.setDefaultValue(selectedValue);
+							if(customerOption.getType().equalsIgnoreCase(CustomerOptionType.Text.name())) {
+								selectedValue.setName(customerAttribute.getTextValue());
+							} 
+						}
+					}
+				}
+			}
+		}
+		
+		
+		model.addAttribute("options", options.values());
+
 		
 	}
 	

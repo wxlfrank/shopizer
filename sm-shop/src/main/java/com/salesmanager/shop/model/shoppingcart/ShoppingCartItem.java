@@ -27,64 +27,34 @@ public class ShoppingCartItem extends ShopEntity implements Serializable {
 	
 	private List<ShoppingCartAttribute> shoppingCartAttributes;
 	
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getPrice() {
-		return price;
-	}
-	public void setPrice(String price) {
-		this.price = price;
-	}
-	public int getQuantity() {
-		return quantity;
-	}
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-
-
 	public String getCode() {
 		return code;
-	}
-	public void setCode(String code) {
-		this.code = code;
-	}
-	public List<ShoppingCartAttribute> getShoppingCartAttributes() {
-		return shoppingCartAttributes;
-	}
-	public void setShoppingCartAttributes(List<ShoppingCartAttribute> shoppingCartAttributes) {
-		this.shoppingCartAttributes = shoppingCartAttributes;
-	}
-	public void setProductPrice(BigDecimal productPrice) {
-		this.productPrice = productPrice;
-	}
-	public BigDecimal getProductPrice() {
-		return productPrice;
-	}
-	public void setProductId(long productId) {
-		this.productId = productId;
-	}
-	public long getProductId() {
-		return productId;
-	}
-	public void setProductCode(String productCode) {
-		this.productCode = productCode;
-	}
-	public String getProductCode() {
-		return productCode;
-	}
-	public void setImage(String image) {
-		this.image = image;
 	}
 	public String getImage() {
 		return image;
 	}
-	public void setSubTotal(String subTotal) {
-		this.subTotal = subTotal;
+	public String getName() {
+		return name;
+	}
+	public String getPrice() {
+		return price;
+	}
+	public String getProductCode() {
+		return productCode;
+	}
+	public long getProductId() {
+		return productId;
+	}
+
+
+	public BigDecimal getProductPrice() {
+		return productPrice;
+	}
+	public int getQuantity() {
+		return quantity;
+	}
+	public List<ShoppingCartAttribute> getShoppingCartAttributes() {
+		return shoppingCartAttributes;
 	}
 	public String getSubTotal() {
 		return subTotal;
@@ -92,8 +62,38 @@ public class ShoppingCartItem extends ShopEntity implements Serializable {
 	public boolean isProductVirtual() {
 		return productVirtual;
 	}
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public void setImage(String image) {
+		this.image = image;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public void setPrice(String price) {
+		this.price = price;
+	}
+	public void setProductCode(String productCode) {
+		this.productCode = productCode;
+	}
+	public void setProductId(long productId) {
+		this.productId = productId;
+	}
+	public void setProductPrice(BigDecimal productPrice) {
+		this.productPrice = productPrice;
+	}
 	public void setProductVirtual(boolean productVirtual) {
 		this.productVirtual = productVirtual;
+	}
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+	public void setShoppingCartAttributes(List<ShoppingCartAttribute> shoppingCartAttributes) {
+		this.shoppingCartAttributes = shoppingCartAttributes;
+	}
+	public void setSubTotal(String subTotal) {
+		this.subTotal = subTotal;
 	}
 
 

@@ -37,6 +37,11 @@ public class PageContentTag extends RequestContextAwareTag  {
 	
 	
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
+
 	public String getContentCode() {
 		return contentCode;
 	}
@@ -78,11 +83,6 @@ public class PageContentTag extends RequestContextAwareTag  {
 		
 		return SKIP_BODY;
 
-	}
-
-
-	public int doEndTag() {
-		return EVAL_PAGE;
 	}
 
 

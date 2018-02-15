@@ -30,6 +30,11 @@ public class GroupServiceImpl extends
 
 
 	@Override
+	public Group findByName(String groupName) throws ServiceException {
+		return groupRepository.findByGroupName(groupName);
+	}
+	
+	@Override
 	public List<Group> listGroup(GroupType groupType) throws ServiceException {
 		try {
 			return groupRepository.findByType(groupType);
@@ -37,19 +42,14 @@ public class GroupServiceImpl extends
 			throw new ServiceException(e);
 		}
 	}
-	
+
+
 	public List<Group> listGroupByIds(Set<Integer> ids) throws ServiceException {
 		try {
 			return groupRepository.findByIds(ids);
 		} catch (Exception e) {
 			throw new ServiceException(e);
 		}
-	}
-
-
-	@Override
-	public Group findByName(String groupName) throws ServiceException {
-		return groupRepository.findByGroupName(groupName);
 	}
 
 

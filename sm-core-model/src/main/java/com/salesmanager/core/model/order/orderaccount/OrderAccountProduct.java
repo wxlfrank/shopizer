@@ -72,56 +72,52 @@ public class OrderAccountProduct implements Serializable {
 	public OrderAccountProduct() {
 	}
 
-	public Long getOrderAccountProductId() {
-		return orderAccountProductId;
-	}
-
-	public void setOrderAccountProductId(Long orderAccountProductId) {
-		this.orderAccountProductId = orderAccountProductId;
-	}
-
 	public OrderAccount getOrderAccount() {
 		return orderAccount;
 	}
 
-	public void setOrderAccount(OrderAccount orderAccount) {
-		this.orderAccount = orderAccount;
-	}
-
-	public OrderProduct getOrderProduct() {
-		return orderProduct;
-	}
-
-	public void setOrderProduct(OrderProduct orderProduct) {
-		this.orderProduct = orderProduct;
-	}
-
-	public Date getOrderAccountProductStartDate() {
-		return CloneUtils.clone(orderAccountProductStartDate);
-	}
-
-	public void setOrderAccountProductStartDate(Date orderAccountProductStartDate) {
-		this.orderAccountProductStartDate = CloneUtils.clone(orderAccountProductStartDate);
+	public Date getOrderAccountProductAccountedDate() {
+		return CloneUtils.clone(orderAccountProductAccountedDate);
 	}
 
 	public Date getOrderAccountProductEndDate() {
 		return CloneUtils.clone(orderAccountProductEndDate);
 	}
 
-	public void setOrderAccountProductEndDate(Date orderAccountProductEndDate) {
-		this.orderAccountProductEndDate = CloneUtils.clone(orderAccountProductEndDate);
-	}
-
 	public Date getOrderAccountProductEot() {
 		return CloneUtils.clone(orderAccountProductEot);
 	}
 
-	public void setOrderAccountProductEot(Date orderAccountProductEot) {
-		this.orderAccountProductEot = CloneUtils.clone(orderAccountProductEot);
+	public Long getOrderAccountProductId() {
+		return orderAccountProductId;
 	}
 
-	public Date getOrderAccountProductAccountedDate() {
-		return CloneUtils.clone(orderAccountProductAccountedDate);
+	public Date getOrderAccountProductLastStatusDate() {
+		return CloneUtils.clone(orderAccountProductLastStatusDate);
+	}
+
+	public Integer getOrderAccountProductLastTransactionStatus() {
+		return orderAccountProductLastTransactionStatus;
+	}
+
+	public Integer getOrderAccountProductPaymentFrequencyType() {
+		return orderAccountProductPaymentFrequencyType;
+	}
+
+	public Date getOrderAccountProductStartDate() {
+		return CloneUtils.clone(orderAccountProductStartDate);
+	}
+
+	public Integer getOrderAccountProductStatus() {
+		return orderAccountProductStatus;
+	}
+
+	public OrderProduct getOrderProduct() {
+		return orderProduct;
+	}
+
+	public void setOrderAccount(OrderAccount orderAccount) {
+		this.orderAccount = orderAccount;
 	}
 
 	public void setOrderAccountProductAccountedDate(
@@ -129,8 +125,16 @@ public class OrderAccountProduct implements Serializable {
 		this.orderAccountProductAccountedDate = CloneUtils.clone(orderAccountProductAccountedDate);
 	}
 
-	public Date getOrderAccountProductLastStatusDate() {
-		return CloneUtils.clone(orderAccountProductLastStatusDate);
+	public void setOrderAccountProductEndDate(Date orderAccountProductEndDate) {
+		this.orderAccountProductEndDate = CloneUtils.clone(orderAccountProductEndDate);
+	}
+
+	public void setOrderAccountProductEot(Date orderAccountProductEot) {
+		this.orderAccountProductEot = CloneUtils.clone(orderAccountProductEot);
+	}
+
+	public void setOrderAccountProductId(Long orderAccountProductId) {
+		this.orderAccountProductId = orderAccountProductId;
 	}
 
 	public void setOrderAccountProductLastStatusDate(
@@ -138,17 +142,9 @@ public class OrderAccountProduct implements Serializable {
 		this.orderAccountProductLastStatusDate = CloneUtils.clone(orderAccountProductLastStatusDate);
 	}
 
-	public Integer getOrderAccountProductLastTransactionStatus() {
-		return orderAccountProductLastTransactionStatus;
-	}
-
 	public void setOrderAccountProductLastTransactionStatus(
 			Integer orderAccountProductLastTransactionStatus) {
 		this.orderAccountProductLastTransactionStatus = orderAccountProductLastTransactionStatus;
-	}
-
-	public Integer getOrderAccountProductPaymentFrequencyType() {
-		return orderAccountProductPaymentFrequencyType;
 	}
 
 	public void setOrderAccountProductPaymentFrequencyType(
@@ -156,11 +152,15 @@ public class OrderAccountProduct implements Serializable {
 		this.orderAccountProductPaymentFrequencyType = orderAccountProductPaymentFrequencyType;
 	}
 
-	public Integer getOrderAccountProductStatus() {
-		return orderAccountProductStatus;
+	public void setOrderAccountProductStartDate(Date orderAccountProductStartDate) {
+		this.orderAccountProductStartDate = CloneUtils.clone(orderAccountProductStartDate);
 	}
 
 	public void setOrderAccountProductStatus(Integer orderAccountProductStatus) {
 		this.orderAccountProductStatus = orderAccountProductStatus;
+	}
+
+	public void setOrderProduct(OrderProduct orderProduct) {
+		this.orderProduct = orderProduct;
 	}
 }

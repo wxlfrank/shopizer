@@ -1,5 +1,28 @@
 package com.salesmanager.shop.admin.controller.products;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.relationship.ProductRelationshipService;
@@ -15,27 +38,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.admin.controller.ControllerConstants;
 import com.salesmanager.shop.admin.model.web.Menu;
 import com.salesmanager.shop.constants.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 @Controller
@@ -51,107 +53,6 @@ public class RelatedItemsController {
 	
 	@Inject
 	ProductRelationshipService productRelationshipService;
-	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/catalogue/related/list.html", method=RequestMethod.GET)
-	public String displayRelatedItems(@RequestParam("id") long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		
-		setMenu(model,request);
-		
-		Language language = (Language)request.getAttribute("LANGUAGE");
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		//get the product and validate it belongs to the current merchant
-		Product product = productService.getById(productId);
-		
-		if(product==null) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		
-		List<Category> categories = categoryService.listByStore(store,language);
-		
-		model.addAttribute("categories", categories);
-		model.addAttribute("product", product);
-		return ControllerConstants.Tiles.Product.relatedItems;
-		
-	}
-	
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/catalogue/related/paging.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> pageRelatedItems(HttpServletRequest request, HttpServletResponse response) {
-		
-		String sProductId = request.getParameter("productId");
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		
-		try {
-			
-
-			
-			Long productId = Long.parseLong(sProductId);
-			Product product = productService.getById(productId);
-			
-			Language language = (Language)request.getAttribute("LANGUAGE");
-			MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-			
-			
-			if(product==null || product.getMerchantStore().getId().intValue()!= store.getId().intValue()) {
-				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-				resp.setErrorString("Product id is not valid");
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			
-
-			List<ProductRelationship> relationships = productRelationshipService.getByType(store, product, ProductRelationshipType.RELATED_ITEM, language);
-			
-			for(ProductRelationship relationship : relationships) {
-				
-				Product relatedProduct = relationship.getRelatedProduct();
-				Map entry = new HashMap();
-				entry.put("relationshipId", relationship.getId());
-				entry.put("productId", relatedProduct.getId());
-				
-				ProductDescription description = relatedProduct.getDescriptions().iterator().next();
-				Set<ProductDescription> descriptions = relatedProduct.getDescriptions();
-				for(ProductDescription desc : descriptions) {
-					if(desc.getLanguage().getId().intValue()==language.getId().intValue()) {
-						description = desc;
-					}
-				}
-				
-
-				entry.put("name", description.getName());
-				entry.put("sku", relatedProduct.getSku());
-				entry.put("available", relatedProduct.isAvailable());
-				resp.addDataEntry(entry);
-				
-			}
-			
-
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while paging products", e);
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-
-
-	}
 	
 	@PreAuthorize("hasRole('PRODUCTS')")
 	@RequestMapping(value="/admin/catalogue/related/addItem.html", method=RequestMethod.POST)
@@ -221,6 +122,107 @@ public class RelatedItemsController {
 		String returnString = resp.toJSONString();
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 		
+	}
+	
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/catalogue/related/list.html", method=RequestMethod.GET)
+	public String displayRelatedItems(@RequestParam("id") long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		
+		setMenu(model,request);
+		
+		Language language = (Language)request.getAttribute("LANGUAGE");
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		//get the product and validate it belongs to the current merchant
+		Product product = productService.getById(productId);
+		
+		if(product==null) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		
+		List<Category> categories = categoryService.listByStore(store,language);
+		
+		model.addAttribute("categories", categories);
+		model.addAttribute("product", product);
+		return ControllerConstants.Tiles.Product.relatedItems;
+		
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/catalogue/related/paging.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> pageRelatedItems(HttpServletRequest request, HttpServletResponse response) {
+		
+		String sProductId = request.getParameter("productId");
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		try {
+			
+
+			
+			Long productId = Long.parseLong(sProductId);
+			Product product = productService.getById(productId);
+			
+			Language language = (Language)request.getAttribute("LANGUAGE");
+			MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+			
+			
+			if(product==null || product.getMerchantStore().getId().intValue()!= store.getId().intValue()) {
+				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+				resp.setErrorString("Product id is not valid");
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			
+
+			List<ProductRelationship> relationships = productRelationshipService.getByType(store, product, ProductRelationshipType.RELATED_ITEM, language);
+			
+			for(ProductRelationship relationship : relationships) {
+				
+				Product relatedProduct = relationship.getRelatedProduct();
+				Map entry = new HashMap();
+				entry.put("relationshipId", relationship.getId());
+				entry.put("productId", relatedProduct.getId());
+				
+				ProductDescription description = relatedProduct.getDescriptions().iterator().next();
+				Set<ProductDescription> descriptions = relatedProduct.getDescriptions();
+				for(ProductDescription desc : descriptions) {
+					if(desc.getLanguage().getId().intValue()==language.getId().intValue()) {
+						description = desc;
+					}
+				}
+				
+
+				entry.put("name", description.getName());
+				entry.put("sku", relatedProduct.getSku());
+				entry.put("available", relatedProduct.isAvailable());
+				resp.addDataEntry(entry);
+				
+			}
+			
+
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while paging products", e);
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+
+
 	}
 	
 	@PreAuthorize("hasRole('PRODUCTS')")

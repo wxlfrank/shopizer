@@ -18,28 +18,28 @@ public class RentalOwner extends Entity {
 	private String lastName;
 	private Address address;
 	private String emailAddress;
-	public String getFirstName() {
-		return firstName;
-	}
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-	public String getLastName() {
-		return lastName;
-	}
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
 	public Address getAddress() {
 		return address;
-	}
-	public void setAddress(Address address) {
-		this.address = address;
 	}
 	public String getEmailAddress() {
 		return emailAddress;
 	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setAddress(Address address) {
+		this.address = address;
+	}
 	public void setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 }

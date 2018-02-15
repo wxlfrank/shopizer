@@ -22,21 +22,21 @@ public class StaticContentCacheManagerImpl extends CacheManagerImpl
     private final static String NAMED_CACHE = "FilesRepository";
     
 
-    private StaticContentCacheManagerImpl() {
-        
-        super.init(NAMED_CACHE);
-        
-        
-    }
+    public static StaticContentCacheManagerImpl getInstance() {
+	        
+	        if(cacheManager==null) {
+	            cacheManager = new StaticContentCacheManagerImpl();
+	        }
+	        
+	        return cacheManager;
+	      
+	        
+	    }
 
-   public static StaticContentCacheManagerImpl getInstance() {
-        
-        if(cacheManager==null) {
-            cacheManager = new StaticContentCacheManagerImpl();
-        }
-        
-        return cacheManager;
-      
-        
-    }
+   private StaticContentCacheManagerImpl() {
+    
+    super.init(NAMED_CACHE);
+    
+    
+}
 }

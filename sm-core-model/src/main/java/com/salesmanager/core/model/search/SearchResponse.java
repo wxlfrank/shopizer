@@ -11,29 +11,29 @@ public class SearchResponse {
 	private List<SearchEntry> entries;
 	private Map<String,List<SearchFacet>> facets;//facet key (example : category) & facet description (example : category code)
 	
-	public void setTotalCount(long totalCount) {
-		this.totalCount = totalCount;
-	}
-	public long getTotalCount() {
-		return totalCount;
-	}
-	public void setEntryCount(long entryCount) {
-		this.entryCount = entryCount;
+	public List<SearchEntry> getEntries() {
+		return entries;
 	}
 	public long getEntryCount() {
 		return entryCount;
 	}
+	public Map<String,List<SearchFacet>> getFacets() {
+		return facets;
+	}
+	public long getTotalCount() {
+		return totalCount;
+	}
 	public void setEntries(List<SearchEntry> entries) {
 		this.entries = entries;
 	}
-	public List<SearchEntry> getEntries() {
-		return entries;
+	public void setEntryCount(long entryCount) {
+		this.entryCount = entryCount;
 	}
 	public void setFacets(Map<String,List<SearchFacet>> facets) {
 		this.facets = facets;
 	}
-	public Map<String,List<SearchFacet>> getFacets() {
-		return facets;
+	public void setTotalCount(long totalCount) {
+		this.totalCount = totalCount;
 	}
 
 }

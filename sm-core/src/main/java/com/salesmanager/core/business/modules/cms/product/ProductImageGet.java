@@ -11,6 +11,8 @@ import com.salesmanager.core.model.content.OutputContentFile;
 
 public interface ProductImageGet extends ImageGet{
 	
+	public List<OutputContentFile> getImages(Product product) throws ServiceException;
+	public OutputContentFile getProductImage(ProductImage productImage) throws ServiceException;
 	/**
 	 * Used for accessing the path directly
 	 * @param merchantStoreCode
@@ -21,8 +23,6 @@ public interface ProductImageGet extends ImageGet{
 	 */
 	public OutputContentFile getProductImage(final String merchantStoreCode, final String productCode, final String imageName) throws ServiceException;
 	public OutputContentFile getProductImage(final String merchantStoreCode, final String productCode, final String imageName, final ProductImageSize size) throws ServiceException;
-	public OutputContentFile getProductImage(ProductImage productImage) throws ServiceException;
-	public List<OutputContentFile> getImages(Product product) throws ServiceException;
 
 
 }

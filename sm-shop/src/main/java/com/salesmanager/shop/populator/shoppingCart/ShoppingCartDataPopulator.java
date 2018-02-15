@@ -3,6 +3,17 @@
  */
 package com.salesmanager.shop.populator.shoppingCart;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.configuration.ConversionException;
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.product.PricingService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartCalculationService;
@@ -21,16 +32,6 @@ import com.salesmanager.shop.model.shoppingcart.ShoppingCartAttribute;
 import com.salesmanager.shop.model.shoppingcart.ShoppingCartData;
 import com.salesmanager.shop.model.shoppingcart.ShoppingCartItem;
 import com.salesmanager.shop.utils.ImageFilePath;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.configuration.ConversionException;
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -50,25 +51,19 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
     
     private ImageFilePath imageUtils;
 
+			@Override
+			public ShoppingCartData createTarget()
+			{
+
+			    return new ShoppingCartData();
+			}
+		
+		
+		
+		
 			public ImageFilePath getimageUtils() {
 				return imageUtils;
 			}
-		
-		
-		
-		
-			public void setimageUtils(ImageFilePath imageUtils) {
-				this.imageUtils = imageUtils;
-			}
-
-
-
-    @Override
-    public ShoppingCartData createTarget()
-    {
-
-        return new ShoppingCartData();
-    }
 
 
 
@@ -81,6 +76,7 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
     public PricingService getPricingService() {
         return pricingService;
     }
+
 
 
     @Override
@@ -203,7 +199,12 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
         return cart;
 
 
-    };
+    }
+
+
+    public void setimageUtils(ImageFilePath imageUtils) {
+		this.imageUtils = imageUtils;
+	};
 
 
 

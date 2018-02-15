@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +39,10 @@ import com.salesmanager.shop.utils.ImageFilePath;
 @Service("searchFacade")
 public class SearchFacadeImpl implements SearchFacade {
 	
+	private final static String CATEGORY_FACET_NAME = "categories";
+	
+	private final static String MANUFACTURER_FACET_NAME = "manufacturer";
+	
 	@Inject
 	private SearchService searchService;
 	
@@ -51,43 +54,13 @@ public class SearchFacadeImpl implements SearchFacade {
 	
 	@Inject
 	private PricingService pricingService;
-	
+
+    
 	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
-	
 	@Inject
 	private CoreConfiguration coreConfiguration;
-
-    
-	private final static String CATEGORY_FACET_NAME = "categories";
-	private final static String MANUFACTURER_FACET_NAME = "manufacturer";
-
-	/**
-	 * Index all products from the catalogue
-	 * Better stop the system, remove ES indexex manually
-	 * restart ES and run this query
-	 */
-	@Override
-	@Async
-	public void indexAllData(MerchantStore store) throws Exception {
-		
-		
-		List<Product> products = productService.listByStore(store);
-		
-		for(Product product : products) {
-			searchService.index(store, product);
-		}
-		
-	}
-
-	@Override
-	public SearchProductList search(MerchantStore store, Language language, SearchProductRequest searchRequest) throws Exception {
-
-		String query = String.format(coreConfiguration.getProperty("SEARCH_QUERY"), searchRequest.getQuery());
-		SearchResponse response =  searchService.search(store, language.getCode(), query, searchRequest.getCount(), searchRequest.getStart());
-		return this.copySearchResponse(response, store, searchRequest.getStart(), searchRequest.getCount(), language);
-	}
 
 	@Override
 	public SearchProductList copySearchResponse(SearchResponse searchResponse, MerchantStore merchantStore, int start, int count, Language language) throws Exception {
@@ -176,6 +149,32 @@ public class SearchFacadeImpl implements SearchFacade {
 		}
 		
 		return returnList;
+	}
+
+	/**
+	 * Index all products from the catalogue
+	 * Better stop the system, remove ES indexex manually
+	 * restart ES and run this query
+	 */
+	@Override
+	@Async
+	public void indexAllData(MerchantStore store) throws Exception {
+		
+		
+		List<Product> products = productService.listByStore(store);
+		
+		for(Product product : products) {
+			searchService.index(store, product);
+		}
+		
+	}
+
+	@Override
+	public SearchProductList search(MerchantStore store, Language language, SearchProductRequest searchRequest) throws Exception {
+
+		String query = String.format(coreConfiguration.getProperty("SEARCH_QUERY"), searchRequest.getQuery());
+		SearchResponse response =  searchService.search(store, language.getCode(), query, searchRequest.getCount(), searchRequest.getStart());
+		return this.copySearchResponse(response, store, searchRequest.getStart(), searchRequest.getCount(), language);
 	}
 	
 

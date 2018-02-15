@@ -21,6 +21,14 @@ import com.salesmanager.core.model.reference.currency.Currency;
 public interface PricingService {
 
 	/**
+	 * Method for calculating sub total
+	 * @param price
+	 * @param quantity
+	 * @return
+	 */
+	BigDecimal calculatePriceQuantity(BigDecimal price, int quantity);
+
+	/**
 	 * Calculates the FinalPrice of a Product taking into account
 	 * all defined prices and possible rebates
 	 * @param product
@@ -67,16 +75,15 @@ public interface PricingService {
 	FinalPrice calculateProductPrice(Product product,
 			List<ProductAttribute> attributes, Customer customer)
 			throws ServiceException;
-
+	
 	/**
-	 * Method to be used to print a displayable formated amount to the end user
+	 * Converts a String amount to BigDecimal
+	 * Takes care of String amount validation
 	 * @param amount
-	 * @param store
 	 * @return
 	 * @throws ServiceException
 	 */
-	String getDisplayAmount(BigDecimal amount, MerchantStore store)
-			throws ServiceException;
+	BigDecimal getAmount(String amount) throws ServiceException;
 	
 	/**
 	 * Method to be used when building an amount formatted with the appropriate currency
@@ -91,14 +98,15 @@ public interface PricingService {
 			throws ServiceException;
 	
 	/**
-	 * Converts a String amount to BigDecimal
-	 * Takes care of String amount validation
+	 * Method to be used to print a displayable formated amount to the end user
 	 * @param amount
+	 * @param store
 	 * @return
 	 * @throws ServiceException
 	 */
-	BigDecimal getAmount(String amount) throws ServiceException;
-	
+	String getDisplayAmount(BigDecimal amount, MerchantStore store)
+			throws ServiceException;
+
 	/**
 	 * String format of the money amount without currency symbol
 	 * @param amount
@@ -108,12 +116,4 @@ public interface PricingService {
 	 */
 	String getStringAmount(BigDecimal amount, MerchantStore store)
 			throws ServiceException;
-
-	/**
-	 * Method for calculating sub total
-	 * @param price
-	 * @param quantity
-	 * @return
-	 */
-	BigDecimal calculatePriceQuantity(BigDecimal price, int quantity);
 }

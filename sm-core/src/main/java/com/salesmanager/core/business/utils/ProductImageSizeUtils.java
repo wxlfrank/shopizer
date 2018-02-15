@@ -14,11 +14,6 @@ import java.awt.image.BufferedImage;
 public class ProductImageSizeUtils {
 	
 
-	private ProductImageSizeUtils() {
-
-	}
-	
-
 	/**
 	 * Simple resize, does not maintain aspect ratio
 	 * @param image
@@ -44,6 +39,7 @@ public class ProductImageSizeUtils {
 		return resizedImage;
 	}
 	
+
 	/**
 	 * 
 	 * @param img
@@ -103,7 +99,6 @@ public class ProductImageSizeUtils {
 		return ret;
 	}
 	
-	
 	public static BufferedImage resizeWithRatio(BufferedImage image, int destinationWidth, int destinationHeight) {
 
             int type = image.getType() == 0? BufferedImage.TYPE_INT_ARGB : image.getType();
@@ -145,6 +140,11 @@ public class ProductImageSizeUtils {
             g.dispose();
 
             return resizedImage;
+	}
+	
+	
+	private ProductImageSizeUtils() {
+
 	}
 	
 

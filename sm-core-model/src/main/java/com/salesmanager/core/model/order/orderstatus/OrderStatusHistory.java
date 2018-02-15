@@ -56,52 +56,52 @@ public class OrderStatusHistory implements Serializable {
 	public OrderStatusHistory() {
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Order getOrder() {
-		return order;
-	}
-
-	public void setOrder(Order order) {
-		this.order = order;
-	}
-
-	public OrderStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(OrderStatus status) {
-		this.status = status;
-	}
-
-	public Date getDateAdded() {
-		return CloneUtils.clone(dateAdded);
-	}
-
-	public void setDateAdded(Date dateAdded) {
-		this.dateAdded = CloneUtils.clone(dateAdded);
+	public String getComments() {
+		return comments;
 	}
 
 	public java.lang.Integer getCustomerNotified() {
 		return customerNotified;
 	}
 
-	public void setCustomerNotified(java.lang.Integer customerNotified) {
-		this.customerNotified = customerNotified;
+	public Date getDateAdded() {
+		return CloneUtils.clone(dateAdded);
 	}
 
-	public String getComments() {
-		return comments;
+	public Long getId() {
+		return id;
+	}
+
+	public Order getOrder() {
+		return order;
+	}
+
+	public OrderStatus getStatus() {
+		return status;
 	}
 
 	public void setComments(String comments) {
 		this.comments = comments;
+	}
+
+	public void setCustomerNotified(java.lang.Integer customerNotified) {
+		this.customerNotified = customerNotified;
+	}
+
+	public void setDateAdded(Date dateAdded) {
+		this.dateAdded = CloneUtils.clone(dateAdded);
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setOrder(Order order) {
+		this.order = order;
+	}
+
+	public void setStatus(OrderStatus status) {
+		this.status = status;
 	}
 
 }

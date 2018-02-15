@@ -1,5 +1,22 @@
 package com.salesmanager.shop.admin.controller.shipping;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
 import com.salesmanager.core.business.services.reference.country.CountryService;
 import com.salesmanager.core.business.services.reference.zone.ZoneService;
 import com.salesmanager.core.business.services.shipping.ShippingOriginService;
@@ -10,29 +27,12 @@ import com.salesmanager.core.model.reference.zone.Zone;
 import com.salesmanager.core.model.shipping.ShippingOrigin;
 import com.salesmanager.shop.admin.model.web.Menu;
 import com.salesmanager.shop.constants.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 
 @Controller
 public class ShippingOriginController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ShippingOriginController.class);
+//	private static final Logger LOGGER = LoggerFactory.getLogger(ShippingOriginController.class);
 
 	
 	@Inject
@@ -43,6 +43,37 @@ public class ShippingOriginController {
 	
 	@Inject
 	private ZoneService zoneService;
+	
+	@PreAuthorize("hasRole('SHIPPING')")
+	@RequestMapping(value="/admin/shipping/origin/delete.html", method=RequestMethod.POST)
+	public String deleteShippingOrigin(@ModelAttribute("origin") ShippingOrigin origin, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		
+		this.setMenu(model, request);
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		ShippingOrigin shippingOrigin =  shippingOriginService.getByStore(store);
+		
+		Language language = (Language)request.getAttribute("LANGUAGE");	
+		List<Country> countries = countryService.getCountries(language);
+		
+
+		if(shippingOrigin!=null && origin !=null) {
+			if(shippingOrigin.getId().longValue() == origin.getId().longValue()) {
+				shippingOriginService.delete(shippingOrigin);
+				model.addAttribute("success","success");
+			} else {
+				return "redirect:/admin/shipping/origin/get.html";
+			}
+		} else {
+			return "redirect:/admin/shipping/origin/get.html";
+		}
+		
+		model.addAttribute("countries", countries);
+		model.addAttribute("origin", null);
+		model.addAttribute("success","success");
+		return "shipping-origin";
+		
+	}
 	
 	/**
 	 * Configures the shipping mode, shows shipping countries
@@ -111,37 +142,6 @@ public class ShippingOriginController {
 
 		model.addAttribute("countries", countries);
 		model.addAttribute("origin", origin);
-		model.addAttribute("success","success");
-		return "shipping-origin";
-		
-	}
-	
-	@PreAuthorize("hasRole('SHIPPING')")
-	@RequestMapping(value="/admin/shipping/origin/delete.html", method=RequestMethod.POST)
-	public String deleteShippingOrigin(@ModelAttribute("origin") ShippingOrigin origin, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		
-		this.setMenu(model, request);
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		ShippingOrigin shippingOrigin =  shippingOriginService.getByStore(store);
-		
-		Language language = (Language)request.getAttribute("LANGUAGE");	
-		List<Country> countries = countryService.getCountries(language);
-		
-
-		if(shippingOrigin!=null && origin !=null) {
-			if(shippingOrigin.getId().longValue() == origin.getId().longValue()) {
-				shippingOriginService.delete(shippingOrigin);
-				model.addAttribute("success","success");
-			} else {
-				return "redirect:/admin/shipping/origin/get.html";
-			}
-		} else {
-			return "redirect:/admin/shipping/origin/get.html";
-		}
-		
-		model.addAttribute("countries", countries);
-		model.addAttribute("origin", null);
 		model.addAttribute("success","success");
 		return "shipping-origin";
 		

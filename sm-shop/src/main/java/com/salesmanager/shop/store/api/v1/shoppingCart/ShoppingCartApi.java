@@ -30,6 +30,8 @@ import com.salesmanager.shop.utils.LanguageUtils;
 @RequestMapping("/api/v1")
 public class ShoppingCartApi {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingCartApi.class);
+	
 	@Inject
 	private StoreFacade storeFacade;
 	
@@ -39,12 +41,10 @@ public class ShoppingCartApi {
 	@Inject
 	private ShoppingCartFacade shoppingCartFacade;
 	
+	
+	
 	@Inject
 	private CustomerService customerService;
-	
-	
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingCartApi.class);
 	
 
 	

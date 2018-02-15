@@ -81,61 +81,64 @@ public class ProductPrice extends SalesManagerEntity<Long, ProductPrice> {
 	public ProductPrice() {
 	}
 	
+	public String getCode() {
+		return code;
+	}
+
+	public Set<ProductPriceDescription> getDescriptions() {
+		return descriptions;
+	}
+
+
+
+
 	@Override
 	public Long getId() {
 		return this.id;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-
-
-
-	public BigDecimal getProductPriceAmount() {
-		return productPriceAmount;
-	}
-
-	public void setProductPriceAmount(BigDecimal productPriceAmount) {
-		this.productPriceAmount = productPriceAmount;
+	public ProductAvailability getProductAvailability() {
+		return productAvailability;
 	}
 
 
 	
-	public Date getProductPriceSpecialStartDate() {
-		return CloneUtils.clone(productPriceSpecialStartDate);
+	public BigDecimal getProductPriceAmount() {
+		return productPriceAmount;
 	}
 
-	public void setProductPriceSpecialStartDate(
-			Date productPriceSpecialStartDate) {
-		this.productPriceSpecialStartDate = CloneUtils.clone(productPriceSpecialStartDate);
+	public BigDecimal getProductPriceSpecialAmount() {
+		return productPriceSpecialAmount;
 	}
 
 	public Date getProductPriceSpecialEndDate() {
 		return CloneUtils.clone(productPriceSpecialEndDate);
 	}
 
-	public void setProductPriceSpecialEndDate(Date productPriceSpecialEndDate) {
-		this.productPriceSpecialEndDate = CloneUtils.clone(productPriceSpecialEndDate);
+	public Date getProductPriceSpecialStartDate() {
+		return CloneUtils.clone(productPriceSpecialStartDate);
 	}
 
 
 
-	public BigDecimal getProductPriceSpecialAmount() {
-		return productPriceSpecialAmount;
+	public ProductPriceType getProductPriceType() {
+		return productPriceType;
 	}
 
-	public void setProductPriceSpecialAmount(
-			BigDecimal productPriceSpecialAmount) {
-		this.productPriceSpecialAmount = productPriceSpecialAmount;
+	public boolean isDefaultPrice() {
+		return defaultPrice;
 	}
 
 
 
-	public Set<ProductPriceDescription> getDescriptions() {
-		return descriptions;
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+
+
+	public void setDefaultPrice(boolean defaultPrice) {
+		this.defaultPrice = defaultPrice;
 	}
 
 
@@ -144,38 +147,35 @@ public class ProductPrice extends SalesManagerEntity<Long, ProductPrice> {
 		this.descriptions = descriptions;
 	}
 
-
-
-	public boolean isDefaultPrice() {
-		return defaultPrice;
-	}
-
-	public void setDefaultPrice(boolean defaultPrice) {
-		this.defaultPrice = defaultPrice;
+	@Override
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public void setProductAvailability(ProductAvailability productAvailability) {
 		this.productAvailability = productAvailability;
 	}
 
-	public ProductAvailability getProductAvailability() {
-		return productAvailability;
+	public void setProductPriceAmount(BigDecimal productPriceAmount) {
+		this.productPriceAmount = productPriceAmount;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
+	public void setProductPriceSpecialAmount(
+			BigDecimal productPriceSpecialAmount) {
+		this.productPriceSpecialAmount = productPriceSpecialAmount;
 	}
 
-	public String getCode() {
-		return code;
+	public void setProductPriceSpecialEndDate(Date productPriceSpecialEndDate) {
+		this.productPriceSpecialEndDate = CloneUtils.clone(productPriceSpecialEndDate);
+	}
+
+	public void setProductPriceSpecialStartDate(
+			Date productPriceSpecialStartDate) {
+		this.productPriceSpecialStartDate = CloneUtils.clone(productPriceSpecialStartDate);
 	}
 
 	public void setProductPriceType(ProductPriceType productPriceType) {
 		this.productPriceType = productPriceType;
-	}
-
-	public ProductPriceType getProductPriceType() {
-		return productPriceType;
 	}
 
 

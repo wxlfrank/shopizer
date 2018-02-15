@@ -17,14 +17,14 @@ public class ReadableCustomer extends CustomerEntity implements Serializable {
 	private List<ReadableCustomerAttribute> attributes = new ArrayList<ReadableCustomerAttribute>();
 	private List<ReadableGroup> groups = new ArrayList<ReadableGroup>();
 	
-	public void setAttributes(List<ReadableCustomerAttribute> attributes) {
-		this.attributes = attributes;
-	}
 	public List<ReadableCustomerAttribute> getAttributes() {
 		return attributes;
 	}
 	public List<ReadableGroup> getGroups() {
 		return groups;
+	}
+	public void setAttributes(List<ReadableCustomerAttribute> attributes) {
+		this.attributes = attributes;
 	}
 	public void setGroups(List<ReadableGroup> groups) {
 		this.groups = groups;

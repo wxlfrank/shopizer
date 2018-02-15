@@ -39,28 +39,6 @@ public class CustomerOptionServiceImpl extends
 	}
 	
 	@Override
-	public List<CustomerOption> listByStore(MerchantStore store, Language language) throws ServiceException {
-
-		return customerOptionRepository.findByStore(store.getId(), language.getId());
-
-	}
-	
-
-	@Override
-	public void saveOrUpdate(CustomerOption entity) throws ServiceException {
-		
-		
-		//save or update (persist and attach entities
-		if(entity.getId()!=null && entity.getId()>0) {
-			super.update(entity);
-		} else {
-			super.save(entity);
-		}
-		
-	}
-
-
-	@Override
 	public void delete(CustomerOption customerOption) throws ServiceException {
 		
 		//remove all attributes having this option
@@ -83,9 +61,31 @@ public class CustomerOptionServiceImpl extends
 		
 	}
 	
+
 	@Override
 	public CustomerOption getByCode(MerchantStore store, String optionCode) {
 		return customerOptionRepository.findByCode(store.getId(), optionCode);
+	}
+
+
+	@Override
+	public List<CustomerOption> listByStore(MerchantStore store, Language language) throws ServiceException {
+
+		return customerOptionRepository.findByStore(store.getId(), language.getId());
+
+	}
+	
+	@Override
+	public void saveOrUpdate(CustomerOption entity) throws ServiceException {
+		
+		
+		//save or update (persist and attach entities
+		if(entity.getId()!=null && entity.getId()>0) {
+			super.update(entity);
+		} else {
+			super.save(entity);
+		}
+		
 	}
 	
 

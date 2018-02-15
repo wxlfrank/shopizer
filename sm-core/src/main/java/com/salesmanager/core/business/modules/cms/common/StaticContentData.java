@@ -24,29 +24,29 @@ public abstract class StaticContentData implements Serializable
     private FileContentType contentType = FileContentType.STATIC_FILE;
     private String fileContentType;
     
-    public String getFileName()
-    {
-        return fileName;
-    }
-    public void setFileName( String fileName )
-    {
-        this.fileName = fileName;
-    }
-
+    public FileContentType getContentType() {
+		return contentType;
+	}
     public String getFileContentType()
     {
         return fileContentType;
     }
-    public void setFileContentType( String fileContentType )
+
+    public String getFileName()
+    {
+        return fileName;
+    }
+    public void setContentType(FileContentType contentType) {
+		this.contentType = contentType;
+	}
+	public void setFileContentType( String fileContentType )
     {
         this.fileContentType = fileContentType;
     }
-	public void setContentType(FileContentType contentType) {
-		this.contentType = contentType;
-	}
-	public FileContentType getContentType() {
-		return contentType;
-	}
+	public void setFileName( String fileName )
+    {
+        this.fileName = fileName;
+    }
     
     
 }

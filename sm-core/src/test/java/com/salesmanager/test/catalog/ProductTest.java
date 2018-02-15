@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -44,9 +45,6 @@ import com.salesmanager.core.model.content.ImageContentFile;
 import com.salesmanager.core.model.content.OutputContentFile;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
-
-import junit.framework.Assert;
-
 
 
 @Ignore
@@ -407,23 +405,88 @@ public class ProductTest extends com.salesmanager.test.common.AbstractSalesManag
 	}
 	
 	
-	private void testViewAttribute(Product product) throws Exception {
+	private void testCreateRelationShip(Product product) throws Exception {
 		
-		//todo fetch product
+		MerchantStore store = merchantService.getByCode(MerchantStore.DEFAULT_STORE);
+		Language en = languageService.getByCode("en");
+		Manufacturer oreilley = manufacturerService.getByCode(store, "oreilley");
+		ProductType generalType = productTypeService.getProductType(ProductType.GENERAL_TYPE);
 		
-		Set<ProductAttribute> attributes = product.getAttributes();
+		Category tech = categoryService.getByCode(store, "tech");
 		
-		for(ProductAttribute attribute : attributes) {
-			
-			
-			ProductOption option = attribute.getProductOption();
-			ProductOptionValue optionValue = attribute.getProductOptionValue();
-			
-			System.out.println("Option id " + option.getId() + " OptionValue id " + optionValue.getId());
-			
-			
-			
-		}
+		
+		//create new related product
+	    // PRODUCT 1
+
+	    Product related = new Product();
+	    related.setProductHeight(new BigDecimal(4));
+	    related.setProductLength(new BigDecimal(3));
+	    related.setProductWidth(new BigDecimal(1));
+	    related.setSku("TB67891");
+	    related.setManufacturer(oreilley);
+	    related.setType(generalType);
+	    related.setMerchantStore(store);
+
+	    // Product description
+	    ProductDescription description = new ProductDescription();
+	    description.setName("Spring 4 in Action");
+	    description.setLanguage(en);
+	    description.setProduct(related);
+
+	    product.getDescriptions().add(description);
+
+	    //add category
+	    product.getCategories().add(tech);
+
+	    
+
+	    // Availability
+	    ProductAvailability availability = new ProductAvailability();
+	    availability.setProductDateAvailable(date);
+	    availability.setProductQuantity(200);
+	    availability.setRegion("*");
+	    availability.setProduct(related);// associate with product
+
+	    //productAvailabilityService.create(availability);
+	    related.getAvailabilities().add(availability);
+
+	    ProductPrice dprice = new ProductPrice();
+	    dprice.setDefaultPrice(true);
+	    dprice.setProductPriceAmount(new BigDecimal(39.99));
+	    dprice.setProductAvailability(availability);
+
+	    ProductPriceDescription dpd = new ProductPriceDescription();
+	    dpd.setName("Base price");
+	    dpd.setProductPrice(dprice);
+	    dpd.setLanguage(en);
+
+	    dprice.getDescriptions().add(dpd);
+	    availability.getPrices().add(dprice);
+	    
+	    related.getAvailabilities().add(availability);
+	    
+	    productService.save(related);
+	    
+	    ProductRelationship relationship = new ProductRelationship();
+	    
+	    relationship.setActive(true);
+	    relationship.setCode("spring");
+	    relationship.setProduct(product);
+	    relationship.setRelatedProduct(related);
+	    relationship.setStore(store);
+	    
+	    
+	    //because relationships are nor joined fetched, make sure you query relationships first, then ad to an existing list
+	    //so relationship and review are they only objects not joined fetch when querying a product
+	    //need to do a subsequent query
+	    List<ProductRelationship> relationships = productRelationshipService.listByProduct(product);
+	    
+	    
+	    relationships.add(relationship);
+	    
+	    product.setRelationships(new HashSet<ProductRelationship>(relationships));
+	    
+	    productService.save(product);
 		
 		
 	}
@@ -558,6 +621,27 @@ public class ProductTest extends com.salesmanager.test.common.AbstractSalesManag
 		
 	}
 	
+	private void testViewAttribute(Product product) throws Exception {
+		
+		//todo fetch product
+		
+		Set<ProductAttribute> attributes = product.getAttributes();
+		
+		for(ProductAttribute attribute : attributes) {
+			
+			
+			ProductOption option = attribute.getProductOption();
+			ProductOptionValue optionValue = attribute.getProductOptionValue();
+			
+			System.out.println("Option id " + option.getId() + " OptionValue id " + optionValue.getId());
+			
+			
+			
+		}
+		
+		
+	}
+	
 	private void testViewImage(Product product) throws Exception {
 		
 		
@@ -588,92 +672,6 @@ public class ProductTest extends com.salesmanager.test.common.AbstractSalesManag
 
    	 	baos =  contentFile.getFile();
    	 	baos.writeTo(outputStream);
-		
-	}
-	
-	private void testCreateRelationShip(Product product) throws Exception {
-		
-		MerchantStore store = merchantService.getByCode(MerchantStore.DEFAULT_STORE);
-		Language en = languageService.getByCode("en");
-		Manufacturer oreilley = manufacturerService.getByCode(store, "oreilley");
-		ProductType generalType = productTypeService.getProductType(ProductType.GENERAL_TYPE);
-		
-		Category tech = categoryService.getByCode(store, "tech");
-		
-		
-		//create new related product
-	    // PRODUCT 1
-
-	    Product related = new Product();
-	    related.setProductHeight(new BigDecimal(4));
-	    related.setProductLength(new BigDecimal(3));
-	    related.setProductWidth(new BigDecimal(1));
-	    related.setSku("TB67891");
-	    related.setManufacturer(oreilley);
-	    related.setType(generalType);
-	    related.setMerchantStore(store);
-
-	    // Product description
-	    ProductDescription description = new ProductDescription();
-	    description.setName("Spring 4 in Action");
-	    description.setLanguage(en);
-	    description.setProduct(related);
-
-	    product.getDescriptions().add(description);
-
-	    //add category
-	    product.getCategories().add(tech);
-
-	    
-
-	    // Availability
-	    ProductAvailability availability = new ProductAvailability();
-	    availability.setProductDateAvailable(date);
-	    availability.setProductQuantity(200);
-	    availability.setRegion("*");
-	    availability.setProduct(related);// associate with product
-
-	    //productAvailabilityService.create(availability);
-	    related.getAvailabilities().add(availability);
-
-	    ProductPrice dprice = new ProductPrice();
-	    dprice.setDefaultPrice(true);
-	    dprice.setProductPriceAmount(new BigDecimal(39.99));
-	    dprice.setProductAvailability(availability);
-
-	    ProductPriceDescription dpd = new ProductPriceDescription();
-	    dpd.setName("Base price");
-	    dpd.setProductPrice(dprice);
-	    dpd.setLanguage(en);
-
-	    dprice.getDescriptions().add(dpd);
-	    availability.getPrices().add(dprice);
-	    
-	    related.getAvailabilities().add(availability);
-	    
-	    productService.save(related);
-	    
-	    ProductRelationship relationship = new ProductRelationship();
-	    
-	    relationship.setActive(true);
-	    relationship.setCode("spring");
-	    relationship.setProduct(product);
-	    relationship.setRelatedProduct(related);
-	    relationship.setStore(store);
-	    
-	    
-	    //because relationships are nor joined fetched, make sure you query relationships first, then ad to an existing list
-	    //so relationship and review are they only objects not joined fetch when querying a product
-	    //need to do a subsequent query
-	    List<ProductRelationship> relationships = productRelationshipService.listByProduct(product);
-	    
-	    
-	    relationships.add(relationship);
-	    
-	    product.setRelationships(new HashSet<ProductRelationship>(relationships));
-	    
-	    productService.save(product);
-		
 		
 	}
 	

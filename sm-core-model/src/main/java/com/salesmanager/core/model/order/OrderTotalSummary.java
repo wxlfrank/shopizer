@@ -25,32 +25,32 @@ public class OrderTotalSummary implements Serializable {
 		return subTotal;
 	}
 
-	public void setSubTotal(BigDecimal subTotal) {
-		this.subTotal = subTotal;
+	public BigDecimal getTaxTotal() {
+		return taxTotal;
 	}
 
 	public BigDecimal getTotal() {
 		return total;
 	}
 
-	public void setTotal(BigDecimal total) {
-		this.total = total;
-	}
-
 	public List<OrderTotal> getTotals() {
 		return totals;
 	}
 
-	public void setTotals(List<OrderTotal> totals) {
-		this.totals = totals;
-	}
-
-	public BigDecimal getTaxTotal() {
-		return taxTotal;
+	public void setSubTotal(BigDecimal subTotal) {
+		this.subTotal = subTotal;
 	}
 
 	public void setTaxTotal(BigDecimal taxTotal) {
 		this.taxTotal = taxTotal;
+	}
+
+	public void setTotal(BigDecimal total) {
+		this.total = total;
+	}
+
+	public void setTotals(List<OrderTotal> totals) {
+		this.totals = totals;
 	}
 
 }

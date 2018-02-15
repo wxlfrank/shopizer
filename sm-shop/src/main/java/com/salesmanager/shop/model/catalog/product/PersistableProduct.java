@@ -26,54 +26,54 @@ public class PersistableProduct extends ProductEntity implements Serializable {
 	//RENTAL
 	private RentalOwner owner;
 	
-	public List<ProductDescription> getDescriptions() {
-		return descriptions;
-	}
-	public void setDescriptions(List<ProductDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-
-	public List<PersistableImage> getImages() {
-		return images;
-	}
-	public void setImages(List<PersistableImage> images) {
-		this.images = images;
+	public List<PersistableProductAttribute> getAttributes() {
+		return attributes;
 	}
 	public List<Category> getCategories() {
 		return categories;
 	}
-	public void setCategories(List<Category> categories) {
-		this.categories = categories;
+
+	public List<ProductDescription> getDescriptions() {
+		return descriptions;
 	}
-	public List<RelatedProduct> getRelatedProducts() {
-		return relatedProducts;
-	}
-	public void setRelatedProducts(List<RelatedProduct> relatedProducts) {
-		this.relatedProducts = relatedProducts;
-	}
-	public void setManufacturer(Manufacturer manufacturer) {
-		this.manufacturer = manufacturer;
+	public List<PersistableImage> getImages() {
+		return images;
 	}
 	public Manufacturer getManufacturer() {
 		return manufacturer;
 	}
-	public void setAttributes(List<PersistableProductAttribute> attributes) {
-		this.attributes = attributes;
-	}
-	public List<PersistableProductAttribute> getAttributes() {
-		return attributes;
+	public RentalOwner getOwner() {
+		return owner;
 	}
 	public List<PersistableProductPrice> getProductPrices() {
 		return productPrices;
 	}
-	public void setProductPrices(List<PersistableProductPrice> productPrices) {
-		this.productPrices = productPrices;
+	public List<RelatedProduct> getRelatedProducts() {
+		return relatedProducts;
 	}
-	public RentalOwner getOwner() {
-		return owner;
+	public void setAttributes(List<PersistableProductAttribute> attributes) {
+		this.attributes = attributes;
+	}
+	public void setCategories(List<Category> categories) {
+		this.categories = categories;
+	}
+	public void setDescriptions(List<ProductDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+	public void setImages(List<PersistableImage> images) {
+		this.images = images;
+	}
+	public void setManufacturer(Manufacturer manufacturer) {
+		this.manufacturer = manufacturer;
 	}
 	public void setOwner(RentalOwner owner) {
 		this.owner = owner;
+	}
+	public void setProductPrices(List<PersistableProductPrice> productPrices) {
+		this.productPrices = productPrices;
+	}
+	public void setRelatedProducts(List<RelatedProduct> relatedProducts) {
+		this.relatedProducts = relatedProducts;
 	}
 
 }

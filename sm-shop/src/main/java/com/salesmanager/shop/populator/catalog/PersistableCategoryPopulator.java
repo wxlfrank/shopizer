@@ -1,5 +1,12 @@
 package com.salesmanager.shop.populator.catalog;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
 import com.salesmanager.core.business.services.reference.language.LanguageService;
@@ -9,12 +16,6 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.category.CategoryDescription;
 import com.salesmanager.shop.model.catalog.category.PersistableCategory;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class PersistableCategoryPopulator extends
@@ -25,22 +26,13 @@ public class PersistableCategoryPopulator extends
 	private LanguageService languageService;
 
 
-	public void setCategoryService(CategoryService categoryService) {
-		this.categoryService = categoryService;
-	}
-
 	public CategoryService getCategoryService() {
 		return categoryService;
-	}
-
-	public void setLanguageService(LanguageService languageService) {
-		this.languageService = languageService;
 	}
 
 	public LanguageService getLanguageService() {
 		return languageService;
 	}
-
 
 	@Override
 	public Category populate(PersistableCategory source, Category target,
@@ -134,6 +126,15 @@ public class PersistableCategoryPopulator extends
 			throw new ConversionException(e);
 		}
 
+	}
+
+	public void setCategoryService(CategoryService categoryService) {
+		this.categoryService = categoryService;
+	}
+
+
+	public void setLanguageService(LanguageService languageService) {
+		this.languageService = languageService;
 	}
 
 

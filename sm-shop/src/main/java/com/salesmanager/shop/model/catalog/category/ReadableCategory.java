@@ -16,8 +16,8 @@ public class ReadableCategory extends CategoryEntity implements Serializable {
 	private List<ReadableCategory> children = new ArrayList<ReadableCategory>();
 	
 	
-	public void setDescription(CategoryDescription description) {
-		this.description = description;
+	public List<ReadableCategory> getChildren() {
+		return children;
 	}
 	public CategoryDescription getDescription() {
 		return description;
@@ -26,14 +26,14 @@ public class ReadableCategory extends CategoryEntity implements Serializable {
 	public int getProductCount() {
 		return productCount;
 	}
-	public void setProductCount(int productCount) {
-		this.productCount = productCount;
-	}
-	public List<ReadableCategory> getChildren() {
-		return children;
-	}
 	public void setChildren(List<ReadableCategory> children) {
 		this.children = children;
+	}
+	public void setDescription(CategoryDescription description) {
+		this.description = description;
+	}
+	public void setProductCount(int productCount) {
+		this.productCount = productCount;
 	}
 
 }

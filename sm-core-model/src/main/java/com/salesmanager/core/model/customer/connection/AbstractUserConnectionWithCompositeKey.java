@@ -13,22 +13,17 @@ import com.salesmanager.core.constants.SchemaConstant;
 public abstract class AbstractUserConnectionWithCompositeKey extends
 		AbstractUserConnection<UserConnectionPK> {
 
-	@Id
-	private UserConnectionPK primaryKey = new UserConnectionPK();
-
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
+	@Id
+	private UserConnectionPK primaryKey = new UserConnectionPK();
+
 	@Override
 	public String getProviderId() {
 		return primaryKey.getProviderId();
-	}
-
-	@Override
-	public void setProviderId(String providerId) {
-		primaryKey.setProviderId(providerId);
 	}
 
 	@Override
@@ -37,13 +32,18 @@ public abstract class AbstractUserConnectionWithCompositeKey extends
 	}
 
 	@Override
-	public void setProviderUserId(String providerUserId) {
-		primaryKey.setProviderUserId(providerUserId);
+	public String getUserId() {
+		return primaryKey.getUserId();
 	}
 
 	@Override
-	public String getUserId() {
-		return primaryKey.getUserId();
+	public void setProviderId(String providerId) {
+		primaryKey.setProviderId(providerId);
+	}
+
+	@Override
+	public void setProviderUserId(String providerUserId) {
+		primaryKey.setProviderUserId(providerUserId);
 	}
 
 	@Override

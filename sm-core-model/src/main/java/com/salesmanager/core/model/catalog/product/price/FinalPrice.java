@@ -33,75 +33,75 @@ public class FinalPrice implements Serializable {
 		return additionalPrices;
 	}
 
-	public void setAdditionalPrices(List<FinalPrice> additionalPrices) {
-		this.additionalPrices = additionalPrices;
-	}
-
-	public BigDecimal getOriginalPrice() {
-		return originalPrice;
-	}
-
-	public void setOriginalPrice(BigDecimal originalPrice) {
-		this.originalPrice = originalPrice;
-	}
-
-
-
-	public int getDiscountPercent() {
-		return discountPercent;
-	}
-
-	public void setDiscountPercent(int discountPercent) {
-		this.discountPercent = discountPercent;
+	public BigDecimal getDiscountedPrice() {
+		return discountedPrice;
 	}
 
 	public Date getDiscountEndDate() {
 		return discountEndDate;
 	}
 
-	public void setDiscountEndDate(Date discountEndDate) {
-		this.discountEndDate = discountEndDate;
-	}
-
-	public boolean isDiscounted() {
-		return discounted;
-	}
-
-	public void setDiscounted(boolean discounted) {
-		this.discounted = discounted;
-	}
-
-	public void setDiscountedPrice(BigDecimal discountedPrice) {
-		this.discountedPrice = discountedPrice;
-	}
-
-	public BigDecimal getDiscountedPrice() {
-		return discountedPrice;
+	public int getDiscountPercent() {
+		return discountPercent;
 	}
 
 
-	public void setFinalPrice(BigDecimal finalPrice) {
-		this.finalPrice = finalPrice;
-	}
 
 	public BigDecimal getFinalPrice() {
 		return finalPrice;
 	}
 
-	public void setDefaultPrice(boolean defaultPrice) {
-		this.defaultPrice = defaultPrice;
+	public BigDecimal getOriginalPrice() {
+		return originalPrice;
+	}
+
+	public ProductPrice getProductPrice() {
+		return productPrice;
 	}
 
 	public boolean isDefaultPrice() {
 		return defaultPrice;
 	}
 
-	public void setProductPrice(ProductPrice productPrice) {
-		this.productPrice = productPrice;
+	public boolean isDiscounted() {
+		return discounted;
 	}
 
-	public ProductPrice getProductPrice() {
-		return productPrice;
+	public void setAdditionalPrices(List<FinalPrice> additionalPrices) {
+		this.additionalPrices = additionalPrices;
+	}
+
+	public void setDefaultPrice(boolean defaultPrice) {
+		this.defaultPrice = defaultPrice;
+	}
+
+	public void setDiscounted(boolean discounted) {
+		this.discounted = discounted;
+	}
+
+
+	public void setDiscountedPrice(BigDecimal discountedPrice) {
+		this.discountedPrice = discountedPrice;
+	}
+
+	public void setDiscountEndDate(Date discountEndDate) {
+		this.discountEndDate = discountEndDate;
+	}
+
+	public void setDiscountPercent(int discountPercent) {
+		this.discountPercent = discountPercent;
+	}
+
+	public void setFinalPrice(BigDecimal finalPrice) {
+		this.finalPrice = finalPrice;
+	}
+
+	public void setOriginalPrice(BigDecimal originalPrice) {
+		this.originalPrice = originalPrice;
+	}
+
+	public void setProductPrice(ProductPrice productPrice) {
+		this.productPrice = productPrice;
 	}
 
 }

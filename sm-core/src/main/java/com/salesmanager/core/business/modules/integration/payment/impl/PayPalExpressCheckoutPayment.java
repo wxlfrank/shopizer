@@ -70,55 +70,6 @@ public class PayPalExpressCheckoutPayment implements PaymentModule {
 	private CoreConfiguration coreConfiguration;
 
 	@Override
-	public void validateModuleConfiguration(
-			IntegrationConfiguration integrationConfiguration,
-			MerchantStore store) throws IntegrationException {
-		
-		
-		List<String> errorFields = null;
-		
-		//validate integrationKeys['account']
-		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
-		if(keys==null || StringUtils.isBlank(keys.get("api"))) {
-			errorFields = new ArrayList<String>();
-			errorFields.add("api");
-		}
-		
-		if(keys==null || StringUtils.isBlank(keys.get("username"))) {
-			if(errorFields==null) {
-				errorFields = new ArrayList<String>();
-			}
-			errorFields.add("username");
-		}
-		
-		if(keys==null || StringUtils.isBlank(keys.get("signature"))) {
-			if(errorFields==null) {
-				errorFields = new ArrayList<String>();
-			}
-			errorFields.add("signature");
-		}
-		
-
-		if(errorFields!=null) {
-			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
-			ex.setErrorFields(errorFields);
-			throw ex;
-			
-		}
-		
-		
-	}
-
-	@Override
-	public Transaction initTransaction(MerchantStore store, Customer customer,
-			BigDecimal amount, Payment payment,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		
-			throw new IntegrationException("Not imlemented");
-	}
-
-	@Override
 	public Transaction authorize(MerchantStore store, Customer customer,
 			List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
 			IntegrationConfiguration configuration, IntegrationModule module)
@@ -129,6 +80,131 @@ public class PayPalExpressCheckoutPayment implements PaymentModule {
 		Validate.notNull(paypalPayment.getPaymentToken(), "A paypal payment token is required to process this transaction");
 		
 		return processTransaction(store, customer, items, amount, paypalPayment, configuration, module);
+		
+		
+	}
+
+	@Override
+	public Transaction authorizeAndCapture(MerchantStore store,
+			Customer customer, List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+
+		com.salesmanager.core.model.payments.PaypalPayment paypalPayment = (com.salesmanager.core.model.payments.PaypalPayment)payment;
+		Validate.notNull(paypalPayment.getPaymentToken(), "A paypal payment token is required to process this transaction");
+		
+		return processTransaction(store, customer, items, amount, paypalPayment, configuration, module);
+
+		
+	}
+
+	@Override
+	public Transaction capture(MerchantStore store, Customer customer,
+			Order order, Transaction capturableTransaction,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+
+		
+
+		try {
+			
+			
+			
+			Validate.notNull(capturableTransaction,"Transaction cannot be null");
+			Validate.notNull((String)capturableTransaction.getTransactionDetails().get("TRANSACTIONID"), "Transaction details must contain a TRANSACTIONID");
+			Validate.notNull(order,"Order must not be null");
+			Validate.notNull(order.getCurrency(),"Order nust contain Currency object");
+			
+			String mode = "sandbox";
+			String env = configuration.getEnvironment();
+			if(Constants.PRODUCTION_ENVIRONMENT.equals(env)) {
+				mode = "production";
+			}
+
+
+			 Map<String,String> configurationMap = new HashMap<String,String>();
+			 configurationMap.put("mode", mode);
+			 configurationMap.put("acct1.UserName", configuration.getIntegrationKeys().get("username"));
+			 configurationMap.put("acct1.Password", configuration.getIntegrationKeys().get("api"));
+			 configurationMap.put("acct1.Signature", configuration.getIntegrationKeys().get("signature"));
+				
+			 
+			 DoCaptureReq doCaptureReq = new DoCaptureReq();
+
+
+
+				
+				 BasicAmountType amount = new BasicAmountType();
+				 amount.setValue(pricingService.getStringAmount(order.getTotal(), store));
+				 amount.setCurrencyID(urn.ebay.apis.eBLBaseComponents.CurrencyCodeType.fromValue(order.getCurrency().getCode()));
+
+				// DoCaptureRequest which takes mandatory params:
+				// 
+				// Authorization ID - Authorization identification number of the
+				// payment you want to capture. This is the transaction ID
+				DoCaptureRequestType doCaptureRequest = new DoCaptureRequestType(
+						(String)capturableTransaction.getTransactionDetails().get("TRANSACTIONID"), amount, CompleteCodeType.NOTCOMPLETE);
+
+				doCaptureReq.setDoCaptureRequest(doCaptureRequest);
+
+				// ## Creating service wrapper object
+				// Creating service wrapper object to make API call and loading
+				// configuration file for your credentials and endpoint
+				PayPalAPIInterfaceServiceService service = new PayPalAPIInterfaceServiceService(configurationMap);
+				
+				DoCaptureResponseType doCaptureResponse = null;
+
+					// ## Making API call
+					// Invoke the appropriate method corresponding to API in service
+					// wrapper object
+					 doCaptureResponse = service
+							.doCapture(doCaptureReq);
+
+
+				// ## Accessing response parameters
+				// You can access the response parameters using getter methods in
+				// response object as shown below
+				// ### Success values
+				if(!"Success".equals(doCaptureResponse.getAck().getValue())) {
+							LOGGER.error("Wrong value from transaction commit " + doCaptureResponse.getAck().getValue());
+							throw new IntegrationException("Wrong paypal ack from refund transaction " + doCaptureResponse.getAck().getValue());
+				}
+				//if (doCaptureResponse.getAck().getValue()
+				//		.equalsIgnoreCase("success")) {
+					
+					// Authorization identification number
+					//logger.info("Authorization ID:"
+					//		+ doCaptureResponse.getDoCaptureResponseDetails()
+					//				.getAuthorizationID());
+				//}
+				// ### Error Values
+				// Access error values from error list using getter methods
+				//else {
+				//	List<ErrorType> errorList = doCaptureResponse.getErrors();
+				//	logger.severe("API Error Message : "
+				//			+ errorList.get(0).getLongMessage());
+				//}
+
+				//String refundAck = refundTransactionResponse.getAck().getValue();
+			 
+			 
+
+
+			 
+			 Transaction newTransaction = new Transaction();
+			 newTransaction.setAmount(order.getTotal());
+			 newTransaction.setTransactionDate(new Date());
+			 newTransaction.setTransactionType(TransactionType.CAPTURE);
+			 newTransaction.setPaymentType(PaymentType.PAYPAL);
+			 newTransaction.getTransactionDetails().put("AUTHORIZATIONID", doCaptureResponse.getDoCaptureResponseDetails().getAuthorizationID());
+			 newTransaction.getTransactionDetails().put("TRANSACTIONID", (String)capturableTransaction.getTransactionDetails().get("TRANSACTIONID"));
+
+			return newTransaction;
+			
+			
+		} catch(Exception e) {
+			throw new IntegrationException(e);
+		}
 		
 		
 	}
@@ -311,17 +387,12 @@ public class PayPalExpressCheckoutPayment implements PaymentModule {
 	}
 
 	@Override
-	public Transaction authorizeAndCapture(MerchantStore store,
-			Customer customer, List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
+	public Transaction initTransaction(MerchantStore store, Customer customer,
+			BigDecimal amount, Payment payment,
 			IntegrationConfiguration configuration, IntegrationModule module)
 			throws IntegrationException {
-
-		com.salesmanager.core.model.payments.PaypalPayment paypalPayment = (com.salesmanager.core.model.payments.PaypalPayment)payment;
-		Validate.notNull(paypalPayment.getPaymentToken(), "A paypal payment token is required to process this transaction");
 		
-		return processTransaction(store, customer, items, amount, paypalPayment, configuration, module);
-
-		
+			throw new IntegrationException("Not imlemented");
 	}
 
 	@Override
@@ -418,6 +489,46 @@ public class PayPalExpressCheckoutPayment implements PaymentModule {
 		
 	}
 	
+	@Override
+	public void validateModuleConfiguration(
+			IntegrationConfiguration integrationConfiguration,
+			MerchantStore store) throws IntegrationException {
+		
+		
+		List<String> errorFields = null;
+		
+		//validate integrationKeys['account']
+		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
+		if(keys==null || StringUtils.isBlank(keys.get("api"))) {
+			errorFields = new ArrayList<String>();
+			errorFields.add("api");
+		}
+		
+		if(keys==null || StringUtils.isBlank(keys.get("username"))) {
+			if(errorFields==null) {
+				errorFields = new ArrayList<String>();
+			}
+			errorFields.add("username");
+		}
+		
+		if(keys==null || StringUtils.isBlank(keys.get("signature"))) {
+			if(errorFields==null) {
+				errorFields = new ArrayList<String>();
+			}
+			errorFields.add("signature");
+		}
+		
+
+		if(errorFields!=null) {
+			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
+			ex.setErrorFields(errorFields);
+			throw ex;
+			
+		}
+		
+		
+	}
+
 	private Transaction processTransaction(MerchantStore store,
 			Customer customer, List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
 			IntegrationConfiguration configuration, IntegrationModule module)
@@ -539,117 +650,6 @@ public class PayPalExpressCheckoutPayment implements PaymentModule {
 			throw new IntegrationException(e);
 		}
 
-		
-		
-	}
-
-	@Override
-	public Transaction capture(MerchantStore store, Customer customer,
-			Order order, Transaction capturableTransaction,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-
-		
-
-		try {
-			
-			
-			
-			Validate.notNull(capturableTransaction,"Transaction cannot be null");
-			Validate.notNull((String)capturableTransaction.getTransactionDetails().get("TRANSACTIONID"), "Transaction details must contain a TRANSACTIONID");
-			Validate.notNull(order,"Order must not be null");
-			Validate.notNull(order.getCurrency(),"Order nust contain Currency object");
-			
-			String mode = "sandbox";
-			String env = configuration.getEnvironment();
-			if(Constants.PRODUCTION_ENVIRONMENT.equals(env)) {
-				mode = "production";
-			}
-
-
-			 Map<String,String> configurationMap = new HashMap<String,String>();
-			 configurationMap.put("mode", mode);
-			 configurationMap.put("acct1.UserName", configuration.getIntegrationKeys().get("username"));
-			 configurationMap.put("acct1.Password", configuration.getIntegrationKeys().get("api"));
-			 configurationMap.put("acct1.Signature", configuration.getIntegrationKeys().get("signature"));
-				
-			 
-			 DoCaptureReq doCaptureReq = new DoCaptureReq();
-
-
-
-				
-				 BasicAmountType amount = new BasicAmountType();
-				 amount.setValue(pricingService.getStringAmount(order.getTotal(), store));
-				 amount.setCurrencyID(urn.ebay.apis.eBLBaseComponents.CurrencyCodeType.fromValue(order.getCurrency().getCode()));
-
-				// DoCaptureRequest which takes mandatory params:
-				// 
-				// Authorization ID - Authorization identification number of the
-				// payment you want to capture. This is the transaction ID
-				DoCaptureRequestType doCaptureRequest = new DoCaptureRequestType(
-						(String)capturableTransaction.getTransactionDetails().get("TRANSACTIONID"), amount, CompleteCodeType.NOTCOMPLETE);
-
-				doCaptureReq.setDoCaptureRequest(doCaptureRequest);
-
-				// ## Creating service wrapper object
-				// Creating service wrapper object to make API call and loading
-				// configuration file for your credentials and endpoint
-				PayPalAPIInterfaceServiceService service = new PayPalAPIInterfaceServiceService(configurationMap);
-				
-				DoCaptureResponseType doCaptureResponse = null;
-
-					// ## Making API call
-					// Invoke the appropriate method corresponding to API in service
-					// wrapper object
-					 doCaptureResponse = service
-							.doCapture(doCaptureReq);
-
-
-				// ## Accessing response parameters
-				// You can access the response parameters using getter methods in
-				// response object as shown below
-				// ### Success values
-				if(!"Success".equals(doCaptureResponse.getAck().getValue())) {
-							LOGGER.error("Wrong value from transaction commit " + doCaptureResponse.getAck().getValue());
-							throw new IntegrationException("Wrong paypal ack from refund transaction " + doCaptureResponse.getAck().getValue());
-				}
-				//if (doCaptureResponse.getAck().getValue()
-				//		.equalsIgnoreCase("success")) {
-					
-					// Authorization identification number
-					//logger.info("Authorization ID:"
-					//		+ doCaptureResponse.getDoCaptureResponseDetails()
-					//				.getAuthorizationID());
-				//}
-				// ### Error Values
-				// Access error values from error list using getter methods
-				//else {
-				//	List<ErrorType> errorList = doCaptureResponse.getErrors();
-				//	logger.severe("API Error Message : "
-				//			+ errorList.get(0).getLongMessage());
-				//}
-
-				//String refundAck = refundTransactionResponse.getAck().getValue();
-			 
-			 
-
-
-			 
-			 Transaction newTransaction = new Transaction();
-			 newTransaction.setAmount(order.getTotal());
-			 newTransaction.setTransactionDate(new Date());
-			 newTransaction.setTransactionType(TransactionType.CAPTURE);
-			 newTransaction.setPaymentType(PaymentType.PAYPAL);
-			 newTransaction.getTransactionDetails().put("AUTHORIZATIONID", doCaptureResponse.getDoCaptureResponseDetails().getAuthorizationID());
-			 newTransaction.getTransactionDetails().put("TRANSACTIONID", (String)capturableTransaction.getTransactionDetails().get("TRANSACTIONID"));
-
-			return newTransaction;
-			
-			
-		} catch(Exception e) {
-			throw new IntegrationException(e);
-		}
 		
 		
 	}

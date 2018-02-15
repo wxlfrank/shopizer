@@ -28,22 +28,17 @@ public class ZoneServiceImpl extends SalesManagerEntityServiceImpl<Long, Zone> i
 	
 	private final static String ZONE_CACHE_PREFIX = "ZONES_";
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ZoneServiceImpl.class);
+	
 	private ZoneRepository zoneRepository;
 	
 	@Inject
 	private CacheUtils cache;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ZoneServiceImpl.class);
 
 	@Inject
 	public ZoneServiceImpl(ZoneRepository zoneRepository) {
 		super(zoneRepository);
 		this.zoneRepository = zoneRepository;
-	}
-
-	@Override
-	public Zone getByCode(String code) {
-		return zoneRepository.findByCode(code);
 	}
 
 	@Override
@@ -59,6 +54,11 @@ public class ZoneServiceImpl extends SalesManagerEntityServiceImpl<Long, Zone> i
 			zone.setDescriptons(descriptions);
 			update(zone);
 		}
+	}
+
+	@Override
+	public Zone getByCode(String code) {
+		return zoneRepository.findByCode(code);
 	}
 	
 	@SuppressWarnings("unchecked")

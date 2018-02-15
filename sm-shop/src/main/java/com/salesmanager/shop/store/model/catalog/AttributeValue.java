@@ -17,11 +17,20 @@ public class AttributeValue extends ShopEntity implements Serializable {
 	private String price;
 	private int sortOrder;
 
+	public String getDescription() {
+		return description;
+	}
+	public String getImage() {
+		return image;
+	}
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public String getPrice() {
+		return price;
+	}
+	public int getSortOrder() {
+		return sortOrder;
 	}
 	public boolean isDefaultAttribute() {
 		return defaultAttribute;
@@ -29,26 +38,17 @@ public class AttributeValue extends ShopEntity implements Serializable {
 	public void setDefaultAttribute(boolean defaultAttribute) {
 		this.defaultAttribute = defaultAttribute;
 	}
-	public String getImage() {
-		return image;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	public void setImage(String image) {
 		this.image = image;
 	}
-	public String getPrice() {
-		return price;
+	public void setName(String name) {
+		this.name = name;
 	}
 	public void setPrice(String price) {
 		this.price = price;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	public int getSortOrder() {
-		return sortOrder;
 	}
 	public void setSortOrder(int sortOrder) {
 		this.sortOrder = sortOrder;

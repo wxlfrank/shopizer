@@ -47,11 +47,43 @@ public class ModuleConfigurationServiceImpl extends
 	}
 	
 	@Override
-	public IntegrationModule getByCode(String moduleCode) {
-		return moduleConfigurationRepository.findByCode(moduleCode);
+	public void createOrUpdateModule(String json) throws ServiceException {
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		try {
+			
+			
+			@SuppressWarnings("rawtypes")
+			Map object = mapper.readValue(json, Map.class);
+			
+			IntegrationModule module = integrationModulesLoader.loadModule(object);
+			
+            if(module!=null) {
+            	IntegrationModule m = this.getByCode(module.getCode());
+            	if(m!=null) {
+            		this.delete(m);	 	
+            	}
+            	this.create(module);
+            }
+
+
+
+  		} catch (Exception e) {
+  			throw new ServiceException(e);
+  		} 
+		
+		
+		
+		
 	}
 	
 	
+	@Override
+	public IntegrationModule getByCode(String moduleCode) {
+		return moduleConfigurationRepository.findByCode(moduleCode);
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public List<IntegrationModule> getIntegrationModules(String module) {
@@ -138,38 +170,6 @@ public class ModuleConfigurationServiceImpl extends
 			LOGGER.error("getIntegrationModules()", e);
 		}
 		return modules;
-		
-		
-	}
-
-	@Override
-	public void createOrUpdateModule(String json) throws ServiceException {
-		
-		ObjectMapper mapper = new ObjectMapper();
-		
-		try {
-			
-			
-			@SuppressWarnings("rawtypes")
-			Map object = mapper.readValue(json, Map.class);
-			
-			IntegrationModule module = integrationModulesLoader.loadModule(object);
-			
-            if(module!=null) {
-            	IntegrationModule m = this.getByCode(module.getCode());
-            	if(m!=null) {
-            		this.delete(m);	 	
-            	}
-            	this.create(module);
-            }
-
-
-
-  		} catch (Exception e) {
-  			throw new ServiceException(e);
-  		} 
-		
-		
 		
 		
 	}

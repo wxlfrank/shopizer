@@ -46,12 +46,6 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
     
     private static final String ROOT_CONTAINER = "files";
     
-    private String rootName = ROOT_NAME;
-    
-    private LocalCacheManagerImpl cacheManager;
-    
- 
-
     public static CmsStaticContentFileManagerImpl getInstance()
     {
 
@@ -63,6 +57,12 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
         return fileManager;
 
     }
+    
+    private String rootName = ROOT_NAME;
+    
+ 
+
+    private LocalCacheManagerImpl cacheManager;
 
     
     /**
@@ -233,7 +233,12 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
      }
  
 
-    /**
+    public LocalCacheManagerImpl getCacheManager() {
+		return cacheManager;
+	}
+    
+    
+	/**
      * Method to return static data for given Merchant store based on the file name. Content data will be searched
      * in underlying Infinispan cache tree and {@link OutputStaticContentData} will be returned on finding an associated
      * file. In case of no file, null be returned.
@@ -296,136 +301,6 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
     }
     
     
-	@Override
-	public List<OutputContentFile> getFiles(
-			final String merchantStoreCode, final FileContentType staticContentType) throws ServiceException {
-
-		
-/*		
-        if ( cacheManager.getTreeCache() == null )
-        {
-            throw new ServiceException( "CmsStaticContentFileManagerInfinispan has a null cacheManager.getTreeCache()" );
-        }
-        List<OutputContentFile> images = new ArrayList<OutputContentFile>();
-        try
-        {
-            
-        	FileNameMap fileNameMap = URLConnection.getFileNameMap();
-    		String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
-        	
-    		final Node<String, Object> merchantNode = this.getNode(nodePath);
-    		
-            for(String key : merchantNode.getKeys()) {
-            	
-                byte[] imageBytes = (byte[])merchantNode.get( key );
-
-                OutputContentFile contentImage = new OutputContentFile();
-
-                InputStream input = new ByteArrayInputStream( imageBytes );
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                IOUtils.copy( input, output );
-
-                String contentType = fileNameMap.getContentTypeFor( key );
-
-                contentImage.setFile( output );
-                contentImage.setMimeType( contentType );
-                contentImage.setFileName( key );
-
-                images.add( contentImage );
-            	
-            	
-            }
-            
-
-            
-        }
-        catch ( final Exception e )
-        {
-            LOGGER.error( "Error while fetching file for {} merchant ", merchantStoreCode);
-            throw new ServiceException( e );
-        }
-
-		
-		return images;*/
-		
-		return null;
-		
-		
-	}
-    
-    
-
-    @Override
-    public void removeFile( final String merchantStoreCode, final FileContentType staticContentType, final String fileName )
-        throws ServiceException
-    {
-
-        try
-        {
-            
-        	
-			StringBuilder merchantPath = new StringBuilder();
-	        merchantPath.append(buildRootPath())
-	        .append(Constants.SLASH)
-	        .append(merchantStoreCode)
-	        .append(Constants.SLASH)
-	        .append(staticContentType)
-	        .append(Constants.SLASH)
-	        .append(fileName);
-	        
-	        Path path = Paths.get(merchantPath.toString());
-	        
-	        Files.deleteIfExists(path);
-        	
-
-
-        }
-        catch ( final Exception e )
-        {
-            LOGGER.error( "Error while deleting files for {} merchant ", merchantStoreCode);
-            throw new ServiceException( e );
-        }
-
-        
-    }
-
-    /**
-     * Removes the data in a given merchant node
-     */
-    @SuppressWarnings("unchecked")
-	@Override
-    public void removeFiles( final String merchantStoreCode )
-        throws ServiceException
-    {
-        
-        LOGGER.debug( "Removing all images for {} merchant ",merchantStoreCode);
-
-        try
-        {
-            
-
-			StringBuilder merchantPath = new StringBuilder();
-	        merchantPath.append(buildRootPath())
-	        .append(Constants.SLASH)
-	        .append(merchantStoreCode);
-	        
-	        Path path = Paths.get(merchantPath.toString());
-	        
-	        Files.deleteIfExists(path);
-        	
-        	
-
-
-        }
-        catch ( final Exception e )
-        {
-            LOGGER.error( "Error while deleting content image for {} merchant ", merchantStoreCode);
-            throw new ServiceException( e );
-        }
-
-    }
-
-
 
     /**
      * Queries the CMS to retrieve all static content files. Only the name of the file will be returned to the client
@@ -488,35 +363,159 @@ public class CmsStaticContentFileManagerImpl implements FilePut,FileGet,FileRemo
 
 	}
 
+    @Override
+	public List<OutputContentFile> getFiles(
+			final String merchantStoreCode, final FileContentType staticContentType) throws ServiceException {
+
+		
+/*		
+        if ( cacheManager.getTreeCache() == null )
+        {
+            throw new ServiceException( "CmsStaticContentFileManagerInfinispan has a null cacheManager.getTreeCache()" );
+        }
+        List<OutputContentFile> images = new ArrayList<OutputContentFile>();
+        try
+        {
+            
+        	FileNameMap fileNameMap = URLConnection.getFileNameMap();
+    		String nodePath = this.getNodePath(merchantStoreCode, staticContentType);
+        	
+    		final Node<String, Object> merchantNode = this.getNode(nodePath);
+    		
+            for(String key : merchantNode.getKeys()) {
+            	
+                byte[] imageBytes = (byte[])merchantNode.get( key );
+
+                OutputContentFile contentImage = new OutputContentFile();
+
+                InputStream input = new ByteArrayInputStream( imageBytes );
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                IOUtils.copy( input, output );
+
+                String contentType = fileNameMap.getContentTypeFor( key );
+
+                contentImage.setFile( output );
+                contentImage.setMimeType( contentType );
+                contentImage.setFileName( key );
+
+                images.add( contentImage );
+            	
+            	
+            }
+            
+
+            
+        }
+        catch ( final Exception e )
+        {
+            LOGGER.error( "Error while fetching file for {} merchant ", merchantStoreCode);
+            throw new ServiceException( e );
+        }
+
+		
+		return images;*/
+		
+		return null;
+		
+		
+	}
+
+
+
+    public String getRootName() {
+		return rootName;
+	}
+
+	@Override
+    public void removeFile( final String merchantStoreCode, final FileContentType staticContentType, final String fileName )
+        throws ServiceException
+    {
+
+        try
+        {
+            
+        	
+			StringBuilder merchantPath = new StringBuilder();
+	        merchantPath.append(buildRootPath())
+	        .append(Constants.SLASH)
+	        .append(merchantStoreCode)
+	        .append(Constants.SLASH)
+	        .append(staticContentType)
+	        .append(Constants.SLASH)
+	        .append(fileName);
+	        
+	        Path path = Paths.get(merchantPath.toString());
+	        
+	        Files.deleteIfExists(path);
+        	
+
+
+        }
+        catch ( final Exception e )
+        {
+            LOGGER.error( "Error while deleting files for {} merchant ", merchantStoreCode);
+            throw new ServiceException( e );
+        }
+
+        
+    }
+
+	/**
+     * Removes the data in a given merchant node
+     */
+	@Override
+    public void removeFiles( final String merchantStoreCode )
+        throws ServiceException
+    {
+        
+        LOGGER.debug( "Removing all images for {} merchant ",merchantStoreCode);
+
+        try
+        {
+            
+
+			StringBuilder merchantPath = new StringBuilder();
+	        merchantPath.append(buildRootPath())
+	        .append(Constants.SLASH)
+	        .append(merchantStoreCode);
+	        
+	        Path path = Paths.get(merchantPath.toString());
+	        
+	        Files.deleteIfExists(path);
+        	
+        	
+
+
+        }
+        catch ( final Exception e )
+        {
+            LOGGER.error( "Error while deleting content image for {} merchant ", merchantStoreCode);
+            throw new ServiceException( e );
+        }
+
+    }
+	
+	public void setCacheManager(LocalCacheManagerImpl cacheManager) {
+		this.cacheManager = cacheManager;
+	}
+	
+
 	public void setRootName(String rootName) {
 		this.rootName = rootName;
 	}
 
-	public String getRootName() {
-		return rootName;
-	}
-	
+
 	private String buildRootPath() {
 		return new StringBuilder().append(getRootName()).append(Constants.SLASH).append(ROOT_CONTAINER).append(Constants.SLASH).toString();
 
 	}
-	
+
 
 	private void createDirectoryIfNorExist(Path path) throws IOException {
 
     	if (Files.notExists(path)) {
     		Files.createDirectory(path);
     	}
-	}
-
-
-	public LocalCacheManagerImpl getCacheManager() {
-		return cacheManager;
-	}
-
-
-	public void setCacheManager(LocalCacheManagerImpl cacheManager) {
-		this.cacheManager = cacheManager;
 	}
 
 

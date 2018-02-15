@@ -3,6 +3,17 @@
  */
 package com.salesmanager.shop.populator.shoppingCart;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.configuration.ConversionException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
@@ -17,16 +28,6 @@ import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.shop.model.shoppingcart.ShoppingCartAttribute;
 import com.salesmanager.shop.model.shoppingcart.ShoppingCartData;
 import com.salesmanager.shop.model.shoppingcart.ShoppingCartItem;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.configuration.ConversionException;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Umesh A
@@ -43,44 +44,33 @@ public class ShoppingCartModelPopulator
     
     private Customer customer;
 
-    public ShoppingCartService getShoppingCartService() {
-		return shoppingCartService;
-	}
-
-
-	public void setShoppingCartService(ShoppingCartService shoppingCartService) {
-		this.shoppingCartService = shoppingCartService;
-	}
-
-
-	private ProductService productService;
-
-
-    public ProductService getProductService() {
-		return productService;
-	}
-
-
-	public void setProductService(ProductService productService) {
-		this.productService = productService;
-	}
+    private ProductService productService;
 
 
 	private ProductAttributeService productAttributeService;
-    
-   
+
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+
     public ProductAttributeService getProductAttributeService() {
 		return productAttributeService;
 	}
 
 
-	public void setProductAttributeService(
-			ProductAttributeService productAttributeService) {
-		this.productAttributeService = productAttributeService;
+	public ProductService getProductService() {
+		return productService;
 	}
 
 
-	@Override
+	public ShoppingCartService getShoppingCartService() {
+		return shoppingCartService;
+	}
+    
+   
+    @Override
     public ShoppingCart populate(ShoppingCartData shoppingCart,ShoppingCart cartMdel,final MerchantStore store, Language language)
     {
 
@@ -186,8 +176,31 @@ public class ShoppingCartModelPopulator
         return cartMdel;
     }
 
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+
+	public void setProductAttributeService(
+			ProductAttributeService productAttributeService) {
+		this.productAttributeService = productAttributeService;
+	}
+
    
-    private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem( com.salesmanager.core.model.shoppingcart.ShoppingCart cart,
+    public void setProductService(ProductService productService) {
+		this.productService = productService;
+	}
+
+
+
+
+    public void setShoppingCartService(ShoppingCartService shoppingCartService) {
+		this.shoppingCartService = shoppingCartService;
+	}
+
+
+	private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem( com.salesmanager.core.model.shoppingcart.ShoppingCart cart,
                                                                                                ShoppingCartItem shoppingCartItem,
                                                                                                MerchantStore store )
         throws Exception
@@ -216,8 +229,8 @@ public class ShoppingCartModelPopulator
         List<ShoppingCartAttribute> cartAttributes = shoppingCartItem.getShoppingCartAttributes();
         if ( !CollectionUtils.isEmpty( cartAttributes ) )
         {
-            Set<com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem> newAttributes =
-                new HashSet<com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem>();
+//            Set<com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem> newAttributes =
+//                new HashSet<com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem>();
             for ( ShoppingCartAttribute attribute : cartAttributes )
             {
                 ProductAttribute productAttribute = productAttributeService.getById( attribute.getAttributeId() );
@@ -245,24 +258,12 @@ public class ShoppingCartModelPopulator
     }
 
 
-
-
-    @Override
+	@Override
     protected ShoppingCart createTarget()
     {
       
         return new ShoppingCart();
     }
-
-
-	public Customer getCustomer() {
-		return customer;
-	}
-
-
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
 
 
    

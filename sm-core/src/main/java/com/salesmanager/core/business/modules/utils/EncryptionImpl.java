@@ -16,28 +16,25 @@ public final class EncryptionImpl implements Encryption {
 	
 
 
-    private String  secretKey;
-
-
-
-	@Override
-	public String encrypt(String value) throws Exception {
-
-		
-		// value = StringUtils.rightPad(value, 16,"*");
-		// Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-		// NEED TO UNDERSTAND WHY PKCS5Padding DOES NOT WORK
-		Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
-		SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
-		IvParameterSpec ivSpec = new IvParameterSpec(IV_P
-				.getBytes());
-		cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
-		byte[] inpbytes = value.getBytes();
-		byte[] encrypted = cipher.doFinal(inpbytes);
-		return new String(bytesToHex(encrypted));
-		
-		
+    private static byte[] hexToBytes(String str) {
+		if (str == null) {
+			return null;
+		} else if (str.length() < 2) {
+			return null;
+		} else {
+			int len = str.length() / 2;
+			byte[] buffer = new byte[len];
+			for (int i = 0; i < len; i++) {
+				buffer[i] = (byte) Integer.parseInt(str.substring(i * 2,
+						i * 2 + 2), 16);
+			}
+			return buffer;
+		}
 	}
+
+
+
+	private String  secretKey;
 
 	@Override
 	public String decrypt(String value) throws Exception {
@@ -61,6 +58,33 @@ public final class EncryptionImpl implements Encryption {
 	}
 	
 	
+	@Override
+	public String encrypt(String value) throws Exception {
+
+		
+		// value = StringUtils.rightPad(value, 16,"*");
+		// Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
+		// NEED TO UNDERSTAND WHY PKCS5Padding DOES NOT WORK
+		Cipher cipher = Cipher.getInstance(CYPHER_SPEC);
+		SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(), KEY_SPEC);
+		IvParameterSpec ivSpec = new IvParameterSpec(IV_P
+				.getBytes());
+		cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+		byte[] inpbytes = value.getBytes();
+		byte[] encrypted = cipher.doFinal(inpbytes);
+		return new String(bytesToHex(encrypted));
+		
+		
+	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+	
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
+	}
+
 	private String bytesToHex(byte[] data) {
 		if (data == null) {
 			return null;
@@ -78,30 +102,6 @@ public final class EncryptionImpl implements Encryption {
 			}
 			return str;
 		}
-	}
-
-	private static byte[] hexToBytes(String str) {
-		if (str == null) {
-			return null;
-		} else if (str.length() < 2) {
-			return null;
-		} else {
-			int len = str.length() / 2;
-			byte[] buffer = new byte[len];
-			for (int i = 0; i < len; i++) {
-				buffer[i] = (byte) Integer.parseInt(str.substring(i * 2,
-						i * 2 + 2), 16);
-			}
-			return buffer;
-		}
-	}
-	
-	public String getSecretKey() {
-		return secretKey;
-	}
-
-	public void setSecretKey(String secretKey) {
-		this.secretKey = secretKey;
 	}
 
 }

@@ -11,15 +11,15 @@ import com.salesmanager.core.model.reference.language.Language;
 
 public interface LanguageService extends SalesManagerEntityService<Integer, Language> {
 
-	Language getByCode(String code) throws ServiceException;
+	Language defaultLanguage();
 
-	Map<String, Language> getLanguagesMap() throws ServiceException;
+	Language getByCode(String code) throws ServiceException;
 
 	List<Language> getLanguages() throws ServiceException;
 
-	Locale toLocale(Language language, MerchantStore store);
+	Map<String, Language> getLanguagesMap() throws ServiceException;
 
 	Language toLanguage(Locale locale);
 	
-	Language defaultLanguage();
+	Locale toLocale(Language language, MerchantStore store);
 }

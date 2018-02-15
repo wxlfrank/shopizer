@@ -54,28 +54,12 @@ public class CustomerOptionSet extends SalesManagerEntity<Long, CustomerOptionSe
 	
 
 
-	public int getSortOrder() {
-		return sortOrder;
-	}
-
-	public void setSortOrder(int sortOrder) {
-		this.sortOrder = sortOrder;
-	}
-
-	public void setCustomerOptionValue(CustomerOptionValue customerOptionValue) {
-		this.customerOptionValue = customerOptionValue;
+	public CustomerOption getCustomerOption() {
+		return customerOption;
 	}
 
 	public CustomerOptionValue getCustomerOptionValue() {
 		return customerOptionValue;
-	}
-
-	public void setCustomerOption(CustomerOption customerOption) {
-		this.customerOption = customerOption;
-	}
-
-	public CustomerOption getCustomerOption() {
-		return customerOption;
 	}
 
 	@Override
@@ -83,9 +67,25 @@ public class CustomerOptionSet extends SalesManagerEntity<Long, CustomerOptionSe
 		return id;
 	}
 
+	public int getSortOrder() {
+		return sortOrder;
+	}
+
+	public void setCustomerOption(CustomerOption customerOption) {
+		this.customerOption = customerOption;
+	}
+
+	public void setCustomerOptionValue(CustomerOptionValue customerOptionValue) {
+		this.customerOptionValue = customerOptionValue;
+	}
+
 	@Override
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public void setSortOrder(int sortOrder) {
+		this.sortOrder = sortOrder;
 	}
 
 

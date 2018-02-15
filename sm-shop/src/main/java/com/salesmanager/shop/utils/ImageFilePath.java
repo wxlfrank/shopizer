@@ -7,31 +7,14 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 public interface ImageFilePath {
 	
 	/**
-	 * Context path configured in shopizer-properties.xml
-	 * @return
-	 */
-	public String getContextPath();
-	
-	
-	public String getBasePath();
-
-	/**
-	 * Builds a static content image file path that can be used by image servlet
-	 * utility for getting the physical image
+	 * Builds a large product image file path that can be used by the image servlet
 	 * @param store
+	 * @param sku
 	 * @param imageName
 	 * @return
 	 */
-	public String buildStaticImageUtils(MerchantStore store, String imageName);
+	public String buildLargeProductImageUtils(MerchantStore store, String sku, String imageName);
 	
-	/**
-	 * Builds a static content image file path that can be used by image servlet
-	 * utility for getting the physical image by specifying the image type
-	 * @param store
-	 * @param imageName
-	 * @return
-	 */
-	public String buildStaticImageUtils(MerchantStore store, String type, String imageName);
 	
 	/**
 	 * Builds a manufacturer image file path that can be used by image servlet
@@ -42,7 +25,7 @@ public interface ImageFilePath {
 	 * @return
 	 */
 	public String buildManufacturerImageUtils(MerchantStore store, Manufacturer manufacturer, String imageName);
-	
+
 	/**
 	 * Builds a product image file path that can be used by image servlet
 	 * utility for getting the physical image
@@ -64,13 +47,38 @@ public interface ImageFilePath {
 	public String buildProductImageUtils(MerchantStore store, String sku, String imageName);
 	
 	/**
-	 * Builds a large product image file path that can be used by the image servlet
+	 * Builds product property image url path
 	 * @param store
-	 * @param sku
 	 * @param imageName
 	 * @return
 	 */
-	public String buildLargeProductImageUtils(MerchantStore store, String sku, String imageName);
+	public String buildProductPropertyImageUtils(MerchantStore store, String imageName);
+	
+	/**
+	 * Builds static file path
+	 * @param store
+	 * @param fileName
+	 * @return
+	 */
+	public String buildStaticContentFilePath(MerchantStore store, String fileName);
+	
+	/**
+	 * Builds a static content image file path that can be used by image servlet
+	 * utility for getting the physical image
+	 * @param store
+	 * @param imageName
+	 * @return
+	 */
+	public String buildStaticImageUtils(MerchantStore store, String imageName);
+	
+	/**
+	 * Builds a static content image file path that can be used by image servlet
+	 * utility for getting the physical image by specifying the image type
+	 * @param store
+	 * @param imageName
+	 * @return
+	 */
+	public String buildStaticImageUtils(MerchantStore store, String type, String imageName);
 
 
 	
@@ -81,22 +89,14 @@ public interface ImageFilePath {
 	 */
 	public String buildStoreLogoFilePath(MerchantStore store);
 	
-	/**
-	 * Builds product property image url path
-	 * @param store
-	 * @param imageName
-	 * @return
-	 */
-	public String buildProductPropertyImageUtils(MerchantStore store, String imageName);
+	public String getBasePath();
 	
 	
 	/**
-	 * Builds static file path
-	 * @param store
-	 * @param fileName
+	 * Context path configured in shopizer-properties.xml
 	 * @return
 	 */
-	public String buildStaticContentFilePath(MerchantStore store, String fileName);
+	public String getContextPath();
 
 
 }

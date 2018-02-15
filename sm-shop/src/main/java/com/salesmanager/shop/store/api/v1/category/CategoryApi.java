@@ -35,6 +35,8 @@ import com.salesmanager.shop.utils.LanguageUtils;
 @RequestMapping("/api/v1")
 public class CategoryApi {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CategoryApi.class);
+	
 	@Inject
 	private CategoryFacade categoryFacade;
 	
@@ -51,8 +53,57 @@ public class CategoryApi {
 	@Inject
 	private LanguageUtils languageUtils;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CategoryApi.class);
 	
+	/**
+	 * Category creation
+	 */
+	@RequestMapping( value="/private/category", method=RequestMethod.POST)
+	@ResponseStatus(HttpStatus.CREATED)
+	@ResponseBody
+	public PersistableCategory createCategory(@Valid @RequestBody PersistableCategory category, HttpServletRequest request, HttpServletResponse response) {
+		
+		
+		try {
+
+
+			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+//			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
+			categoryFacade.saveCategory(merchantStore, category);
+
+			
+			category.setId(category.getId());
+
+			return category;
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while creating category",e);
+			try {
+				response.sendError(503, "Error while creating category " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			return null;
+		}
+	}
+	
+	@ResponseStatus(HttpStatus.OK)
+	@RequestMapping( value="/private/category/{id}", method=RequestMethod.DELETE)
+    public void delete(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		try {
+			Category category = categoryService.getById(id);
+			if(category != null){
+				categoryFacade.deleteCategory(category);
+			}else{
+				response.sendError(404, "No Category found for ID : " + id);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting category",e);
+			try {
+				response.sendError(503, "Error while deleting category " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+		}
+	}
 	
 	@RequestMapping(value = "/category/{id}", method=RequestMethod.GET)
 	@ResponseBody
@@ -82,7 +133,7 @@ public class CategoryApi {
 		}
 	}
 	
-	/**
+    /**
 	 * Get all category starting from root
 	 * filter can be used for filtering on fields
 	 * only featured is supported
@@ -117,38 +168,7 @@ public class CategoryApi {
 			return null;
 		}
 	}
-	
-	/**
-	 * Category creation
-	 */
-	@RequestMapping( value="/private/category", method=RequestMethod.POST)
-	@ResponseStatus(HttpStatus.CREATED)
-	@ResponseBody
-	public PersistableCategory createCategory(@Valid @RequestBody PersistableCategory category, HttpServletRequest request, HttpServletResponse response) {
-		
-		
-		try {
-
-
-			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
-			categoryFacade.saveCategory(merchantStore, category);
-
-			
-			category.setId(category.getId());
-
-			return category;
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while creating category",e);
-			try {
-				response.sendError(503, "Error while creating category " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			return null;
-		}
-	}
-	
+    
     @ResponseStatus(HttpStatus.OK)
 	@RequestMapping( value="/private/category/{id}", method=RequestMethod.PUT)
     public @ResponseBody PersistableCategory update(@PathVariable Long id, @Valid @RequestBody PersistableCategory category, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -170,26 +190,6 @@ public class CategoryApi {
 			return null;
 		}
 		
-	}
-    
-    @ResponseStatus(HttpStatus.OK)
-	@RequestMapping( value="/private/category/{id}", method=RequestMethod.DELETE)
-    public void delete(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		try {
-			Category category = categoryService.getById(id);
-			if(category != null){
-				categoryFacade.deleteCategory(category);
-			}else{
-				response.sendError(404, "No Category found for ID : " + id);
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting category",e);
-			try {
-				response.sendError(503, "Error while deleting category " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-		}
 	}
 
 }

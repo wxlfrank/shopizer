@@ -4,27 +4,54 @@ import org.json.simple.JSONObject;
 
 public class AutoCompleteRequest {
 	
+//	private final static String WILDCARD_QUERY = "wildcard";
+	private final static String KEYWORD = "keyword";
+	
+	
+	private final static String UNDERSCORE = "_";
+//	private final static String ALL = "*";
+//	private final static String TYPE = "type";
+	private final static String ANALYZER = "analyzer";
+	private final static String STD_ANALYZER = "standard";
+//	private final static String TYPE_PHRASE = "phrase_prefix";
+	private final static String QUERY = "query";
+	private final static String MATCH = "match";
 	//private String collectionName;
 	//private String query;
 	//private String filter;
 	private String merchantCode;
 	private String languageCode;
 	
-	
-	private final static String WILDCARD_QUERY = "wildcard";
-	private final static String KEYWORD = "keyword";
-	private final static String UNDERSCORE = "_";
-	private final static String ALL = "*";
-	private final static String TYPE = "type";
-	private final static String ANALYZER = "analyzer";
-	private final static String STD_ANALYZER = "standard";
-	private final static String TYPE_PHRASE = "phrase_prefix";
-	private final static String QUERY = "query";
-	private final static String MATCH = "match";
-	
 	public AutoCompleteRequest(String merchantCode, String languageCode) {
 		this.merchantCode = merchantCode;
 		this.languageCode = languageCode;
+	}
+
+	/** keyword_en_default **/
+	public String getCollectionName() {
+		StringBuilder qBuilder = new StringBuilder();
+		qBuilder.append(KEYWORD).append(UNDERSCORE).append(getLanguageCode()).append(UNDERSCORE)
+		.append(getMerchantCode());
+		
+		return qBuilder.toString().toLowerCase();
+	}
+	
+	public String getLanguageCode() {
+		return languageCode;
+	}
+	
+	
+
+	public String getMerchantCode() {
+		return merchantCode;
+	}
+
+	public void setLanguageCode(String languageCode) {
+		this.languageCode = languageCode;
+	}
+
+	public void setMerchantCode(String merchantCode) {
+		this.merchantCode = merchantCode;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -56,33 +83,6 @@ public class AutoCompleteRequest {
 		
 		
 		return mq.toJSONString();
-	}
-	
-	/** keyword_en_default **/
-	public String getCollectionName() {
-		StringBuilder qBuilder = new StringBuilder();
-		qBuilder.append(KEYWORD).append(UNDERSCORE).append(getLanguageCode()).append(UNDERSCORE)
-		.append(getMerchantCode());
-		
-		return qBuilder.toString().toLowerCase();
-	}
-	
-	
-
-	public String getMerchantCode() {
-		return merchantCode;
-	}
-
-	public void setMerchantCode(String merchantCode) {
-		this.merchantCode = merchantCode;
-	}
-
-	public String getLanguageCode() {
-		return languageCode;
-	}
-
-	public void setLanguageCode(String languageCode) {
-		this.languageCode = languageCode;
 	}
 
 }

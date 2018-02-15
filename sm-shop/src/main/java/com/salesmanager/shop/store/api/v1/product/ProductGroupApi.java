@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.salesmanager.core.business.services.catalog.product.ProductService;
-import com.salesmanager.core.business.services.catalog.product.relationship.ProductRelationshipService;
-import com.salesmanager.core.business.services.merchant.MerchantStoreService;
-import com.salesmanager.core.business.services.reference.language.LanguageService;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
@@ -37,20 +34,22 @@ import com.salesmanager.shop.utils.LanguageUtils;
 @RequestMapping("/api/v1")
 public class ProductGroupApi {
 	
-	@Inject
-	private LanguageService languageService;
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProductGroupApi.class);
 	
+//	@Inject
+//	private LanguageService languageService;
+//	
 	@Inject
 	private LanguageUtils languageUtils;
 	
 	@Inject
 	private ProductService productService;
 	
-	@Inject
-	private ProductRelationshipService productRelationshipService;
-	
-	@Inject
-	private MerchantStoreService merchantStoreService;
+//	@Inject
+//	private ProductRelationshipService productRelationshipService;
+//	
+//	@Inject
+//	private MerchantStoreService merchantStoreService;
 	
 	@Inject
 	private ProductItemsFacade productItemsFacade;
@@ -58,10 +57,41 @@ public class ProductGroupApi {
 	@Inject
 	private StoreFacade storeFacade;
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProductGroupApi.class);
+	
+	@ResponseStatus(HttpStatus.CREATED)
+	@RequestMapping( value="/private/products/{productId}/group/{code}", method=RequestMethod.POST)
+    public @ResponseBody ReadableProductList addProductToGroup(@PathVariable Long productId, @PathVariable String code, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    	
+		try {
+    	
+	    	MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
+	    	
+	    	//get the product
+	    	Product product = productService.getById(productId);
+	    	
+			if(product==null) {
+				response.sendError(404, "Product not fount for id " + productId);
+				return null;
+			}
+			
+			ReadableProductList list = productItemsFacade.addItemToGroup(product, code, merchantStore, language);
+
+	    	return list;
+	    	
+		} catch (Exception e) {
+			LOGGER.error("Error while adding product to group",e);
+			try {
+				response.sendError(503, "Error while adding product to group " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return null;
+		}
+    }
 	
 	
-	/**
+    /**
 	 * Query for a product group
 	 * public/products/group/{code}?lang=fr|en
 	 * no lang it will take session lang or default store lang
@@ -101,39 +131,6 @@ public class ProductGroupApi {
 		return null;
 		
 	}
-	
-	
-    @ResponseStatus(HttpStatus.CREATED)
-	@RequestMapping( value="/private/products/{productId}/group/{code}", method=RequestMethod.POST)
-    public @ResponseBody ReadableProductList addProductToGroup(@PathVariable Long productId, @PathVariable String code, HttpServletRequest request, HttpServletResponse response) throws Exception {
-    	
-		try {
-    	
-	    	MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
-	    	
-	    	//get the product
-	    	Product product = productService.getById(productId);
-	    	
-			if(product==null) {
-				response.sendError(404, "Product not fount for id " + productId);
-				return null;
-			}
-			
-			ReadableProductList list = productItemsFacade.addItemToGroup(product, code, merchantStore, language);
-
-	    	return list;
-	    	
-		} catch (Exception e) {
-			LOGGER.error("Error while adding product to group",e);
-			try {
-				response.sendError(503, "Error while adding product to group " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
-    }
     
     @ResponseStatus(HttpStatus.OK)
 	@RequestMapping( value="/private/products/{productId}/group/{code}", method=RequestMethod.DELETE)

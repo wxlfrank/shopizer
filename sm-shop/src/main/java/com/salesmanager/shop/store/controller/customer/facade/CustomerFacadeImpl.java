@@ -26,9 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.salesmanager.core.business.exception.ConversionException;
-import com.salesmanager.core.business.services.catalog.product.PricingService;
-import com.salesmanager.core.business.services.catalog.product.ProductService;
-import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
 import com.salesmanager.core.business.services.customer.CustomerService;
 import com.salesmanager.core.business.services.customer.attribute.CustomerOptionService;
 import com.salesmanager.core.business.services.customer.attribute.CustomerOptionValueService;
@@ -36,9 +33,7 @@ import com.salesmanager.core.business.services.customer.review.CustomerReviewSer
 import com.salesmanager.core.business.services.reference.country.CountryService;
 import com.salesmanager.core.business.services.reference.language.LanguageService;
 import com.salesmanager.core.business.services.reference.zone.ZoneService;
-import com.salesmanager.core.business.services.shoppingcart.ShoppingCartCalculationService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
-import com.salesmanager.core.business.services.system.EmailService;
 import com.salesmanager.core.business.services.user.GroupService;
 import com.salesmanager.core.business.services.user.PermissionService;
 import com.salesmanager.core.business.utils.CoreConfiguration;
@@ -97,17 +92,17 @@ public class CustomerFacadeImpl implements CustomerFacade
      @Inject
      private ShoppingCartService shoppingCartService;
 
-     @Inject
-     private ShoppingCartCalculationService shoppingCartCalculationService;
-
-     @Inject
-     private PricingService pricingService;
-
-     @Inject
-     private ProductService productService;
-
-     @Inject
-     private ProductAttributeService productAttributeService;
+//     @Inject
+//     private ShoppingCartCalculationService shoppingCartCalculationService;
+//
+//     @Inject
+//     private PricingService pricingService;
+//
+//     @Inject
+//     private ProductService productService;
+//
+//     @Inject
+//     private ProductAttributeService productAttributeService;
      
      @Inject
      private LanguageService languageService;
@@ -131,12 +126,11 @@ public class CustomerFacadeImpl implements CustomerFacade
      @Inject
      private ZoneService zoneService;
      
-     @SuppressWarnings( "deprecation" )
      @Inject
      private PasswordEncoder passwordEncoder;
      
- 	 @Inject
- 	 private EmailService emailService;
+// 	 @Inject
+// 	 private EmailService emailService;
  	 
  	 @Inject
  	 private EmailTemplatesUtils emailTemplatesUtils;
@@ -151,7 +145,188 @@ public class CustomerFacadeImpl implements CustomerFacade
  	@Inject
  	private CoreConfiguration coreConfiguration;
 
+	public void authenticate(Customer customer, String userName, String password) throws Exception {
+		
+			Validate.notNull(customer, "Customer cannot be null");
+
+        	Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+			GrantedAuthority role = new SimpleGrantedAuthority(ROLE_PREFIX + Constants.PERMISSION_CUSTOMER_AUTHENTICATED);//required to login
+			authorities.add(role); 
+			List<Integer> groupsId = new ArrayList<Integer>();
+			List<Group> groups = customer.getGroups();
+			if(groups!=null) {
+				for(Group group : groups) {
+					groupsId.add(group.getId());
+					
+				}
+				if(groupsId!=null && groupsId.size()>0) {
+			    	List<Permission> permissions = permissionService.getPermissions(groupsId);
+			    	for(Permission permission : permissions) {
+			    		GrantedAuthority auth = new SimpleGrantedAuthority(permission.getPermissionName());
+			    		authorities.add(auth);
+			    	}
+				}
+			}
+
+			Authentication authenticationToken =
+                new UsernamePasswordAuthenticationToken(userName, password, authorities);
+    	
+			Authentication authentication = customerAuthenticationManager.authenticate(authenticationToken);
+    
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+		
+	}
+
+
     /**
+	    * <p>
+	    * Method to check if given user exists for given username under given store.
+	    * System treat username as unique for a given store, 
+	    * customer is not allowed
+	    * to use same username twice for a given store, however it can be used for 
+	    * different stores.</p>
+	    * 
+	    * @param userName Customer slected userName
+	    * @param store store for which customer want to register
+	    * @return boolean flag indicating if user exists for given store or not
+	    * @throws Exception 
+	    * 
+	    */
+	   @Override
+	    public boolean checkIfUserExists( final String userName, final MerchantStore store )
+	        throws Exception
+	    {
+	        if ( StringUtils.isNotBlank( userName ) && store != null )
+	        {
+	            Customer customer = customerService.getByNick( userName, store.getId() );
+	            if ( customer != null )
+	            {
+	                LOG.info( "Customer with userName {} already exists for store {} ", userName, store.getStorename() );
+	                return true;
+	            }
+	            
+	            LOG.info( "No customer found with userName {} for store {} ", userName, store.getStorename());
+	            return false;
+	
+	        }
+	        LOG.info( "Either userName is empty or we have not found any value for store" );
+	        return false;
+	    }
+
+
+
+
+
+ 	@Override
+	public void create(PersistableCustomer customer, MerchantStore store) throws Exception {
+		
+		if(this.userExist(customer.getUserName())) {
+			throw new UserAlreadyExistException("User already exist");
+		}
+		
+		Customer c = this.populate(customer, store);
+		
+		customerService.save(c);
+		customer.setId(c.getId());
+		
+		this.notifyNewCustomer(customer, store, c.getDefaultLanguage());
+		
+		/**
+		 * For security reasons set empty passwords
+		 */
+		//customer.setEncodedPassword(null);
+		//customer.setClearPassword(null);
+		
+	}
+
+
+   @Override
+public void deleteCustomerReview(CustomerReview review, MerchantStore store, Language language) throws Exception {
+	customerReviewService.delete(review);
+	
+}
+
+
+    @Override
+    public Address getAddress( Long userId, final MerchantStore merchantStore,boolean isBillingAddress)
+        throws Exception
+    {
+	     LOG.info( "Fetching customer for id {} ", userId);
+        Address address=null;
+        final Customer customerModel=customerService.getById( userId );
+        
+        if(customerModel == null){
+            LOG.error( "Customer with ID {} does not exists..", userId);
+            //throw new CustomerNotFoundException( "customer with given id does not exists" );
+            throw new Exception( "customer with given id does not exists" );
+        }
+        
+       if(isBillingAddress){
+            LOG.info( "getting billing address.." );
+            CustomerBillingAddressPopulator billingAddressPopulator=new CustomerBillingAddressPopulator();
+            address =billingAddressPopulator.populate( customerModel, merchantStore, merchantStore.getDefaultLanguage() );
+            address.setBillingAddress( true );
+            return address;
+        }
+        
+        LOG.info( "getting Delivery address.." );
+        CustomerDeliveryAddressPopulator deliveryAddressPopulator=new CustomerDeliveryAddressPopulator();
+        return deliveryAddressPopulator.populate( customerModel, merchantStore, merchantStore.getDefaultLanguage() );
+    
+    }
+    
+    @Override
+	public List<ReadableCustomerReview> getAllCustomerReviewsByReviewed(Customer customer, MerchantStore store,
+			Language language) throws Exception {
+		Validate.notNull(customer,"Reviewed customer cannot be null");
+		
+		List<CustomerReview> reviews = customerReviewService.getByReviewedCustomer(customer);
+		
+		ReadableCustomerReviewPopulator populator = new ReadableCustomerReviewPopulator();
+		
+		
+		List<ReadableCustomerReview> customerReviews = new ArrayList<ReadableCustomerReview>();
+		
+		for(CustomerReview review : reviews) {
+			ReadableCustomerReview readableReview = new ReadableCustomerReview();
+			populator.populate(review, readableReview, store, language);
+			customerReviews.add(readableReview);
+		}
+		
+		
+		
+		return customerReviews;
+	}
+    
+
+
+
+	@Override
+	public ReadableCustomer getCustomerById(final Long id, final MerchantStore merchantStore, final Language language) throws Exception {
+		Customer customerModel = customerService.getById(id);
+		if(customerModel==null) {
+			return null;
+		}
+		
+		ReadableCustomer readableCustomer = new ReadableCustomer();
+		
+		ReadableCustomerPopulator customerPopulator = new ReadableCustomerPopulator();
+		customerPopulator.populate(customerModel,readableCustomer, merchantStore, language);
+		
+		return readableCustomer;
+	}
+
+
+
+	
+	@Override
+ 	public Customer getCustomerByUserName(String userName, MerchantStore store)
+		throws Exception {
+ 		return customerService.getByNick( userName, store.getId() );
+ 	}
+
+
+	/**
      * Method used to fetch customer based on the username and storecode.
      * Customer username is unique to each store.
      *
@@ -183,7 +358,38 @@ public class CustomerFacadeImpl implements CustomerFacade
     }
 
 
-    /* (non-Javadoc)
+    @Override
+    public Customer getCustomerModel(final PersistableCustomer customer,final MerchantStore merchantStore, Language language) throws Exception {
+        
+        LOG.info( "Starting to populate customer model from customer data" );
+        Customer customerModel=null;
+        CustomerPopulator populator = new CustomerPopulator();
+        populator.setCountryService(countryService);
+        populator.setCustomerOptionService(customerOptionService);
+        populator.setCustomerOptionValueService(customerOptionValueService);
+        populator.setLanguageService(languageService);
+        populator.setLanguageService(languageService);
+        populator.setZoneService(zoneService);
+        populator.setGroupService(groupService);
+
+
+            customerModel= populator.populate( customer, merchantStore, language );
+            //we are creating or resetting a customer
+            if(StringUtils.isBlank(customerModel.getPassword()) && !StringUtils.isBlank(customer.getClearPassword())) {
+            	customerModel.setPassword(customer.getClearPassword());
+            }
+			//set groups
+            if(!StringUtils.isBlank(customerModel.getPassword()) && !StringUtils.isBlank(customerModel.getNick())) {
+            	customerModel.setPassword(passwordEncoder.encode(customer.getClearPassword()));
+            	setCustomerModelDefaultProperties(customerModel, merchantStore);
+            }
+            
+
+          return customerModel;
+
+    }
+    
+	/* (non-Javadoc)
     *  @see com.salesmanager.web.shop.controller.customer.facade#mergeCart(final Customer customerModel, final String sessionShoppingCartId ,final MerchantStore store,final Language language)
     */
     @Override
@@ -256,53 +462,31 @@ public class CustomerFacadeImpl implements CustomerFacade
     }
 
 
+	@Override
+	public Customer populateCustomerModel(Customer customerModel,
+			PersistableCustomer customer, MerchantStore merchantStore,
+			Language language) throws Exception {
+        LOG.info( "Starting to populate customer model from customer data" );
+        CustomerPopulator populator = new CustomerPopulator();
+        populator.setCountryService(countryService);
+        populator.setCustomerOptionService(customerOptionService);
+        populator.setCustomerOptionValueService(customerOptionValueService);
+        populator.setLanguageService(languageService);
+        populator.setLanguageService(languageService);
+        populator.setGroupService(groupService);
+        populator.setZoneService(zoneService);
+        populator.setGroupService(groupService);
 
 
+            customerModel= populator.populate( customer, customerModel, merchantStore, language );
 
- 	@Override
- 	public Customer getCustomerByUserName(String userName, MerchantStore store)
-		throws Exception {
- 		return customerService.getByNick( userName, store.getId() );
- 	}
-
-
-   /**
-    * <p>
-    * Method to check if given user exists for given username under given store.
-    * System treat username as unique for a given store, 
-    * customer is not allowed
-    * to use same username twice for a given store, however it can be used for 
-    * different stores.</p>
-    * 
-    * @param userName Customer slected userName
-    * @param store store for which customer want to register
-    * @return boolean flag indicating if user exists for given store or not
-    * @throws Exception 
-    * 
-    */
-   @Override
-    public boolean checkIfUserExists( final String userName, final MerchantStore store )
-        throws Exception
-    {
-        if ( StringUtils.isNotBlank( userName ) && store != null )
-        {
-            Customer customer = customerService.getByNick( userName, store.getId() );
-            if ( customer != null )
-            {
-                LOG.info( "Customer with userName {} already exists for store {} ", userName, store.getStorename() );
-                return true;
-            }
-            
-            LOG.info( "No customer found with userName {} for store {} ", userName, store.getStorename());
-            return false;
-
-        }
-        LOG.info( "Either userName is empty or we have not found any value for store" );
-        return false;
-    }
+            LOG.info( "About to persist customer to database." );
+            customerService.saveOrUpdate( customerModel );
+            return customerModel;
+	}
 
 
-    @Override
+	@Override
     public PersistableCustomer registerCustomer( final PersistableCustomer customer,final MerchantStore merchantStore, Language language )
         throws Exception
     {
@@ -327,41 +511,23 @@ public class CustomerFacadeImpl implements CustomerFacade
        customer.setId(customerModel.getId());
        return customer;
      }
-    
-    @Override
-    public Customer getCustomerModel(final PersistableCustomer customer,final MerchantStore merchantStore, Language language) throws Exception {
-        
-        LOG.info( "Starting to populate customer model from customer data" );
-        Customer customerModel=null;
-        CustomerPopulator populator = new CustomerPopulator();
-        populator.setCountryService(countryService);
-        populator.setCustomerOptionService(customerOptionService);
-        populator.setCustomerOptionValueService(customerOptionValueService);
-        populator.setLanguageService(languageService);
-        populator.setLanguageService(languageService);
-        populator.setZoneService(zoneService);
-        populator.setGroupService(groupService);
-
-
-            customerModel= populator.populate( customer, merchantStore, language );
-            //we are creating or resetting a customer
-            if(StringUtils.isBlank(customerModel.getPassword()) && !StringUtils.isBlank(customer.getClearPassword())) {
-            	customerModel.setPassword(customer.getClearPassword());
-            }
-			//set groups
-            if(!StringUtils.isBlank(customerModel.getPassword()) && !StringUtils.isBlank(customerModel.getNick())) {
-            	customerModel.setPassword(passwordEncoder.encode(customer.getClearPassword()));
-            	setCustomerModelDefaultProperties(customerModel, merchantStore);
-            }
-            
-
-          return customerModel;
-
-    }
-    
-
-
-
+	
+	@Override
+	public void saveOrUpdateCustomerReview(PersistableCustomerReview review, MerchantStore store, Language language)
+			throws Exception {
+		CustomerReview rev = new CustomerReview();
+		
+		PersistableCustomerReviewPopulator populator = new PersistableCustomerReviewPopulator();
+		populator.setCustomerService(customerService);
+		populator.setLanguageService(languageService);
+		populator.populate(review, rev, store, language);
+		
+		customerReviewService.create(rev);
+		
+		review.setId(rev.getId());
+		
+	}
+	
 	@Override
 	public void setCustomerModelDefaultProperties(Customer customer,
 			MerchantStore store) throws Exception {
@@ -389,74 +555,50 @@ public class CustomerFacadeImpl implements CustomerFacade
 		}
 		
 	}
-
-
-
 	
-	@SuppressWarnings("deprecation")
-	public void authenticate(Customer customer, String userName, String password) throws Exception {
+	@Override
+	public void update(PersistableCustomer customer, MerchantStore store) throws Exception {
 		
-			Validate.notNull(customer, "Customer cannot be null");
+		
+		if(customer.getId() == null || customer.getId().longValue() == 0) {
+			throw new Exception("Can't update a customer with null id");
+		}
+		
+		Customer cust = customerService.getById(customer.getId());
 
-        	Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-			GrantedAuthority role = new SimpleGrantedAuthority(ROLE_PREFIX + Constants.PERMISSION_CUSTOMER_AUTHENTICATED);//required to login
-			authorities.add(role); 
-			List<Integer> groupsId = new ArrayList<Integer>();
-			List<Group> groups = customer.getGroups();
-			if(groups!=null) {
-				for(Group group : groups) {
-					groupsId.add(group.getId());
-					
-				}
-				if(groupsId!=null && groupsId.size()>0) {
-			    	List<Permission> permissions = permissionService.getPermissions(groupsId);
-			    	for(Permission permission : permissions) {
-			    		GrantedAuthority auth = new SimpleGrantedAuthority(permission.getPermissionName());
-			    		authorities.add(auth);
-			    	}
-				}
-			}
+		
+		CustomerPopulator populator = new CustomerPopulator();
+		populator.setCountryService(countryService);
+		populator.setCustomerOptionService(customerOptionService);
+		populator.setCustomerOptionValueService(customerOptionValueService);
+		populator.setLanguageService(languageService);
+		populator.setLanguageService(languageService);
+		populator.setZoneService(zoneService);
+		populator.setGroupService(groupService);
+		populator.populate(customer, cust, store, store.getDefaultLanguage());
+		
 
-			Authentication authenticationToken =
-                new UsernamePasswordAuthenticationToken(userName, password, authorities);
-    	
-			Authentication authentication = customerAuthenticationManager.authenticate(authenticationToken);
-    
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+		String password = customer.getClearPassword();
+		if(StringUtils.isBlank(password)) {
+			password = UserReset.generateRandomString();
+			customer.setClearPassword(password);
+		}
+
+		String encodedPassword = passwordEncoder.encode(password);
+		if(!StringUtils.isBlank(customer.getEncodedPassword())) {
+			encodedPassword = customer.getEncodedPassword();
+			customer.setClearPassword("");
+		}
+		
+		customer.setEncodedPassword(encodedPassword);
+		customerService.save(cust);
+		customer.setId(cust.getId());
+
 		
 	}
 
 
 	@Override
-    public Address getAddress( Long userId, final MerchantStore merchantStore,boolean isBillingAddress)
-        throws Exception
-    {
-	     LOG.info( "Fetching customer for id {} ", userId);
-        Address address=null;
-        final Customer customerModel=customerService.getById( userId );
-        
-        if(customerModel == null){
-            LOG.error( "Customer with ID {} does not exists..", userId);
-            //throw new CustomerNotFoundException( "customer with given id does not exists" );
-            throw new Exception( "customer with given id does not exists" );
-        }
-        
-       if(isBillingAddress){
-            LOG.info( "getting billing address.." );
-            CustomerBillingAddressPopulator billingAddressPopulator=new CustomerBillingAddressPopulator();
-            address =billingAddressPopulator.populate( customerModel, merchantStore, merchantStore.getDefaultLanguage() );
-            address.setBillingAddress( true );
-            return address;
-        }
-        
-        LOG.info( "getting Delivery address.." );
-        CustomerDeliveryAddressPopulator deliveryAddressPopulator=new CustomerDeliveryAddressPopulator();
-        return deliveryAddressPopulator.populate( customerModel, merchantStore, merchantStore.getDefaultLanguage() );
-    
-    }
-
-
-    @Override
     public void updateAddress( Long userId, MerchantStore merchantStore, Address address, final Language language )
         throws Exception
     {
@@ -514,78 +656,18 @@ public class CustomerFacadeImpl implements CustomerFacade
        this.customerService.saveOrUpdate( customerModel );
        
     }
-    
-	@Override
-	public ReadableCustomer getCustomerById(final Long id, final MerchantStore merchantStore, final Language language) throws Exception {
-		Customer customerModel = customerService.getById(id);
-		if(customerModel==null) {
-			return null;
-		}
+
+
+	private void notifyNewCustomer(PersistableCustomer customer, MerchantStore store, Language lang) throws Exception {
 		
-		ReadableCustomer readableCustomer = new ReadableCustomer();
 		
-		ReadableCustomerPopulator customerPopulator = new ReadableCustomerPopulator();
-		customerPopulator.populate(customerModel,readableCustomer, merchantStore, language);
+		Locale customerLocale = LocaleUtils.getLocale(lang);
+		emailTemplatesUtils.sendRegistrationEmail(customer, store, customerLocale, (String)coreConfiguration.getProperty("SHOP_SCHEME"));
+
 		
-		return readableCustomer;
 	}
 
 
-	@Override
-	public Customer populateCustomerModel(Customer customerModel,
-			PersistableCustomer customer, MerchantStore merchantStore,
-			Language language) throws Exception {
-        LOG.info( "Starting to populate customer model from customer data" );
-        CustomerPopulator populator = new CustomerPopulator();
-        populator.setCountryService(countryService);
-        populator.setCustomerOptionService(customerOptionService);
-        populator.setCustomerOptionValueService(customerOptionValueService);
-        populator.setLanguageService(languageService);
-        populator.setLanguageService(languageService);
-        populator.setGroupService(groupService);
-        populator.setZoneService(zoneService);
-        populator.setGroupService(groupService);
-
-
-            customerModel= populator.populate( customer, customerModel, merchantStore, language );
-
-            LOG.info( "About to persist customer to database." );
-            customerService.saveOrUpdate( customerModel );
-            return customerModel;
-	}
-
-
-	@Override
-	public void create(PersistableCustomer customer, MerchantStore store) throws Exception {
-		
-		if(this.userExist(customer.getUserName())) {
-			throw new UserAlreadyExistException("User already exist");
-		}
-		
-		Customer c = this.populate(customer, store);
-		
-		customerService.save(c);
-		customer.setId(c.getId());
-		
-		this.notifyNewCustomer(customer, store, c.getDefaultLanguage());
-		
-		/**
-		 * For security reasons set empty passwords
-		 */
-		//customer.setEncodedPassword(null);
-		//customer.setClearPassword(null);
-		
-	}
-	
-	private boolean userExist(String userName) throws Exception {
-		boolean exist = false;
-		Customer customer = customerService.getByNick(userName);
-		if(customer != null) {
-			exist = true;
-		}
-		return exist;
-	}
-	
 	private Customer populate(PersistableCustomer customer, MerchantStore store) throws Exception {
 		
 		Customer cust = new Customer();
@@ -603,7 +685,7 @@ public class CustomerFacadeImpl implements CustomerFacade
 		List<Group> groups = groupService.listGroup(GroupType.CUSTOMER);
 		cust.setGroups(groups);
 
-		Locale customerLocale = LocaleUtils.getLocale(cust.getDefaultLanguage());
+//		Locale customerLocale = LocaleUtils.getLocale(cust.getDefaultLanguage());
 		
 		String password = customer.getClearPassword();
 		if(StringUtils.isBlank(password)) {
@@ -611,7 +693,6 @@ public class CustomerFacadeImpl implements CustomerFacade
 			customer.setClearPassword(password);
 		}
 
-		@SuppressWarnings("deprecation")
 		String encodedPassword = passwordEncoder.encode(password);
 		if(!StringUtils.isBlank(customer.getEncodedPassword())) {
 			encodedPassword = customer.getEncodedPassword();
@@ -623,105 +704,15 @@ public class CustomerFacadeImpl implements CustomerFacade
 		return cust;
 		
 	}
-	
-	private void notifyNewCustomer(PersistableCustomer customer, MerchantStore store, Language lang) throws Exception {
-		
-		
-		Locale customerLocale = LocaleUtils.getLocale(lang);
-		emailTemplatesUtils.sendRegistrationEmail(customer, store, customerLocale, (String)coreConfiguration.getProperty("SHOP_SCHEME"));
-
-		
-	}
 
 
-	@Override
-	public void update(PersistableCustomer customer, MerchantStore store) throws Exception {
-		
-		
-		if(customer.getId() == null || customer.getId().longValue() == 0) {
-			throw new Exception("Can't update a customer with null id");
+	private boolean userExist(String userName) throws Exception {
+		boolean exist = false;
+		Customer customer = customerService.getByNick(userName);
+		if(customer != null) {
+			exist = true;
 		}
-		
-		Customer cust = customerService.getById(customer.getId());
-
-		
-		CustomerPopulator populator = new CustomerPopulator();
-		populator.setCountryService(countryService);
-		populator.setCustomerOptionService(customerOptionService);
-		populator.setCustomerOptionValueService(customerOptionValueService);
-		populator.setLanguageService(languageService);
-		populator.setLanguageService(languageService);
-		populator.setZoneService(zoneService);
-		populator.setGroupService(groupService);
-		populator.populate(customer, cust, store, store.getDefaultLanguage());
-		
-
-		String password = customer.getClearPassword();
-		if(StringUtils.isBlank(password)) {
-			password = UserReset.generateRandomString();
-			customer.setClearPassword(password);
-		}
-
-		@SuppressWarnings("deprecation")
-		String encodedPassword = passwordEncoder.encode(password);
-		if(!StringUtils.isBlank(customer.getEncodedPassword())) {
-			encodedPassword = customer.getEncodedPassword();
-			customer.setClearPassword("");
-		}
-		
-		customer.setEncodedPassword(encodedPassword);
-		customerService.save(cust);
-		customer.setId(cust.getId());
-
-		
-	}
-
-
-	@Override
-	public void saveOrUpdateCustomerReview(PersistableCustomerReview review, MerchantStore store, Language language)
-			throws Exception {
-		CustomerReview rev = new CustomerReview();
-		
-		PersistableCustomerReviewPopulator populator = new PersistableCustomerReviewPopulator();
-		populator.setCustomerService(customerService);
-		populator.setLanguageService(languageService);
-		populator.populate(review, rev, store, language);
-		
-		customerReviewService.create(rev);
-		
-		review.setId(rev.getId());
-		
-	}
-
-
-	@Override
-	public List<ReadableCustomerReview> getAllCustomerReviewsByReviewed(Customer customer, MerchantStore store,
-			Language language) throws Exception {
-		Validate.notNull(customer,"Reviewed customer cannot be null");
-		
-		List<CustomerReview> reviews = customerReviewService.getByReviewedCustomer(customer);
-		
-		ReadableCustomerReviewPopulator populator = new ReadableCustomerReviewPopulator();
-		
-		
-		List<ReadableCustomerReview> customerReviews = new ArrayList<ReadableCustomerReview>();
-		
-		for(CustomerReview review : reviews) {
-			ReadableCustomerReview readableReview = new ReadableCustomerReview();
-			populator.populate(review, readableReview, store, language);
-			customerReviews.add(readableReview);
-		}
-		
-		
-		
-		return customerReviews;
-	}
-
-
-	@Override
-	public void deleteCustomerReview(CustomerReview review, MerchantStore store, Language language) throws Exception {
-		customerReviewService.delete(review);
-		
+		return exist;
 	}
 
 }

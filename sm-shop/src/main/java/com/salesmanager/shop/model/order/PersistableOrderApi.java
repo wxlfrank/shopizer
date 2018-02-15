@@ -25,36 +25,36 @@ public class PersistableOrderApi extends OrderApi {
 	
 	
 	
-	public Long getShoppingCartId() {
-		return shoppingCartId;
-	}
-
-	public void setShoppingCartId(Long shoppingCartId) {
-		this.shoppingCartId = shoppingCartId;
-	}
-
 	public Long getCustomerId() {
 		return customerId;
-	}
-
-	public void setCustomerId(Long customerId) {
-		this.customerId = customerId;
 	}
 
 	public PersistablePayment getPayment() {
 		return payment;
 	}
 
-	public void setPayment(PersistablePayment payment) {
-		this.payment = payment;
-	}
-
 	public Long getShippingQuote() {
 		return shippingQuote;
 	}
 
+	public Long getShoppingCartId() {
+		return shoppingCartId;
+	}
+
+	public void setCustomerId(Long customerId) {
+		this.customerId = customerId;
+	}
+
+	public void setPayment(PersistablePayment payment) {
+		this.payment = payment;
+	}
+
 	public void setShippingQuote(Long shippingQuote) {
 		this.shippingQuote = shippingQuote;
+	}
+
+	public void setShoppingCartId(Long shoppingCartId) {
+		this.shoppingCartId = shoppingCartId;
 	}
 	
 

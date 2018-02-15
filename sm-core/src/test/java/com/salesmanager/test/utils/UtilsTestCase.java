@@ -20,7 +20,6 @@ import com.salesmanager.core.business.services.reference.currency.CurrencyServic
 import com.salesmanager.core.business.utils.CacheUtils;
 import com.salesmanager.core.model.common.Address;
 import com.salesmanager.core.model.reference.currency.Currency;
-import com.salesmanager.core.modules.utils.Encryption;
 import com.salesmanager.core.modules.utils.GeoLocation;
 import com.salesmanager.test.configuration.ConfigurationTest;
 
@@ -37,8 +36,8 @@ public class UtilsTestCase  {
 	@Inject
 	private CurrencyService currencyService;
 	
-	@Inject
-	private Encryption encryption;
+//	@Inject
+//	private Encryption encryption;
 	
 	@Inject
 	private CacheUtils cache;

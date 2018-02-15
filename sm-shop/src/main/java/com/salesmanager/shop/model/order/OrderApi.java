@@ -18,36 +18,36 @@ public class OrderApi extends Entity {
 	private List<OrderAttribute> attributes = new ArrayList<OrderAttribute>();
 
 
-	public boolean isCustomerAgreement() {
-		return customerAgreement;
-	}
-
-	public void setCustomerAgreement(boolean customerAgreement) {
-		this.customerAgreement = customerAgreement;
+	public List<OrderAttribute> getAttributes() {
+		return attributes;
 	}
 
 	public String getComments() {
 		return comments;
 	}
 
-	public void setComments(String comments) {
-		this.comments = comments;
-	}
-
 	public String getCurrency() {
 		return currency;
+	}
+
+	public boolean isCustomerAgreement() {
+		return customerAgreement;
+	}
+
+	public void setAttributes(List<OrderAttribute> attributes) {
+		this.attributes = attributes;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
 	}
 
 	public void setCurrency(String currency) {
 		this.currency = currency;
 	}
 
-	public List<OrderAttribute> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(List<OrderAttribute> attributes) {
-		this.attributes = attributes;
+	public void setCustomerAgreement(boolean customerAgreement) {
+		this.customerAgreement = customerAgreement;
 	}
 
 

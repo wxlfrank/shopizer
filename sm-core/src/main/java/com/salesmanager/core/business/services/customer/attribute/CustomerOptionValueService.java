@@ -13,12 +13,12 @@ public interface CustomerOptionValueService extends SalesManagerEntityService<Lo
 
 
 
+	CustomerOptionValue getByCode(MerchantStore store, String optionValueCode);
+
 	List<CustomerOptionValue> listByStore(MerchantStore store, Language language)
 			throws ServiceException;
 
 	void saveOrUpdate(CustomerOptionValue entity) throws ServiceException;
-
-	CustomerOptionValue getByCode(MerchantStore store, String optionValueCode);
 
 
 

@@ -25,47 +25,6 @@ public class PayPalRestPayment implements PaymentModule {
 	
 
 	@Override
-	public void validateModuleConfiguration(
-			IntegrationConfiguration integrationConfiguration,
-			MerchantStore store) throws IntegrationException {
-		
-		
-		List<String> errorFields = null;
-		
-		//validate integrationKeys['account']
-		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
-		if(keys==null || StringUtils.isBlank(keys.get("client"))) {
-			errorFields = new ArrayList<String>();
-			errorFields.add("client");
-		}
-		
-		if(keys==null || StringUtils.isBlank(keys.get("secret"))) {
-			if(errorFields==null) {
-				errorFields = new ArrayList<String>();
-			}
-			errorFields.add("secret");
-		}
-		
-
-		if(errorFields!=null) {
-			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
-			ex.setErrorFields(errorFields);
-			throw ex;
-			
-		}
-
-	}
-
-	@Override
-	public Transaction initTransaction(MerchantStore store, Customer customer,
-			BigDecimal amount, Payment payment,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Transaction authorize(MerchantStore store, Customer customer,
 			List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
 			IntegrationConfiguration configuration, IntegrationModule module)
@@ -200,6 +159,24 @@ public class PayPalRestPayment implements PaymentModule {
 		
 	}
 
+	@Override
+	public Transaction authorizeAndCapture(MerchantStore store,
+			Customer customer, List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Transaction capture(MerchantStore store, Customer customer,
+			Order order, Transaction capturableTransaction,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 /*	@Override
 	public Transaction capture(MerchantStore store, Customer customer,
 			List<ShoppingCartItem> items, BigDecimal amount, Payment payment, Transaction transaction,
@@ -210,8 +187,8 @@ public class PayPalRestPayment implements PaymentModule {
 	}*/
 
 	@Override
-	public Transaction authorizeAndCapture(MerchantStore store,
-			Customer customer, List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
+	public Transaction initTransaction(MerchantStore store, Customer customer,
+			BigDecimal amount, Payment payment,
 			IntegrationConfiguration configuration, IntegrationModule module)
 			throws IntegrationException {
 		// TODO Auto-generated method stub
@@ -227,25 +204,48 @@ public class PayPalRestPayment implements PaymentModule {
 		return null;
 	}
 	
-	private String getAccessToken(String clientID, String clientSecret) throws Exception {
-
-		// ###AccessToken
-		// Retrieve the access token from
-		// OAuthTokenCredential by passing in
-		// ClientID and ClientSecret
-
-		return null;
-		//return new OAuthTokenCredential(clientID, clientSecret)
-		//		.getAccessToken();
-	}
-
 	@Override
-	public Transaction capture(MerchantStore store, Customer customer,
-			Order order, Transaction capturableTransaction,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		// TODO Auto-generated method stub
-		return null;
+	public void validateModuleConfiguration(
+			IntegrationConfiguration integrationConfiguration,
+			MerchantStore store) throws IntegrationException {
+		
+		
+		List<String> errorFields = null;
+		
+		//validate integrationKeys['account']
+		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
+		if(keys==null || StringUtils.isBlank(keys.get("client"))) {
+			errorFields = new ArrayList<String>();
+			errorFields.add("client");
+		}
+		
+		if(keys==null || StringUtils.isBlank(keys.get("secret"))) {
+			if(errorFields==null) {
+				errorFields = new ArrayList<String>();
+			}
+			errorFields.add("secret");
+		}
+		
+
+		if(errorFields!=null) {
+			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
+			ex.setErrorFields(errorFields);
+			throw ex;
+			
+		}
+
 	}
+
+//	private String getAccessToken(String clientID, String clientSecret) throws Exception {
+//
+//		// ###AccessToken
+//		// Retrieve the access token from
+//		// OAuthTokenCredential by passing in
+//		// ClientID and ClientSecret
+//
+//		return null;
+//		//return new OAuthTokenCredential(clientID, clientSecret)
+//		//		.getAccessToken();
+//	}
 
 }

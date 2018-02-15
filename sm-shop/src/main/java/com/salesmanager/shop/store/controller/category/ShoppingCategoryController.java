@@ -1,5 +1,29 @@
 package com.salesmanager.shop.store.controller.category;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
 import com.salesmanager.core.business.services.catalog.product.PricingService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
@@ -27,24 +51,7 @@ import com.salesmanager.shop.store.model.filter.QueryFilter;
 import com.salesmanager.shop.store.model.filter.QueryFilterType;
 import com.salesmanager.shop.utils.BreadcrumbsUtils;
 import com.salesmanager.shop.utils.ImageFilePath;
-import com.salesmanager.shop.utils.LabelUtils;
 import com.salesmanager.shop.utils.PageBuilderUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.math.BigDecimal;
-import java.util.*;
 
 
 
@@ -58,6 +65,8 @@ import java.util.*;
 public class ShoppingCategoryController {
 	
 
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingCategoryController.class);
 	
 	@Inject
 	private CategoryService categoryService;
@@ -74,8 +83,8 @@ public class ShoppingCategoryController {
 	@Inject
 	private ManufacturerService manufacturerService;
 	
-	@Inject
-	private LabelUtils messages;
+//	@Inject
+//	private LabelUtils messages;
 	
 	@Inject
 	private BreadcrumbsUtils breadcrumbsUtils;
@@ -86,14 +95,29 @@ public class ShoppingCategoryController {
 	@Inject
 	private PricingService pricingService;
 	
+
+	
 	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 	
+	
+	/**
+	 * Category page entry point
+	 * @param friendlyUrl
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/shop/category/{friendlyUrl}.html")
+	public String displayCategoryNoReference(@PathVariable final String friendlyUrl, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 
+		return this.displayCategory(friendlyUrl,null,model,request,response,locale);
+	}
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingCategoryController.class);
-	
+
 	
 	/**
 	 * 
@@ -114,277 +138,6 @@ public class ShoppingCategoryController {
 		return this.displayCategory(friendlyUrl,ref,model,request,response,locale);
 	}
 	
-
-	
-	/**
-	 * Category page entry point
-	 * @param friendlyUrl
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/shop/category/{friendlyUrl}.html")
-	public String displayCategoryNoReference(@PathVariable final String friendlyUrl, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-
-		return this.displayCategory(friendlyUrl,null,model,request,response,locale);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private String displayCategory(final String friendlyUrl, final String ref, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
-		
-		
-		
-		
-		//get category
-		Category category = categoryService.getBySeUrl(store, friendlyUrl);
-		
-		Language language = (Language)request.getAttribute("LANGUAGE");
-		
-		if(category==null) {
-			LOGGER.error("No category found for friendlyUrl " + friendlyUrl);
-			//redirect on page not found
-			return PageBuilderUtils.build404(store);
-			
-		}
-		
-		if(!category.isVisible()) {
-			return PageBuilderUtils.buildHomePage(store);
-		}
-		
-		ReadableCategoryPopulator populator = new ReadableCategoryPopulator();
-		ReadableCategory categoryProxy = populator.populate(category, new ReadableCategory(), store, language);
-
-		Breadcrumb breadCrumb = breadcrumbsUtils.buildCategoryBreadcrumb(categoryProxy, store, language, request.getContextPath());
-		request.getSession().setAttribute(Constants.BREADCRUMB, breadCrumb);
-		request.setAttribute(Constants.BREADCRUMB, breadCrumb);
-		
-		
-		//meta information
-		PageInformation pageInformation = new PageInformation();
-		pageInformation.setPageDescription(categoryProxy.getDescription().getMetaDescription());
-		pageInformation.setPageKeywords(categoryProxy.getDescription().getKeyWords());
-		pageInformation.setPageTitle(categoryProxy.getDescription().getTitle());
-		pageInformation.setPageUrl(categoryProxy.getDescription().getFriendlyUrl());
-		
-		//** retrieves category id drill down**//
-		String lineage = new StringBuilder().append(category.getLineage()).append(category.getId()).append(Constants.CATEGORY_LINEAGE_DELIMITER).toString();
-
-		
-		
-		request.setAttribute(Constants.REQUEST_PAGE_INFORMATION, pageInformation);
-		
-		//TODO add to caching
-		List<Category> subCategs = categoryService.listByLineage(store, lineage);
-		List<Long> subIds = new ArrayList<Long>();
-		if(subCategs!=null && subCategs.size()>0) {
-			for(Category c : subCategs) {
-				if(c.isVisible()) {
-					subIds.add(c.getId());
-				}
-			}
-		}
-		subIds.add(category.getId());
-
-
-		StringBuilder subCategoriesCacheKey = new StringBuilder();
-		subCategoriesCacheKey
-		.append(store.getId())
-		.append("_")
-		.append(category.getId())
-		.append("_")
-		.append(Constants.SUBCATEGORIES_CACHE_KEY)
-		.append("-")
-		.append(language.getCode());
-		
-		StringBuilder subCategoriesMissed = new StringBuilder();
-		subCategoriesMissed
-		.append(subCategoriesCacheKey.toString())
-		.append(Constants.MISSED_CACHE_KEY);
-		
-		List<BigDecimal> prices = new ArrayList<BigDecimal>();
-		List<ReadableCategory> subCategories = null;
-		Map<Long,Long> countProductsByCategories = null;
-
-		if(store.isUseCache()) {
-
-			//get from the cache
-			subCategories = (List<ReadableCategory>) cache.getFromCache(subCategoriesCacheKey.toString());
-			if(subCategories==null) {
-				//get from missed cache
-				//Boolean missedContent = (Boolean)cache.getFromCache(subCategoriesMissed.toString());
-
-				//if(missedContent==null) {
-					countProductsByCategories = getProductsByCategory(store, category, lineage, subIds);
-					subCategories = getSubCategories(store,category,countProductsByCategories,language,locale);
-					
-					if(subCategories!=null) {
-						cache.putInCache(subCategories, subCategoriesCacheKey.toString());
-					} else {
-						//cache.putInCache(new Boolean(true), subCategoriesCacheKey.toString());
-					}
-				//}
-			}
-		} else {
-			countProductsByCategories = getProductsByCategory(store, category, lineage, subIds);
-			subCategories = getSubCategories(store,category,countProductsByCategories,language,locale);
-		}
-
-		//Parent category
-		ReadableCategory parentProxy  = null;
-
-		if(category.getParent()!=null) {
-			Category parent = categoryService.getById(category.getParent().getId());
-			parentProxy = populator.populate(parent, new ReadableCategory(), store, language);
-		}
-		
-		
-		//** List of manufacturers **//
-		List<ReadableManufacturer> manufacturerList = getManufacturersByProductAndCategory(store,category,subIds,language);
-
-		model.addAttribute("manufacturers", manufacturerList);
-		model.addAttribute("parent", parentProxy);
-		model.addAttribute("category", categoryProxy);
-		model.addAttribute("subCategories", subCategories);
-		
-		if(parentProxy!=null) {
-			request.setAttribute(Constants.LINK_CODE, parentProxy.getDescription().getFriendlyUrl());
-		}
-		
-		
-		/** template **/
-		StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Category.category).append(".").append(store.getStoreTemplate());
-
-		return template.toString();
-	}
-	
-	@SuppressWarnings("unchecked")
-	private List<ReadableManufacturer> getManufacturersByProductAndCategory(MerchantStore store, Category category, List<Long> subCategoryIds, Language language) throws Exception {
-
-		List<ReadableManufacturer> manufacturerList = null;
-		/** List of manufacturers **/
-		if(subCategoryIds!=null && subCategoryIds.size()>0) {
-			
-			StringBuilder manufacturersKey = new StringBuilder();
-			manufacturersKey
-			.append(store.getId())
-			.append("_")
-			.append(Constants.MANUFACTURERS_BY_PRODUCTS_CACHE_KEY)
-			.append("-")
-			.append(language.getCode());
-			
-			StringBuilder manufacturersKeyMissed = new StringBuilder();
-			manufacturersKeyMissed
-			.append(manufacturersKey.toString())
-			.append(Constants.MISSED_CACHE_KEY);
-
-			if(store.isUseCache()) {
-
-				//get from the cache
-				 
-				manufacturerList = (List<ReadableManufacturer>) cache.getFromCache(manufacturersKey.toString());
-				
-
-				if(manufacturerList==null) {
-					//get from missed cache
-					//Boolean missedContent = (Boolean)cache.getFromCache(manufacturersKeyMissed.toString());
-					//if(missedContent==null) {
-						manufacturerList = this.getManufacturers(store, subCategoryIds, language);
-						if(manufacturerList.isEmpty()) {
-							cache.putInCache(new Boolean(true), manufacturersKeyMissed.toString());
-						} else {
-							//cache.putInCache(manufacturerList, manufacturersKey.toString());
-						}
-					//}
-				}
-			} else {
-				manufacturerList  = this.getManufacturers(store, subCategoryIds, language);
-			}
-		}
-		return manufacturerList;
-	}
-		
-	private List<ReadableManufacturer> getManufacturers(MerchantStore store, List<Long> ids, Language language) throws Exception {
-		List<ReadableManufacturer> manufacturerList = new ArrayList<ReadableManufacturer>();
-		List<com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer> manufacturers = manufacturerService.listByProductsByCategoriesId(store, ids, language);
-		if(!manufacturers.isEmpty()) {
-			
-			for(com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer manufacturer : manufacturers) {
-				ReadableManufacturer manuf = new ReadableManufacturerPopulator().populate(manufacturer, new ReadableManufacturer(), store, language);
-				manufacturerList.add(manuf);
-				
-			}
-		}
-		return manufacturerList;
-	}
-	
-	private Map<Long,Long> getProductsByCategory(MerchantStore store, Category category, String lineage, List<Long> subIds) throws Exception {
-
-		if(subIds.isEmpty()) {
-			return null;
-		}
-
-		List<Object[]> countProductsByCategories = categoryService.countProductsByCategories(store, subIds);
-		Map<Long, Long> countByCategories = new HashMap<Long,Long>();
-		
-		for(Object[] counts : countProductsByCategories) {
-			Category c = (Category)counts[0];
-			if(c.getParent()!=null) {
-				if(c.getParent().getId()==category.getId()) {
-					countByCategories.put(c.getId(), (Long)counts[1]);
-				} else {
-					//get lineage
-					String lin = c.getLineage();
-					String[] categoryPath = lin.split(Constants.CATEGORY_LINEAGE_DELIMITER);
-					for(int i=0 ; i<categoryPath.length; i++) {
-						String sId = categoryPath[i];
-						if(!StringUtils.isBlank(sId)) {
-								Long count = countByCategories.get(Long.parseLong(sId));
-								if(count!=null) {
-									count = count + (Long)counts[1];
-									countByCategories.put(Long.parseLong(sId), count);
-								}
-						}
-					}
-				}
-			}
-		}
-		
-		return countByCategories;
-		
-	}
-	
-	private List<ReadableCategory> getSubCategories(MerchantStore store, Category category, Map<Long,Long> productCount, Language language, Locale locale) throws Exception {
-		
-		
-		//sub categories
-		List<Category> subCategories = categoryService.listByParent(category, language);
-		ReadableCategoryPopulator populator = new ReadableCategoryPopulator();
-		List<ReadableCategory> subCategoryProxies = new ArrayList<ReadableCategory>();
-		
-		
-		
-		for(Category sub : subCategories) {
-			ReadableCategory cProxy  = populator.populate(sub, new ReadableCategory(), store, language);
-			//com.salesmanager.web.entity.catalog.Category cProxy =  catalogUtils.buildProxyCategory(sub, store, locale);
-			if(productCount!=null) {
-				Long total = productCount.get(cProxy.getId());
-				if(total!=null) {
-					cProxy.setProductCount(total.intValue());
-				}
-			}
-			subCategoryProxies.add(cProxy);
-		}
-		
-		return subCategoryProxies;
-		
-	}
-	
-	
-
 	/**
 	 * Returns all categories for a given MerchantStore
 	 */
@@ -428,7 +181,26 @@ public class ShoppingCategoryController {
 		
 		return returnCategories;
 	}
-
+	
+	/**
+	 * Will page products of a given category
+	 * @param store
+	 * @param language
+	 * @param category
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/services/public/products/page/{start}/{max}/{store}/{language}/{category}")
+	@ResponseBody
+	public ProductList getProducts(@PathVariable int start, @PathVariable int max, @PathVariable String store, @PathVariable final String language, @PathVariable final String category, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		
+		return this.getProducts(start, max, store, language, category, null, model, request, response);
+	}
+		
 	/**
 	 * Returns an array of products belonging to a given category
 	 * in a given language for a given store
@@ -528,27 +300,6 @@ public class ShoppingCategoryController {
 		return null;
 	}
 	
-	
-	/**
-	 * Will page products of a given category
-	 * @param store
-	 * @param language
-	 * @param category
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/services/public/products/page/{start}/{max}/{store}/{language}/{category}")
-	@ResponseBody
-	public ProductList getProducts(@PathVariable int start, @PathVariable int max, @PathVariable String store, @PathVariable final String language, @PathVariable final String category, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		
-		return this.getProducts(start, max, store, language, category, null, model, request, response);
-	}
-	
-	
 	/**
 	 * An entry point for filtering by another entity such as Manufacturer
 	 * filter=BRAND&filter-value=123
@@ -585,6 +336,198 @@ public class ShoppingCategoryController {
 		}
 		
 		return this.getProducts(start, max, store, language, category, queryFilters, model, request, response);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private String displayCategory(final String friendlyUrl, final String ref, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
+		
+		
+		
+		
+		//get category
+		Category category = categoryService.getBySeUrl(store, friendlyUrl);
+		
+		Language language = (Language)request.getAttribute("LANGUAGE");
+		
+		if(category==null) {
+			LOGGER.error("No category found for friendlyUrl " + friendlyUrl);
+			//redirect on page not found
+			return PageBuilderUtils.build404(store);
+			
+		}
+		
+		if(!category.isVisible()) {
+			return PageBuilderUtils.buildHomePage(store);
+		}
+		
+		ReadableCategoryPopulator populator = new ReadableCategoryPopulator();
+		ReadableCategory categoryProxy = populator.populate(category, new ReadableCategory(), store, language);
+
+		Breadcrumb breadCrumb = breadcrumbsUtils.buildCategoryBreadcrumb(categoryProxy, store, language, request.getContextPath());
+		request.getSession().setAttribute(Constants.BREADCRUMB, breadCrumb);
+		request.setAttribute(Constants.BREADCRUMB, breadCrumb);
+		
+		
+		//meta information
+		PageInformation pageInformation = new PageInformation();
+		pageInformation.setPageDescription(categoryProxy.getDescription().getMetaDescription());
+		pageInformation.setPageKeywords(categoryProxy.getDescription().getKeyWords());
+		pageInformation.setPageTitle(categoryProxy.getDescription().getTitle());
+		pageInformation.setPageUrl(categoryProxy.getDescription().getFriendlyUrl());
+		
+		//** retrieves category id drill down**//
+		String lineage = new StringBuilder().append(category.getLineage()).append(category.getId()).append(Constants.CATEGORY_LINEAGE_DELIMITER).toString();
+
+		
+		
+		request.setAttribute(Constants.REQUEST_PAGE_INFORMATION, pageInformation);
+		
+		//TODO add to caching
+		List<Category> subCategs = categoryService.listByLineage(store, lineage);
+		List<Long> subIds = new ArrayList<Long>();
+		if(subCategs!=null && subCategs.size()>0) {
+			for(Category c : subCategs) {
+				if(c.isVisible()) {
+					subIds.add(c.getId());
+				}
+			}
+		}
+		subIds.add(category.getId());
+
+
+		StringBuilder subCategoriesCacheKey = new StringBuilder();
+		subCategoriesCacheKey
+		.append(store.getId())
+		.append("_")
+		.append(category.getId())
+		.append("_")
+		.append(Constants.SUBCATEGORIES_CACHE_KEY)
+		.append("-")
+		.append(language.getCode());
+		
+		StringBuilder subCategoriesMissed = new StringBuilder();
+		subCategoriesMissed
+		.append(subCategoriesCacheKey.toString())
+		.append(Constants.MISSED_CACHE_KEY);
+		
+//		List<BigDecimal> prices = new ArrayList<BigDecimal>();
+		List<ReadableCategory> subCategories = null;
+		Map<Long,Long> countProductsByCategories = null;
+
+		if(store.isUseCache()) {
+
+			//get from the cache
+			subCategories = (List<ReadableCategory>) cache.getFromCache(subCategoriesCacheKey.toString());
+			if(subCategories==null) {
+				//get from missed cache
+				//Boolean missedContent = (Boolean)cache.getFromCache(subCategoriesMissed.toString());
+
+				//if(missedContent==null) {
+					countProductsByCategories = getProductsByCategory(store, category, lineage, subIds);
+					subCategories = getSubCategories(store,category,countProductsByCategories,language,locale);
+					
+					if(subCategories!=null) {
+						cache.putInCache(subCategories, subCategoriesCacheKey.toString());
+					} else {
+						//cache.putInCache(new Boolean(true), subCategoriesCacheKey.toString());
+					}
+				//}
+			}
+		} else {
+			countProductsByCategories = getProductsByCategory(store, category, lineage, subIds);
+			subCategories = getSubCategories(store,category,countProductsByCategories,language,locale);
+		}
+
+		//Parent category
+		ReadableCategory parentProxy  = null;
+
+		if(category.getParent()!=null) {
+			Category parent = categoryService.getById(category.getParent().getId());
+			parentProxy = populator.populate(parent, new ReadableCategory(), store, language);
+		}
+		
+		
+		//** List of manufacturers **//
+		List<ReadableManufacturer> manufacturerList = getManufacturersByProductAndCategory(store,category,subIds,language);
+
+		model.addAttribute("manufacturers", manufacturerList);
+		model.addAttribute("parent", parentProxy);
+		model.addAttribute("category", categoryProxy);
+		model.addAttribute("subCategories", subCategories);
+		
+		if(parentProxy!=null) {
+			request.setAttribute(Constants.LINK_CODE, parentProxy.getDescription().getFriendlyUrl());
+		}
+		
+		
+		/** template **/
+		StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Category.category).append(".").append(store.getStoreTemplate());
+
+		return template.toString();
+	}
+	
+	
+
+	private List<ReadableManufacturer> getManufacturers(MerchantStore store, List<Long> ids, Language language) throws Exception {
+		List<ReadableManufacturer> manufacturerList = new ArrayList<ReadableManufacturer>();
+		List<com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer> manufacturers = manufacturerService.listByProductsByCategoriesId(store, ids, language);
+		if(!manufacturers.isEmpty()) {
+			
+			for(com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer manufacturer : manufacturers) {
+				ReadableManufacturer manuf = new ReadableManufacturerPopulator().populate(manufacturer, new ReadableManufacturer(), store, language);
+				manufacturerList.add(manuf);
+				
+			}
+		}
+		return manufacturerList;
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<ReadableManufacturer> getManufacturersByProductAndCategory(MerchantStore store, Category category, List<Long> subCategoryIds, Language language) throws Exception {
+
+		List<ReadableManufacturer> manufacturerList = null;
+		/** List of manufacturers **/
+		if(subCategoryIds!=null && subCategoryIds.size()>0) {
+			
+			StringBuilder manufacturersKey = new StringBuilder();
+			manufacturersKey
+			.append(store.getId())
+			.append("_")
+			.append(Constants.MANUFACTURERS_BY_PRODUCTS_CACHE_KEY)
+			.append("-")
+			.append(language.getCode());
+			
+			StringBuilder manufacturersKeyMissed = new StringBuilder();
+			manufacturersKeyMissed
+			.append(manufacturersKey.toString())
+			.append(Constants.MISSED_CACHE_KEY);
+
+			if(store.isUseCache()) {
+
+				//get from the cache
+				 
+				manufacturerList = (List<ReadableManufacturer>) cache.getFromCache(manufacturersKey.toString());
+				
+
+				if(manufacturerList==null) {
+					//get from missed cache
+					//Boolean missedContent = (Boolean)cache.getFromCache(manufacturersKeyMissed.toString());
+					//if(missedContent==null) {
+						manufacturerList = this.getManufacturers(store, subCategoryIds, language);
+						if(manufacturerList.isEmpty()) {
+							cache.putInCache(new Boolean(true), manufacturersKeyMissed.toString());
+						} else {
+							//cache.putInCache(manufacturerList, manufacturersKey.toString());
+						}
+					//}
+				}
+			} else {
+				manufacturerList  = this.getManufacturers(store, subCategoryIds, language);
+			}
+		}
+		return manufacturerList;
 	}
 	
 	
@@ -711,6 +654,70 @@ public class ShoppingCategoryController {
 		
 		return null;
 
+	}
+	
+	
+	private Map<Long,Long> getProductsByCategory(MerchantStore store, Category category, String lineage, List<Long> subIds) throws Exception {
+
+		if(subIds.isEmpty()) {
+			return null;
+		}
+
+		List<Object[]> countProductsByCategories = categoryService.countProductsByCategories(store, subIds);
+		Map<Long, Long> countByCategories = new HashMap<Long,Long>();
+		
+		for(Object[] counts : countProductsByCategories) {
+			Category c = (Category)counts[0];
+			if(c.getParent()!=null) {
+				if(c.getParent().getId()==category.getId()) {
+					countByCategories.put(c.getId(), (Long)counts[1]);
+				} else {
+					//get lineage
+					String lin = c.getLineage();
+					String[] categoryPath = lin.split(Constants.CATEGORY_LINEAGE_DELIMITER);
+					for(int i=0 ; i<categoryPath.length; i++) {
+						String sId = categoryPath[i];
+						if(!StringUtils.isBlank(sId)) {
+								Long count = countByCategories.get(Long.parseLong(sId));
+								if(count!=null) {
+									count = count + (Long)counts[1];
+									countByCategories.put(Long.parseLong(sId), count);
+								}
+						}
+					}
+				}
+			}
+		}
+		
+		return countByCategories;
+		
+	}
+	
+	
+	private List<ReadableCategory> getSubCategories(MerchantStore store, Category category, Map<Long,Long> productCount, Language language, Locale locale) throws Exception {
+		
+		
+		//sub categories
+		List<Category> subCategories = categoryService.listByParent(category, language);
+		ReadableCategoryPopulator populator = new ReadableCategoryPopulator();
+		List<ReadableCategory> subCategoryProxies = new ArrayList<ReadableCategory>();
+		
+		
+		
+		for(Category sub : subCategories) {
+			ReadableCategory cProxy  = populator.populate(sub, new ReadableCategory(), store, language);
+			//com.salesmanager.web.entity.catalog.Category cProxy =  catalogUtils.buildProxyCategory(sub, store, locale);
+			if(productCount!=null) {
+				Long total = productCount.get(cProxy.getId());
+				if(total!=null) {
+					cProxy.setProductCount(total.intValue());
+				}
+			}
+			subCategoryProxies.add(cProxy);
+		}
+		
+		return subCategoryProxies;
+		
 	}
 	
 

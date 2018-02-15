@@ -46,44 +46,44 @@ public class OrderProductDownload extends SalesManagerEntity<Long, OrderProductD
 	public OrderProductDownload() {
 	}
 
+	public Integer getDownloadCount() {
+		return downloadCount;
+	}
+
 	public Long getId() {
 		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public OrderProduct getOrderProduct() {
-		return orderProduct;
-	}
-
-	public void setOrderProduct(OrderProduct orderProduct) {
-		this.orderProduct = orderProduct;
-	}
-
-	public String getOrderProductFilename() {
-		return orderProductFilename;
-	}
-
-	public void setOrderProductFilename(String orderProductFilename) {
-		this.orderProductFilename = orderProductFilename;
 	}
 
 	public Integer getMaxdays() {
 		return maxdays;
 	}
 
-	public void setMaxdays(Integer maxdays) {
-		this.maxdays = maxdays;
+	public OrderProduct getOrderProduct() {
+		return orderProduct;
 	}
 
-	public Integer getDownloadCount() {
-		return downloadCount;
+	public String getOrderProductFilename() {
+		return orderProductFilename;
 	}
 
 	public void setDownloadCount(Integer downloadCount) {
 		this.downloadCount = downloadCount;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setMaxdays(Integer maxdays) {
+		this.maxdays = maxdays;
+	}
+
+	public void setOrderProduct(OrderProduct orderProduct) {
+		this.orderProduct = orderProduct;
+	}
+
+	public void setOrderProductFilename(String orderProductFilename) {
+		this.orderProductFilename = orderProductFilename;
 	}
 
 

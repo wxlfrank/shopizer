@@ -24,77 +24,77 @@ public class ProductCriteria extends Criteria {
 	
 	private Long ownerId = null;
 
-	public String getProductName() {
-		return productName;
-	}
-
-	public void setProductName(String productName) {
-		this.productName = productName;
-	}
-
-
-	public List<Long> getCategoryIds() {
-		return categoryIds;
-	}
-
-	public void setCategoryIds(List<Long> categoryIds) {
-		this.categoryIds = categoryIds;
+	public List<AttributeCriteria> getAttributeCriteria() {
+		return attributeCriteria;
 	}
 
 	public List<String> getAvailabilities() {
 		return availabilities;
 	}
 
-	public void setAvailabilities(List<String> availabilities) {
-		this.availabilities = availabilities;
-	}
 
 	public Boolean getAvailable() {
 		return available;
 	}
 
-	public void setAvailable(Boolean available) {
-		this.available = available;
-	}
-
-	public void setAttributeCriteria(List<AttributeCriteria> attributeCriteria) {
-		this.attributeCriteria = attributeCriteria;
-	}
-
-	public List<AttributeCriteria> getAttributeCriteria() {
-		return attributeCriteria;
-	}
-
-	public void setProductIds(List<Long> productIds) {
-		this.productIds = productIds;
-	}
-
-	public List<Long> getProductIds() {
-		return productIds;
-	}
-
-	public void setManufacturerId(Long manufacturerId) {
-		this.manufacturerId = manufacturerId;
+	public List<Long> getCategoryIds() {
+		return categoryIds;
 	}
 
 	public Long getManufacturerId() {
 		return manufacturerId;
 	}
 
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
 	public Long getOwnerId() {
 		return ownerId;
 	}
 
+	public List<Long> getProductIds() {
+		return productIds;
+	}
+
+	public String getProductName() {
+		return productName;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setAttributeCriteria(List<AttributeCriteria> attributeCriteria) {
+		this.attributeCriteria = attributeCriteria;
+	}
+
+	public void setAvailabilities(List<String> availabilities) {
+		this.availabilities = availabilities;
+	}
+
+	public void setAvailable(Boolean available) {
+		this.available = available;
+	}
+
+	public void setCategoryIds(List<Long> categoryIds) {
+		this.categoryIds = categoryIds;
+	}
+
+	public void setManufacturerId(Long manufacturerId) {
+		this.manufacturerId = manufacturerId;
+	}
+
 	public void setOwnerId(Long ownerId) {
 		this.ownerId = ownerId;
+	}
+
+	public void setProductIds(List<Long> productIds) {
+		this.productIds = productIds;
+	}
+
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 

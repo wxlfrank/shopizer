@@ -75,6 +75,60 @@ public class OrderPaymentApi {
 	@Inject
 	private OrderFacade orderFacade;
 	
+	/**
+	 * Capture payment transaction for a given order id
+	 * @param id
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping( value={"/private/orders/{id}/capture"}, method=RequestMethod.POST)
+	@ResponseStatus(HttpStatus.ACCEPTED)
+	@ResponseBody
+	public ReadableTransaction caprurePayment(
+			@PathVariable Long id,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+		Language language = languageUtils.getRESTLanguage(request, merchantStore);
+		try {
+			
+			//need order
+			Order order = orderService.getById(id);
+			
+			if(order==null) {
+				response.sendError(404, "Order id " + id + " does not exist");
+				return null;
+			}
+			
+			//need customer
+			Customer customer = customerService.getById(order.getCustomerId());
+			
+			if(customer==null) {
+				response.sendError(404, "Order id " + id + " contains an invalid customer " + order.getCustomerId());
+				return null;
+			}
+			
+			ReadableTransaction transaction = orderFacade.captureOrder(merchantStore, order, customer, language);
+			
+			return transaction;
+			
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while capturing payment",e);
+			try {
+				response.sendError(503, "Error while capturing payment " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			return null;
+		}
+
+
+	}
+	
+	
 	@RequestMapping(value = {"/auth/cart/{id}/payment/init"}, method=RequestMethod.POST)
 	@ResponseBody
 	public ReadableTransaction init(
@@ -146,7 +200,7 @@ public class OrderPaymentApi {
 		}
 	}
 	
-	
+
 	/**
 	 * An order can be pre-authorized but un captured. This metho returns all order subject to be capturable
 	 * For a given time frame
@@ -205,60 +259,6 @@ public class OrderPaymentApi {
 			}
 			return null;
 		}
-
-	}
-	
-
-	/**
-	 * Capture payment transaction for a given order id
-	 * @param id
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping( value={"/private/orders/{id}/capture"}, method=RequestMethod.POST)
-	@ResponseStatus(HttpStatus.ACCEPTED)
-	@ResponseBody
-	public ReadableTransaction caprurePayment(
-			@PathVariable Long id,
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-		Language language = languageUtils.getRESTLanguage(request, merchantStore);
-		try {
-			
-			//need order
-			Order order = orderService.getById(id);
-			
-			if(order==null) {
-				response.sendError(404, "Order id " + id + " does not exist");
-				return null;
-			}
-			
-			//need customer
-			Customer customer = customerService.getById(order.getCustomerId());
-			
-			if(customer==null) {
-				response.sendError(404, "Order id " + id + " contains an invalid customer " + order.getCustomerId());
-				return null;
-			}
-			
-			ReadableTransaction transaction = orderFacade.captureOrder(merchantStore, order, customer, language);
-			
-			return transaction;
-			
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while capturing payment",e);
-			try {
-				response.sendError(503, "Error while capturing payment " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			return null;
-		}
-
 
 	}
 

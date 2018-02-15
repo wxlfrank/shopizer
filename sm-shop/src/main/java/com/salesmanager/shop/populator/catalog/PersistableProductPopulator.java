@@ -1,5 +1,17 @@
 package com.salesmanager.shop.populator.catalog;
 
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductOptionService;
@@ -25,15 +37,7 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.model.catalog.product.PersistableImage;
 import com.salesmanager.shop.model.catalog.product.PersistableProduct;
 import com.salesmanager.shop.model.catalog.product.ProductPriceEntity;
-import com.salesmanager.shop.model.customer.Customer;
 import com.salesmanager.shop.utils.DateUtil;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
-import java.util.*;
 
 
 
@@ -50,6 +54,37 @@ public class PersistableProductPopulator extends
 	private ProductOptionValueService productOptionValueService;
 	private CustomerService customerService;
 	
+
+	public CategoryService getCategoryService() {
+		return categoryService;
+	}
+
+
+
+	public CustomerService getCustomerService() {
+		return customerService;
+	}
+
+	public LanguageService getLanguageService() {
+		return languageService;
+	}
+
+	public ManufacturerService getManufacturerService() {
+		return manufacturerService;
+	}
+
+	public ProductOptionService getProductOptionService() {
+		return productOptionService;
+	}
+
+	public ProductOptionValueService getProductOptionValueService() {
+		return productOptionValueService;
+	}
+
+	public TaxClassService getTaxClassService() {
+		return taxClassService;
+	}
+
 
 	@Override
 	public Product populate(PersistableProduct source,
@@ -325,52 +360,26 @@ public class PersistableProductPopulator extends
 		}
 	}
 
-
-
 	public void setCategoryService(CategoryService categoryService) {
 		this.categoryService = categoryService;
 	}
 
-	public CategoryService getCategoryService() {
-		return categoryService;
-	}
-
-	public void setManufacturerService(ManufacturerService manufacturerService) {
-		this.manufacturerService = manufacturerService;
-	}
-
-	public ManufacturerService getManufacturerService() {
-		return manufacturerService;
-	}
-
-	public void setTaxClassService(TaxClassService taxClassService) {
-		this.taxClassService = taxClassService;
-	}
-
-	public TaxClassService getTaxClassService() {
-		return taxClassService;
-	}
-
-
-	public LanguageService getLanguageService() {
-		return languageService;
+	public void setCustomerService(CustomerService customerService) {
+		this.customerService = customerService;
 	}
 
 	public void setLanguageService(LanguageService languageService) {
 		this.languageService = languageService;
 	}
 
-	public ProductOptionService getProductOptionService() {
-		return productOptionService;
+	public void setManufacturerService(ManufacturerService manufacturerService) {
+		this.manufacturerService = manufacturerService;
 	}
 
 	public void setProductOptionService(ProductOptionService productOptionService) {
 		this.productOptionService = productOptionService;
 	}
 
-	public ProductOptionValueService getProductOptionValueService() {
-		return productOptionValueService;
-	}
 
 	public void setProductOptionValueService(
 			ProductOptionValueService productOptionValueService) {
@@ -378,22 +387,17 @@ public class PersistableProductPopulator extends
 	}
 
 
+
+	public void setTaxClassService(TaxClassService taxClassService) {
+		this.taxClassService = taxClassService;
+	}
+
+
+
 	@Override
 	protected Product createTarget() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-
-
-	public CustomerService getCustomerService() {
-		return customerService;
-	}
-
-
-
-	public void setCustomerService(CustomerService customerService) {
-		this.customerService = customerService;
 	}
 
 }

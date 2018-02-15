@@ -10,22 +10,22 @@ import com.salesmanager.core.model.reference.language.Language;
 
 public interface ProductRelationshipRepositoryCustom {
 
+	List<ProductRelationship> getByGroup(MerchantStore store, String group);
+
+	List<ProductRelationship> getByType(MerchantStore store, String type);
+
 	List<ProductRelationship> getByType(MerchantStore store, String type,
 			Language language);
 
 	List<ProductRelationship> getByType(MerchantStore store, String type,
-			Product product, Language language);
+			Product product);
 
-	List<ProductRelationship> getByGroup(MerchantStore store, String group);
+	List<ProductRelationship> getByType(MerchantStore store, String type,
+			Product product, Language language);
 
 	List<ProductRelationship> getGroups(MerchantStore store);
 
-	List<ProductRelationship> getByType(MerchantStore store, String type);
-
 	List<ProductRelationship> listByProducts(Product product);
-
-	List<ProductRelationship> getByType(MerchantStore store, String type,
-			Product product);
 	
 
 }

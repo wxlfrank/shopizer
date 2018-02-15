@@ -1,9 +1,10 @@
 package com.salesmanager.shop.utils;
 
-import com.salesmanager.core.business.utils.CacheUtils;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import com.salesmanager.core.business.utils.CacheUtils;
 
 @Component
 public class WebApplicationCacheUtils {

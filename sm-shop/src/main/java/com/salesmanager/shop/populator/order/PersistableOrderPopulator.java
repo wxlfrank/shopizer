@@ -1,5 +1,12 @@
 package com.salesmanager.shop.populator.order;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
@@ -17,22 +24,13 @@ import com.salesmanager.core.model.order.orderproduct.OrderProduct;
 import com.salesmanager.core.model.order.orderstatus.OrderStatus;
 import com.salesmanager.core.model.order.orderstatus.OrderStatusHistory;
 import com.salesmanager.core.model.order.payment.CreditCard;
-import com.salesmanager.core.model.reference.country.Country;
 import com.salesmanager.core.model.reference.currency.Currency;
 import com.salesmanager.core.model.reference.language.Language;
-import com.salesmanager.core.model.reference.zone.Zone;
 import com.salesmanager.shop.model.customer.PersistableCustomer;
 import com.salesmanager.shop.model.order.PersistableOrder;
 import com.salesmanager.shop.model.order.PersistableOrderProduct;
 import com.salesmanager.shop.model.order.total.OrderTotal;
 import com.salesmanager.shop.utils.LocaleUtils;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang3.StringUtils;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
 
 public class PersistableOrderPopulator extends
 		AbstractDataPopulator<PersistableOrder, Order> {
@@ -46,6 +44,34 @@ public class PersistableOrderPopulator extends
 	private ProductService productService;
 	private DigitalProductService digitalProductService;
 	private ProductAttributeService productAttributeService;
+
+	public CountryService getCountryService() {
+		return countryService;
+	}
+
+	public CurrencyService getCurrencyService() {
+		return currencyService;
+	}
+
+	public CustomerService getCustomerService() {
+		return customerService;
+	}
+
+	public DigitalProductService getDigitalProductService() {
+		return digitalProductService;
+	}
+
+	public ProductAttributeService getProductAttributeService() {
+		return productAttributeService;
+	}
+
+	public ProductService getProductService() {
+		return productService;
+	}
+
+	public ZoneService getZoneService() {
+		return zoneService;
+	}
 
 	@Override
 	public Order populate(PersistableOrder source, Order target,
@@ -63,8 +89,8 @@ public class PersistableOrderPopulator extends
 		try {
 			
 
-			Map<String,Country> countriesMap = countryService.getCountriesMap(language);
-			Map<String,Zone> zonesMap = zoneService.getZones(language);
+//			Map<String,Country> countriesMap = countryService.getCountriesMap(language);
+//			Map<String,Zone> zonesMap = zoneService.getZones(language);
 			/** customer **/
 			PersistableCustomer customer = source.getCustomer();
 			if(customer!=null) {
@@ -170,66 +196,38 @@ public class PersistableOrderPopulator extends
 		
 		return target;
 	}
-
-	@Override
-	protected Order createTarget() {
-		return null;
-	}
-
-	public void setProductService(ProductService productService) {
-		this.productService = productService;
-	}
-
-	public ProductService getProductService() {
-		return productService;
-	}
-
-	public void setDigitalProductService(DigitalProductService digitalProductService) {
-		this.digitalProductService = digitalProductService;
-	}
-
-	public DigitalProductService getDigitalProductService() {
-		return digitalProductService;
-	}
-
-	public void setProductAttributeService(ProductAttributeService productAttributeService) {
-		this.productAttributeService = productAttributeService;
-	}
-
-	public ProductAttributeService getProductAttributeService() {
-		return productAttributeService;
-	}
 	
-	public CustomerService getCustomerService() {
-		return customerService;
-	}
-
-	public void setCustomerService(CustomerService customerService) {
-		this.customerService = customerService;
-	}
-
-	public CountryService getCountryService() {
-		return countryService;
-	}
-
 	public void setCountryService(CountryService countryService) {
 		this.countryService = countryService;
-	}
-
-	public CurrencyService getCurrencyService() {
-		return currencyService;
 	}
 
 	public void setCurrencyService(CurrencyService currencyService) {
 		this.currencyService = currencyService;
 	}
 
-	public ZoneService getZoneService() {
-		return zoneService;
+	public void setCustomerService(CustomerService customerService) {
+		this.customerService = customerService;
+	}
+
+	public void setDigitalProductService(DigitalProductService digitalProductService) {
+		this.digitalProductService = digitalProductService;
+	}
+
+	public void setProductAttributeService(ProductAttributeService productAttributeService) {
+		this.productAttributeService = productAttributeService;
+	}
+
+	public void setProductService(ProductService productService) {
+		this.productService = productService;
 	}
 
 	public void setZoneService(ZoneService zoneService) {
 		this.zoneService = zoneService;
+	}
+
+	@Override
+	protected Order createTarget() {
+		return null;
 	}
 
 }

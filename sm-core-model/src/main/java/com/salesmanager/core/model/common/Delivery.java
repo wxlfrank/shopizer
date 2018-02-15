@@ -61,57 +61,89 @@ public class Delivery {
 	private String longitude = null;
 
 
-	public String getCompany() {
-		return company;
-	}
-
-	public void setCompany(String company) {
-		this.company = company;
-	}
-
 	public String getAddress() {
 		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
 	}
 
 	public String getCity() {
 		return city;
 	}
 
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public String getPostalCode() {
-		return postalCode;
-	}
-
-	public void setPostalCode(String postalCode) {
-		this.postalCode = postalCode;
+	public String getCompany() {
+		return company;
 	}
 
 	public Country getCountry() {
 		return country;
 	}
 
-	public void setCountry(Country country) {
-		this.country = country;
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public String getLatitude() {
+		return latitude;
+	}
+
+	public String getLongitude() {
+		return longitude;
+	}
+
+	public String getPostalCode() {
+		return postalCode;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public String getTelephone() {
+		return telephone;
 	}
 
 	public Zone getZone() {
 		return zone;
 	}
-
-	public void setZone(Zone zone) {
-		this.zone = zone;
-	}
 	
 
-	public String getState() {
-		return state;
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public void setCompany(String company) {
+		this.company = company;
+	}
+
+	public void setCountry(Country country) {
+		this.country = country;
+	}	
+	
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+	
+	public void setPostalCode(String postalCode) {
+		this.postalCode = postalCode;
 	}
 
 	public void setState(String state) {
@@ -122,39 +154,7 @@ public class Delivery {
 		this.telephone = telephone;
 	}
 
-	public String getTelephone() {
-		return telephone;
-	}	
-	
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-	
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-	
-	public String getLatitude() {
-		return latitude;
-	}
-
-	public void setLatitude(String latitude) {
-		this.latitude = latitude;
-	}
-
-	public String getLongitude() {
-		return longitude;
-	}
-
-	public void setLongitude(String longitude) {
-		this.longitude = longitude;
+	public void setZone(Zone zone) {
+		this.zone = zone;
 	}
 }

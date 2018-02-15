@@ -23,12 +23,12 @@ public class ImageFilePathUtils extends AbstractimageFilePath{
 	}
 
 	@Override
-	public void setBasePath(String basePath) {
-		this.basePath = basePath;
-	}
-	@Override
 	public String getContextPath() {
 		return super.getProperties().getProperty(CONTEXT_PATH);
+	}
+	@Override
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 
 

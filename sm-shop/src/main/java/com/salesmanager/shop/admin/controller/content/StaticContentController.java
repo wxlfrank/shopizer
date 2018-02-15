@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.inject.Inject;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,11 +31,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.salesmanager.core.business.services.content.ContentService;
+import com.salesmanager.core.business.utils.ajax.AjaxResponse;
 import com.salesmanager.core.model.content.FileContentType;
 import com.salesmanager.core.model.content.InputContentFile;
-import com.salesmanager.core.business.services.content.ContentService;
 import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.business.utils.ajax.AjaxResponse;
 import com.salesmanager.shop.admin.controller.ControllerConstants;
 import com.salesmanager.shop.admin.model.content.ContentFiles;
 import com.salesmanager.shop.admin.model.web.Menu;
@@ -142,6 +142,44 @@ public class StaticContentController {
 
 	
 	/**
+	 * Removes a static file from the CMS
+	 * @param request
+	 * @param response
+	 * @param locale
+	 * @return
+	 */
+	@PreAuthorize("hasRole('CONTENT')")
+	@RequestMapping(value="/admin/content/static/removeFile.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> removeFile(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String fileName = request.getParameter("name");
+
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		AjaxResponse resp = new AjaxResponse();
+
+		
+		try {
+			
+
+			
+			contentService.removeFile(store.getCode(), FileContentType.STATIC_FILE, fileName);
+
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting product", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	
+	/**
 	 * Method responsible for adding content files to underlying Infinispan cache.
 	 * It will add given content file(s) for given merchant store in the cache.
 	 * Following steps will be performed in order to add files
@@ -192,44 +230,6 @@ public class StaticContentController {
         }
         
         return ControllerConstants.Tiles.ContentFiles.contentFiles;
-	}
-	
-	
-	/**
-	 * Removes a static file from the CMS
-	 * @param request
-	 * @param response
-	 * @param locale
-	 * @return
-	 */
-	@PreAuthorize("hasRole('CONTENT')")
-	@RequestMapping(value="/admin/content/static/removeFile.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> removeFile(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String fileName = request.getParameter("name");
-
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		AjaxResponse resp = new AjaxResponse();
-
-		
-		try {
-			
-
-			
-			contentService.removeFile(store.getCode(), FileContentType.STATIC_FILE, fileName);
-
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting product", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
 	}
 	
 	

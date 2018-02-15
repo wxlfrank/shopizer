@@ -12,19 +12,19 @@ import com.salesmanager.core.model.user.GroupType;
 public interface GroupRepository extends JpaRepository<Group, Integer> {
 
 
-	Group findById(Long id);
-	
 	@Query("select distinct g from Group as g left join fetch g.permissions perms order by g.id")
 	List<Group> findAll();
 	
-	@Query("select distinct g from Group as g left join fetch g.permissions perms where perms.id in (?1) ")
-	List<Group> findByPermissions(Set<Integer> permissionIds);
+	Group findByGroupName(String name);
+	
+	Group findById(Long id);
 	
 	@Query("select distinct g from Group as g left join fetch g.permissions perms where g.id in (?1) ")
 	List<Group> findByIds(Set<Integer> groupIds);
 	
+	@Query("select distinct g from Group as g left join fetch g.permissions perms where perms.id in (?1) ")
+	List<Group> findByPermissions(Set<Integer> permissionIds);
+	
 	@Query("select distinct g from Group as g left join fetch g.permissions perms where g.groupType = ?1")
 	List<Group> findByType(GroupType type);
-	
-	Group findByGroupName(String name);
 }

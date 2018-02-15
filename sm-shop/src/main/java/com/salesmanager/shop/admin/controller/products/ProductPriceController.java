@@ -1,5 +1,38 @@
 package com.salesmanager.shop.admin.controller.products;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.price.ProductPriceService;
 import com.salesmanager.core.business.utils.ProductPriceUtils;
@@ -17,26 +50,6 @@ import com.salesmanager.shop.admin.model.web.Menu;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.LabelUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.*;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.math.BigDecimal;
-import java.util.*;
 
 @Controller
 public class ProductPriceController {
@@ -54,6 +67,92 @@ public class ProductPriceController {
 	
 	@Inject
 	LabelUtils messages;
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/price/remove.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> deleteProductPrice(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String sPriceid = request.getParameter("priceId");
+
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		AjaxResponse resp = new AjaxResponse();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		
+		try {
+			
+			Long priceId = Long.parseLong(sPriceid);
+			ProductPrice price = productPriceService.getById(priceId);
+			
+
+			if(price==null || price.getProductAvailability().getProduct().getMerchantStore().getId().intValue()!=store.getId()) {
+
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			} 
+			
+			productPriceService.delete(price);
+			
+			
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+
+		
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting product price", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/price/create.html", method=RequestMethod.GET)
+	public String displayCreateProductPrice(@RequestParam("productId") long productId,@RequestParam("availabilityId") long avilabilityId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		Product product = productService.getById(productId);
+		if(product==null) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		setMenu(model,request);
+		return displayProductPrice(product, null, model, request, response);
+
+
+		
+	}
+	
+	
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/price/edit.html", method=RequestMethod.GET)
+	public String editProductPrice(@RequestParam("id") long productPriceId, @RequestParam("productId") long productId,Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		Product product = productService.getById(productId);
+		
+		if(product==null) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		
+		setMenu(model,request);
+		return displayProductPrice(product, productPriceId, model, request, response);
+		
+	}
 	
 	@PreAuthorize("hasRole('PRODUCTS')")
 	@RequestMapping(value="/admin/products/prices.html", method=RequestMethod.GET)
@@ -157,8 +256,8 @@ public class ProductPriceController {
 			
 			
 			for(ProductPrice price : prices) {
-				Map entry = new HashMap();
-				entry.put("priceId", price.getId());
+				Map<String, String> entry = new HashMap<String, String>();
+				entry.put("priceId", price.getId().toString());
 				
 				
 				String priceName = "";
@@ -195,141 +294,6 @@ public class ProductPriceController {
 		
 		String returnString = resp.toJSONString();
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-	}
-	
-	
-	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/price/edit.html", method=RequestMethod.GET)
-	public String editProductPrice(@RequestParam("id") long productPriceId, @RequestParam("productId") long productId,Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		Product product = productService.getById(productId);
-		
-		if(product==null) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		
-		setMenu(model,request);
-		return displayProductPrice(product, productPriceId, model, request, response);
-		
-	}
-	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/price/create.html", method=RequestMethod.GET)
-	public String displayCreateProductPrice(@RequestParam("productId") long productId,@RequestParam("availabilityId") long avilabilityId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		Product product = productService.getById(productId);
-		if(product==null) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		setMenu(model,request);
-		return displayProductPrice(product, null, model, request, response);
-
-
-		
-	}
-	
-	private String displayProductPrice(Product product, Long productPriceId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-	
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-
-		com.salesmanager.shop.admin.model.catalog.ProductPrice pprice = new com.salesmanager.shop.admin.model.catalog.ProductPrice();
-		
-		ProductPrice productPrice = null;
-		ProductAvailability productAvailability = null;
-		
-		if(productPriceId!=null) {
-		
-			Set<ProductAvailability> availabilities = product.getAvailabilities();
-	
-			//get default availability
-			for(ProductAvailability availability : availabilities) {
-				if(availability.getRegion().equals(com.salesmanager.core.business.constants.Constants.ALL_REGIONS)) {//TODO to be updated when multiple regions is implemented
-					productAvailability = availability;
-					Set<ProductPrice> prices = availability.getPrices();
-					for(ProductPrice price : prices) {
-						if(price.getId().longValue()==productPriceId.longValue()) {
-							productPrice = price;
-							if(price.getProductPriceSpecialStartDate()!=null) {
-								pprice.setProductPriceSpecialStartDate(DateUtil.formatDate(price.getProductPriceSpecialStartDate()));
-							}
-							if(price.getProductPriceSpecialEndDate()!=null) {
-								pprice.setProductPriceSpecialEndDate(DateUtil.formatDate(price.getProductPriceSpecialEndDate()));
-							}
-							pprice.setPriceText(priceUtil.getAdminFormatedAmount(store, price.getProductPriceAmount()));
-							if(price.getProductPriceSpecialAmount()!=null) {
-								pprice.setSpecialPriceText(priceUtil.getAdminFormatedAmount(store, price.getProductPriceSpecialAmount()));
-							}
-							break;
-						}
-					}
-				}
-			}
-		
-		}	
-		
-		if(productPrice==null) {
-			productPrice = new ProductPrice();
-			productPrice.setProductPriceType(ProductPriceType.ONE_TIME);
-		}
-		
-		//descriptions
-		List<Language> languages = store.getLanguages();
-		
-		Set<ProductPriceDescription> productPriceDescriptions = productPrice.getDescriptions();
-		List<ProductPriceDescription> descriptions = new ArrayList<ProductPriceDescription>();
-		for(Language l : languages) {
-			ProductPriceDescription productPriceDesc = null;
-			for(ProductPriceDescription desc : productPriceDescriptions) {
-				Language lang = desc.getLanguage();
-				if(lang.getCode().equals(l.getCode())) {
-					productPriceDesc = desc;
-				}
-			}
-			
-			if(productPriceDesc==null) {
-				productPriceDesc = new ProductPriceDescription();
-				productPriceDesc.setLanguage(l);
-				productPriceDescriptions.add(productPriceDesc);
-			}	
-			descriptions.add(productPriceDesc);
-		}
-		
-		
-		if(productAvailability==null) {
-			Set<ProductAvailability> availabilities = product.getAvailabilities();
-			for(ProductAvailability availability : availabilities) {
-				if(availability.getRegion().equals(com.salesmanager.core.business.constants.Constants.ALL_REGIONS)) {//TODO to be updated when multiple regions is implemented
-					productAvailability = availability;
-					break;
-				}
-			}
-		}
-		
-		pprice.setDescriptions(descriptions);
-		pprice.setProductAvailability(productAvailability);
-		pprice.setPrice(productPrice);
-		pprice.setProduct(product);
-		
-
-		model.addAttribute("product",product);
-		//model.addAttribute("descriptions",descriptions);
-		model.addAttribute("price",pprice);
-		//model.addAttribute("availability",productAvailability);
-		
-		return ControllerConstants.Tiles.Product.productPrice;
 	}
 	
 	
@@ -441,47 +405,96 @@ public class ProductPriceController {
 		
 	}
 	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/price/remove.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> deleteProductPrice(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String sPriceid = request.getParameter("priceId");
+	private String displayProductPrice(Product product, Long productPriceId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		
+	
 		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		AjaxResponse resp = new AjaxResponse();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
 
+		com.salesmanager.shop.admin.model.catalog.ProductPrice pprice = new com.salesmanager.shop.admin.model.catalog.ProductPrice();
 		
-		try {
-			
-			Long priceId = Long.parseLong(sPriceid);
-			ProductPrice price = productPriceService.getById(priceId);
-			
-
-			if(price==null || price.getProductAvailability().getProduct().getMerchantStore().getId().intValue()!=store.getId()) {
-
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			} 
-			
-			productPriceService.delete(price);
-			
-			
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-
+		ProductPrice productPrice = null;
+		ProductAvailability productAvailability = null;
 		
+		if(productPriceId!=null) {
 		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting product price", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
+			Set<ProductAvailability> availabilities = product.getAvailabilities();
+	
+			//get default availability
+			for(ProductAvailability availability : availabilities) {
+				if(availability.getRegion().equals(com.salesmanager.core.business.constants.Constants.ALL_REGIONS)) {//TODO to be updated when multiple regions is implemented
+					productAvailability = availability;
+					Set<ProductPrice> prices = availability.getPrices();
+					for(ProductPrice price : prices) {
+						if(price.getId().longValue()==productPriceId.longValue()) {
+							productPrice = price;
+							if(price.getProductPriceSpecialStartDate()!=null) {
+								pprice.setProductPriceSpecialStartDate(DateUtil.formatDate(price.getProductPriceSpecialStartDate()));
+							}
+							if(price.getProductPriceSpecialEndDate()!=null) {
+								pprice.setProductPriceSpecialEndDate(DateUtil.formatDate(price.getProductPriceSpecialEndDate()));
+							}
+							pprice.setPriceText(priceUtil.getAdminFormatedAmount(store, price.getProductPriceAmount()));
+							if(price.getProductPriceSpecialAmount()!=null) {
+								pprice.setSpecialPriceText(priceUtil.getAdminFormatedAmount(store, price.getProductPriceSpecialAmount()));
+							}
+							break;
+						}
+					}
+				}
+			}
+		
+		}	
+		
+		if(productPrice==null) {
+			productPrice = new ProductPrice();
+			productPrice.setProductPriceType(ProductPriceType.ONE_TIME);
 		}
 		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		//descriptions
+		List<Language> languages = store.getLanguages();
+		
+		Set<ProductPriceDescription> productPriceDescriptions = productPrice.getDescriptions();
+		List<ProductPriceDescription> descriptions = new ArrayList<ProductPriceDescription>();
+		for(Language l : languages) {
+			ProductPriceDescription productPriceDesc = null;
+			for(ProductPriceDescription desc : productPriceDescriptions) {
+				Language lang = desc.getLanguage();
+				if(lang.getCode().equals(l.getCode())) {
+					productPriceDesc = desc;
+				}
+			}
+			
+			if(productPriceDesc==null) {
+				productPriceDesc = new ProductPriceDescription();
+				productPriceDesc.setLanguage(l);
+				productPriceDescriptions.add(productPriceDesc);
+			}	
+			descriptions.add(productPriceDesc);
+		}
+		
+		
+		if(productAvailability==null) {
+			Set<ProductAvailability> availabilities = product.getAvailabilities();
+			for(ProductAvailability availability : availabilities) {
+				if(availability.getRegion().equals(com.salesmanager.core.business.constants.Constants.ALL_REGIONS)) {//TODO to be updated when multiple regions is implemented
+					productAvailability = availability;
+					break;
+				}
+			}
+		}
+		
+		pprice.setDescriptions(descriptions);
+		pprice.setProductAvailability(productAvailability);
+		pprice.setPrice(productPrice);
+		pprice.setProduct(product);
+		
+
+		model.addAttribute("product",product);
+		//model.addAttribute("descriptions",descriptions);
+		model.addAttribute("price",pprice);
+		//model.addAttribute("availability",productAvailability);
+		
+		return ControllerConstants.Tiles.Product.productPrice;
 	}
 		
 	

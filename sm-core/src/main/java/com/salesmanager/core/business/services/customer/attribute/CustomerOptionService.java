@@ -11,16 +11,16 @@ import com.salesmanager.core.model.reference.language.Language;
 
 public interface CustomerOptionService extends SalesManagerEntityService<Long, CustomerOption> {
 
+	CustomerOption getByCode(MerchantStore store, String optionCode);
+
+
+
 	List<CustomerOption> listByStore(MerchantStore store, Language language)
 			throws ServiceException;
 
 
 
 	void saveOrUpdate(CustomerOption entity) throws ServiceException;
-
-
-
-	CustomerOption getByCode(MerchantStore store, String optionCode);
 
 
 

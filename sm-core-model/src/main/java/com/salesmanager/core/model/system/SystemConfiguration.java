@@ -48,13 +48,21 @@ public class SystemConfiguration extends SalesManagerEntity<Long, SystemConfigur
 		return auditSection;
 	}
 
-	public void setAuditSection(AuditSection auditSection) {
-		this.auditSection = auditSection;
-	}
-
 	@Override
 	public Long getId() {
 		return id;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setAuditSection(AuditSection auditSection) {
+		this.auditSection = auditSection;
 	}
 
 	@Override
@@ -62,16 +70,8 @@ public class SystemConfiguration extends SalesManagerEntity<Long, SystemConfigur
 		this.id = id;
 	}
 
-	public String getKey() {
-		return key;
-	}
-
 	public void setKey(String key) {
 		this.key = key;
-	}
-
-	public String getValue() {
-		return value;
 	}
 
 	public void setValue(String value) {

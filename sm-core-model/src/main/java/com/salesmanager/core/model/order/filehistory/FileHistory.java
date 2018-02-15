@@ -68,68 +68,68 @@ public class FileHistory implements Serializable {
 	public FileHistory() {
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public MerchantStore getStore() {
-		return store;
-	}
-
-	public void setStore(MerchantStore store) {
-		this.store = store;
-	}
-
-	public Long getFileId() {
-		return fileId;
-	}
-
-	public void setFileId(Long fileId) {
-		this.fileId = fileId;
-	}
-
-	public Integer getFilesize() {
-		return filesize;
-	}
-
-	public void setFilesize(Integer filesize) {
-		this.filesize = filesize;
+	public Date getAccountedDate() {
+		return CloneUtils.clone(accountedDate);
 	}
 
 	public Date getDateAdded() {
 		return CloneUtils.clone(dateAdded);
 	}
 
-	public void setDateAdded(Date dateAdded) {
-		this.dateAdded = CloneUtils.clone(dateAdded);
-	}
-
 	public Date getDateDeleted() {
 		return CloneUtils.clone(dateDeleted);
-	}
-
-	public void setDateDeleted(Date dateDeleted) {
-		this.dateDeleted = CloneUtils.clone(dateDeleted);
-	}
-
-	public Date getAccountedDate() {
-		return CloneUtils.clone(accountedDate);
-	}
-
-	public void setAccountedDate(Date accountedDate) {
-		this.accountedDate = CloneUtils.clone(accountedDate);
 	}
 
 	public Integer getDownloadCount() {
 		return downloadCount;
 	}
 
+	public Long getFileId() {
+		return fileId;
+	}
+
+	public Integer getFilesize() {
+		return filesize;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public MerchantStore getStore() {
+		return store;
+	}
+
+	public void setAccountedDate(Date accountedDate) {
+		this.accountedDate = CloneUtils.clone(accountedDate);
+	}
+
+	public void setDateAdded(Date dateAdded) {
+		this.dateAdded = CloneUtils.clone(dateAdded);
+	}
+
+	public void setDateDeleted(Date dateDeleted) {
+		this.dateDeleted = CloneUtils.clone(dateDeleted);
+	}
+
 	public void setDownloadCount(Integer downloadCount) {
 		this.downloadCount = downloadCount;
+	}
+
+	public void setFileId(Long fileId) {
+		this.fileId = fileId;
+	}
+
+	public void setFilesize(Integer filesize) {
+		this.filesize = filesize;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setStore(MerchantStore store) {
+		this.store = store;
 	}
 
 }

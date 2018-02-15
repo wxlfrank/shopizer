@@ -34,25 +34,25 @@ public class CustomShippingQuoteRules implements ShippingQuoteModule {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CustomShippingQuoteRules.class);
 	
 	
-	private StatelessKnowledgeSession shippingPriceRule;
-	
 	public final static String MODULE_CODE = "customQuotesRules";
 	
+	private StatelessKnowledgeSession shippingPriceRule;
+	
 	private KnowledgeBase kbase;
-
-	@Override
-	public void validateModuleConfiguration(
-			IntegrationConfiguration integrationConfiguration,
-			MerchantStore store) throws IntegrationException {
-		// Not used
-
-	}
 
 	@Override
 	public CustomIntegrationConfiguration getCustomModuleConfiguration(
 			MerchantStore store) throws IntegrationException {
 		// Not used
 		return null;
+	}
+
+	public KnowledgeBase getKbase() {
+		return kbase;
+	}
+
+	public StatelessKnowledgeSession getShippingPriceRule() {
+		return shippingPriceRule;
 	}
 
 	@Override
@@ -162,20 +162,20 @@ public class CustomShippingQuoteRules implements ShippingQuoteModule {
 		
 	}
 
-	public StatelessKnowledgeSession getShippingPriceRule() {
-		return shippingPriceRule;
+	public void setKbase(KnowledgeBase kbase) {
+		this.kbase = kbase;
 	}
 
 	public void setShippingPriceRule(StatelessKnowledgeSession shippingPriceRule) {
 		this.shippingPriceRule = shippingPriceRule;
 	}
 
-	public KnowledgeBase getKbase() {
-		return kbase;
-	}
+	@Override
+	public void validateModuleConfiguration(
+			IntegrationConfiguration integrationConfiguration,
+			MerchantStore store) throws IntegrationException {
+		// Not used
 
-	public void setKbase(KnowledgeBase kbase) {
-		this.kbase = kbase;
 	}
 
 }

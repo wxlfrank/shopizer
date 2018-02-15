@@ -6,8 +6,8 @@ public abstract class CustomShippingQuoteItem {
 	
 	private String priceText;
 	private BigDecimal price;
-	public void setPriceText(String priceText) {
-		this.priceText = priceText;
+	public BigDecimal getPrice() {
+		return price;
 	}
 	public String getPriceText() {
 		return priceText;
@@ -15,8 +15,8 @@ public abstract class CustomShippingQuoteItem {
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
-	public BigDecimal getPrice() {
-		return price;
+	public void setPriceText(String priceText) {
+		this.priceText = priceText;
 	}
 
 }

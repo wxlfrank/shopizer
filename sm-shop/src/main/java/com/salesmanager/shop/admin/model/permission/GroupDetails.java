@@ -19,11 +19,11 @@ public class GroupDetails implements Serializable {
 	public Group getGroup() {
 		return group;
 	}
-	public void setGroup(Group group) {
-		this.group = group;
-	}
 	public List<String> getTypes() {
 		return types;
+	}
+	public void setGroup(Group group) {
+		this.group = group;
 	}
 	public void setTypes(List<String> types) {
 		this.types = types;

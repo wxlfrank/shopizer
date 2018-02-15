@@ -7,13 +7,7 @@ public enum PaymentType {
 	CREDITCARD("creditcard"), FREE("creditcard"), COD("creditcard"), MONEYORDER("creditcard"), PAYPAL("creditcard"), STRIPE("creditcard"), WEPAY("creditcard");
 
 	
-	private String paymentType;
-	
-	PaymentType(String type) {
-		paymentType = type;
-	}
-	
-    public static PaymentType fromString(String text) {
+	public static PaymentType fromString(String text) {
 		    if (text != null) {
 		      for (PaymentType b : PaymentType.values()) {
 		    	String payemntType = text.toUpperCase(); 
@@ -23,5 +17,12 @@ public enum PaymentType {
 		      }
 		    }
 		    return null;
+	}
+	
+	@SuppressWarnings("unused")
+	private String paymentType;
+	
+    PaymentType(String type) {
+		paymentType = type;
 	}
 }

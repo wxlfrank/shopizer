@@ -1,5 +1,12 @@
 package com.salesmanager.shop.populator.order;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.Validate;
+
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
@@ -16,12 +23,6 @@ import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.shop.constants.ApplicationConstants;
 import com.salesmanager.shop.model.catalog.product.attribute.ProductAttribute;
 import com.salesmanager.shop.model.order.PersistableOrderProduct;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.Validate;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class PersistableOrderProductPopulator extends
 		AbstractDataPopulator<PersistableOrderProduct, OrderProduct> {
@@ -31,21 +32,16 @@ public class PersistableOrderProductPopulator extends
 	private ProductAttributeService productAttributeService;
 
 
-	public ProductAttributeService getProductAttributeService() {
-		return productAttributeService;
-	}
-
-	public void setProductAttributeService(
-			ProductAttributeService productAttributeService) {
-		this.productAttributeService = productAttributeService;
-	}
-
 	public DigitalProductService getDigitalProductService() {
 		return digitalProductService;
 	}
 
-	public void setDigitalProductService(DigitalProductService digitalProductService) {
-		this.digitalProductService = digitalProductService;
+	public ProductAttributeService getProductAttributeService() {
+		return productAttributeService;
+	}
+
+	public ProductService getProductService() {
+		return productService;
 	}
 
 	/**
@@ -148,17 +144,22 @@ public class PersistableOrderProductPopulator extends
 		return target;
 	}
 
-	@Override
-	protected OrderProduct createTarget() {
-		return null;
+	public void setDigitalProductService(DigitalProductService digitalProductService) {
+		this.digitalProductService = digitalProductService;
+	}
+
+	public void setProductAttributeService(
+			ProductAttributeService productAttributeService) {
+		this.productAttributeService = productAttributeService;
 	}
 
 	public void setProductService(ProductService productService) {
 		this.productService = productService;
 	}
 
-	public ProductService getProductService() {
-		return productService;
+	@Override
+	protected OrderProduct createTarget() {
+		return null;
 	}
 	
 

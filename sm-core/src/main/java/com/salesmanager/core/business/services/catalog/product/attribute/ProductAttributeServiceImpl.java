@@ -27,20 +27,14 @@ public class ProductAttributeServiceImpl extends
 	}
 	
 	@Override
-	public ProductAttribute getById(Long id) {
+	public void delete(ProductAttribute attribute) throws ServiceException {
 		
-		return productAttributeRepository.findOne(id);
+		//override method, this allows the error that we try to remove a detached instance
+		attribute = this.getById(attribute.getId());
+		super.delete(attribute);
 		
 	}
 	
-	
-	@Override
-	public List<ProductAttribute> getByOptionId(MerchantStore store,
-			Long id) throws ServiceException {
-		
-		return productAttributeRepository.findByOptionId(store.getId(), id);
-		
-	}
 	
 	@Override
 	public List<ProductAttribute> getByAttributeIds(MerchantStore store,
@@ -51,13 +45,29 @@ public class ProductAttributeServiceImpl extends
 	}
 	
 	@Override
+	public ProductAttribute getById(Long id) {
+		
+		return productAttributeRepository.findOne(id);
+		
+	}
+	
+	@Override
+	public List<ProductAttribute> getByOptionId(MerchantStore store,
+			Long id) throws ServiceException {
+		
+		return productAttributeRepository.findByOptionId(store.getId(), id);
+		
+	}
+	
+	@Override
 	public List<ProductAttribute> getByOptionValueId(MerchantStore store,
 			Long id) throws ServiceException {
 		
 		return productAttributeRepository.findByOptionValueId(store.getId(), id);
 		
 	}
-	
+
+
 	/**
 	 * Returns all product attributes
 	 */
@@ -67,8 +77,7 @@ public class ProductAttributeServiceImpl extends
 		return productAttributeRepository.findByProductId(store.getId(), product.getId(), language.getId());
 		
 	}
-
-
+	
 	@Override
 	public void saveOrUpdate(ProductAttribute productAttribute)
 			throws ServiceException {
@@ -77,15 +86,6 @@ public class ProductAttributeServiceImpl extends
 		//} else {
 			productAttributeRepository.save(productAttribute);
 		//}
-		
-	}
-	
-	@Override
-	public void delete(ProductAttribute attribute) throws ServiceException {
-		
-		//override method, this allows the error that we try to remove a detached instance
-		attribute = this.getById(attribute.getId());
-		super.delete(attribute);
 		
 	}
 

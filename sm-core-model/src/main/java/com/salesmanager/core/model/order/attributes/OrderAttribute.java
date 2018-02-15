@@ -44,17 +44,21 @@ public class OrderAttribute extends SalesManagerEntity<Long, OrderAttribute> {
 	@JoinColumn(name = "ORDER_ID", nullable=false)
 	private Order order;
 
+	@Override
+	public Long getId() {
+		return id;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
 	public Order getOrder() {
 		return order;
 	}
 
-	public void setOrder(Order order) {
-		this.order = order;
-	}
-
-	@Override
-	public Long getId() {
-		return id;
+	public String getValue() {
+		return value;
 	}
 
 	@Override
@@ -62,20 +66,16 @@ public class OrderAttribute extends SalesManagerEntity<Long, OrderAttribute> {
 		this.id = id;
 	}
 
-	public String getValue() {
-		return value;
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	public void setOrder(Order order) {
+		this.order = order;
 	}
 
 	public void setValue(String value) {
 		this.value = value;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
 	}
 
 }

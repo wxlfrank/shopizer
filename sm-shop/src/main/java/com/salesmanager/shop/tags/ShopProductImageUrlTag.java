@@ -30,7 +30,7 @@ public class ShopProductImageUrlTag extends RequestContextAwareTag {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ShopProductImageUrlTag.class);
 
 	private final static String SMALL = "SMALL";
-	private final static String LARGE = "LARGE";
+//	private final static String LARGE = "LARGE";
 
 	private String imageName;
 	private String sku;
@@ -43,6 +43,11 @@ public class ShopProductImageUrlTag extends RequestContextAwareTag {
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 	
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
+
 	public int doStartTagInternal() throws JspException {
 		try {
 			
@@ -81,35 +86,30 @@ public class ShopProductImageUrlTag extends RequestContextAwareTag {
 	}
 
 
-	public int doEndTag() {
-		return EVAL_PAGE;
-	}
-
-
-	public void setImageName(String imageName) {
-		this.imageName = imageName;
-	}
-
 	public String getImageName() {
 		return imageName;
-	}
-
-
-
-	public void setSku(String sku) {
-		this.sku = sku;
-	}
-
-	public String getSku() {
-		return sku;
 	}
 
 	public String getSize() {
 		return size;
 	}
 
+
+
+	public String getSku() {
+		return sku;
+	}
+
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
+
 	public void setSize(String size) {
 		this.size = size;
+	}
+
+	public void setSku(String sku) {
+		this.sku = sku;
 	}
 
 

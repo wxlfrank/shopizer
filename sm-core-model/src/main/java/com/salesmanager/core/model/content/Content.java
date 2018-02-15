@@ -86,75 +86,22 @@ public class Content extends SalesManagerEntity<Long, Content> implements Serial
 	@Column(name = "PRODUCT_GROUP", nullable = true)
 	private String productGroup;
 
-	public String getProductGroup() {
-		return productGroup;
-	}
-
-	public void setProductGroup(String productGroup) {
-		this.productGroup = productGroup;
-	}
-
-	@Override
-	public Long getId() {
-		return this.id;
-	}
-
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-		
-	}
-
-	public void setAuditSection(AuditSection auditSection) {
-		this.auditSection = auditSection;
-	}
-
 	public AuditSection getAuditSection() {
 		return auditSection;
-	}
-
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
-	}
-
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
 	}
 
 	public String getCode() {
 		return code;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
-
-
-
-	public List<ContentDescription> getDescriptions() {
-		return descriptions;
-	}
-
-	public void setDescriptions(List<ContentDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-
-	public void setContentType(ContentType contentType) {
-		this.contentType = contentType;
+	public ContentPosition getContentPosition() {
+		return contentPosition;
 	}
 
 	public ContentType getContentType() {
 		return contentType;
 	}
-	
+
 	public ContentDescription getDescription() {
 		
 		if(this.getDescriptions()!=null && this.getDescriptions().size()>0) {
@@ -165,30 +112,83 @@ public class Content extends SalesManagerEntity<Long, Content> implements Serial
 		
 	}
 
-	public void setSortOrder(Integer sortOrder) {
-		this.sortOrder = sortOrder;
+	public List<ContentDescription> getDescriptions() {
+		return descriptions;
+	}
+
+	@Override
+	public Long getId() {
+		return this.id;
+	}
+
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
+	}
+
+	public String getProductGroup() {
+		return productGroup;
 	}
 
 	public Integer getSortOrder() {
 		return sortOrder;
 	}
 
-	public void setContentPosition(ContentPosition contentPosition) {
-		this.contentPosition = contentPosition;
-	}
-
-	public ContentPosition getContentPosition() {
-		return contentPosition;
-	}
-	
-
-
 	public boolean isLinkToMenu() {
 		return linkToMenu;
 	}
 
+	public boolean isVisible() {
+		return visible;
+	}
+
+
+
+	public void setAuditSection(AuditSection auditSection) {
+		this.auditSection = auditSection;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public void setContentPosition(ContentPosition contentPosition) {
+		this.contentPosition = contentPosition;
+	}
+
+	public void setContentType(ContentType contentType) {
+		this.contentType = contentType;
+	}
+	
+	public void setDescriptions(List<ContentDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+		
+	}
+
 	public void setLinkToMenu(boolean linkToMenu) {
 		this.linkToMenu = linkToMenu;
+	}
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
+
+	public void setProductGroup(String productGroup) {
+		this.productGroup = productGroup;
+	}
+	
+
+
+	public void setSortOrder(Integer sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 
 }

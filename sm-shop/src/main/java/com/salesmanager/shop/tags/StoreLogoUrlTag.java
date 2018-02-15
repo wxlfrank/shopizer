@@ -37,6 +37,10 @@ public class StoreLogoUrlTag extends RequestContextAwareTag {
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
 	public int doStartTagInternal() throws JspException {
 		try {
 			
@@ -76,10 +80,6 @@ public class StoreLogoUrlTag extends RequestContextAwareTag {
 			LOGGER.error("Error while getting content url", ex);
 		}
 		return SKIP_BODY;
-	}
-
-	public int doEndTag() {
-		return EVAL_PAGE;
 	}
 
 

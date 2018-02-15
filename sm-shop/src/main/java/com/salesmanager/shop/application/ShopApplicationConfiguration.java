@@ -6,9 +6,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -22,11 +19,8 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
-import org.springframework.social.connect.support.ConnectionFactoryRegistry;
-import org.springframework.social.facebook.connect.FacebookConnectionFactory;
 import org.springframework.social.facebook.security.FacebookAuthenticationService;
 import org.springframework.social.security.SocialAuthenticationServiceLocator;
 import org.springframework.social.security.SocialAuthenticationServiceRegistry;
@@ -67,39 +61,6 @@ public class ShopApplicationConfiguration extends WebMvcConfigurerAdapter{
 	}
 	
 
-    /**
-     * Configure TilesConfigurer.
-     */
-    @Bean
-    public TilesConfigurer tilesConfigurer(){
-        TilesConfigurer tilesConfigurer = new TilesConfigurer();
-        tilesConfigurer.setDefinitions(new String[] {"/WEB-INF/tiles/tiles-admin.xml","/WEB-INF/tiles/tiles-shop.xml"});
-        tilesConfigurer.setCheckRefresh(true);
-        return tilesConfigurer;
-    }
- 
-    /**
-     * Configure ViewResolvers to deliver preferred views.
-     */
-
-    @Bean
-    public TilesViewResolver tilesViewResolver() {
-        final TilesViewResolver resolver = new TilesViewResolver();
-        resolver.setViewClass(TilesView.class);
-        return resolver;
-    }
-    
-/*    @Bean
-    public ConnectionFactoryLocator connectionFactoryLocator() {
-        ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
-        
-        registry.addConnectionFactory(new FacebookConnectionFactory(
-        		facebookAppId,
-        		facebookAppSecret));
-            
-        return registry;
-    }*/
-    
     @Bean
     @Scope(value = "singleton", proxyMode = ScopedProxyMode.INTERFACES)
     public SocialAuthenticationServiceLocator authenticationServiceLocator() {
@@ -127,7 +88,7 @@ public class ShopApplicationConfiguration extends WebMvcConfigurerAdapter{
     		 return null;
     	 }
     }
-    
+ 
     @Bean
     public UsersConnectionRepository socialUsersConnectionRepository() {
     	JdbcUsersConnectionRepository conn = new JdbcUsersConnectionRepository(dataSource, authenticationServiceLocator(), 
@@ -135,6 +96,39 @@ public class ShopApplicationConfiguration extends WebMvcConfigurerAdapter{
     	conn.setTablePrefix(SchemaConstant.SALESMANAGER_SCHEMA + ".");
     	return conn;
 
+    }
+    
+/*    @Bean
+    public ConnectionFactoryLocator connectionFactoryLocator() {
+        ConnectionFactoryRegistry registry = new ConnectionFactoryRegistry();
+        
+        registry.addConnectionFactory(new FacebookConnectionFactory(
+        		facebookAppId,
+        		facebookAppSecret));
+            
+        return registry;
+    }*/
+    
+    /**
+     * Configure TilesConfigurer.
+     */
+    @Bean
+    public TilesConfigurer tilesConfigurer(){
+        TilesConfigurer tilesConfigurer = new TilesConfigurer();
+        tilesConfigurer.setDefinitions(new String[] {"/WEB-INF/tiles/tiles-admin.xml","/WEB-INF/tiles/tiles-shop.xml"});
+        tilesConfigurer.setCheckRefresh(true);
+        return tilesConfigurer;
+    }
+    
+    /**
+     * Configure ViewResolvers to deliver preferred views.
+     */
+
+    @Bean
+    public TilesViewResolver tilesViewResolver() {
+        final TilesViewResolver resolver = new TilesViewResolver();
+        resolver.setViewClass(TilesView.class);
+        return resolver;
     }
 
 

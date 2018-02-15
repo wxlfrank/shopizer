@@ -1,15 +1,45 @@
 package com.salesmanager.shop.store.controller.customer;
 
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.customer.CustomerService;
 import com.salesmanager.core.business.services.customer.attribute.CustomerAttributeService;
 import com.salesmanager.core.business.services.customer.attribute.CustomerOptionService;
-import com.salesmanager.core.business.services.customer.attribute.CustomerOptionSetService;
 import com.salesmanager.core.business.services.customer.attribute.CustomerOptionValueService;
-import com.salesmanager.core.business.services.order.OrderService;
 import com.salesmanager.core.business.services.reference.country.CountryService;
 import com.salesmanager.core.business.services.reference.language.LanguageService;
-import com.salesmanager.core.business.services.reference.zone.ZoneService;
 import com.salesmanager.core.business.utils.ajax.AjaxResponse;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.customer.attribute.CustomerAttribute;
@@ -26,33 +56,10 @@ import com.salesmanager.shop.populator.customer.ReadableCustomerPopulator;
 import com.salesmanager.shop.store.controller.AbstractController;
 import com.salesmanager.shop.store.controller.ControllerConstants;
 import com.salesmanager.shop.store.controller.customer.facade.CustomerFacade;
-import com.salesmanager.shop.store.controller.order.facade.OrderFacade;
 import com.salesmanager.shop.utils.EmailTemplatesUtils;
 import com.salesmanager.shop.utils.LabelUtils;
 import com.salesmanager.shop.utils.LanguageUtils;
 import com.salesmanager.shop.utils.LocaleUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.*;
 
 /**
  * Entry point for logged in customers
@@ -64,7 +71,7 @@ import java.util.*;
 public class CustomerAccountController extends AbstractController {
 	
 	private static final String CUSTOMER_ID_PARAMETER = "customer";
-    private static final String BILLING_SECTION="/shop/customer/billing.html";
+//    private static final String BILLING_SECTION="/shop/customer/billing.html";
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerAccountController.class);
 	
@@ -77,8 +84,8 @@ public class CustomerAccountController extends AbstractController {
 	@Inject
 	private CustomerOptionValueService customerOptionValueService;
 	
-	@Inject
-	private CustomerOptionSetService customerOptionSetService;
+//	@Inject
+//	private CustomerOptionSetService customerOptionSetService;
 	
 	@Inject
 	private CustomerAttributeService customerAttributeService;
@@ -100,42 +107,75 @@ public class CustomerAccountController extends AbstractController {
 	private EmailTemplatesUtils emailTemplatesUtils;
 
     
-    @Inject
-    private ZoneService zoneService;
+//    @Inject
+//    private ZoneService zoneService;
     
     @Inject
     private CustomerFacade customerFacade;
     
-    @Inject
-    private OrderService orderService;
+//    @Inject
+//    private OrderService orderService;
     
-    @Inject
-    private OrderFacade orderFacade;
+//    @Inject
+//    private OrderFacade orderFacade;
     
 	@Inject
 	private LabelUtils messages;
 
 
 	
-	/**
-	 * Dedicated customer logon page
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value="/customLogon.html", method=RequestMethod.GET)
-	public String displayLogon(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@PreAuthorize("hasRole('AUTH_CUSTOMER')")
+	@RequestMapping(value="/changePassword.html", method=RequestMethod.POST)
+	public String changePassword(@Valid @ModelAttribute(value="password") CustomerPassword password, BindingResult bindingResult, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
 		
 
 	    MerchantStore store = getSessionAttribute(Constants.MERCHANT_STORE, request);
-
-
-		//dispatch to dedicated customer logon
-		
+	    
 		/** template **/
-		StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Customer.customerLogon).append(".").append(store.getStoreTemplate());
+		StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Customer.changePassword).append(".").append(store.getStoreTemplate());
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Customer customer = null;
+    	if(auth != null &&
+        		 request.isUserInRole("AUTH_CUSTOMER")) {
+    		customer = customerFacade.getCustomerByUserName(auth.getName(), store);
+
+        }
+    	
+    	if(customer==null) {
+    		return "redirect:/"+Constants.SHOP_URI;
+    	}
+    	
+    	String currentPassword = password.getCurrentPassword();
+    	String encodedCurrentPassword = passwordEncoder.encode(currentPassword);
+    	
+    	if(!StringUtils.equals(encodedCurrentPassword, customer.getPassword())) {
+			FieldError error = new FieldError("password","password",messages.getMessage("message.invalidpassword", locale));
+        	bindingResult.addError(error);
+    	}
+
+    	
+        if ( bindingResult.hasErrors() )
+        {
+            LOGGER.info( "found {} validation error while validating customer password",
+                         bindingResult.getErrorCount() );
+    		return template.toString();
+
+        }
+    	
+		CustomerPassword customerPassword = new CustomerPassword();
+		model.addAttribute("password", customerPassword);
+		
+		String newPassword = password.getPassword();
+		String encodedPassword = passwordEncoder.encode(newPassword);
+		
+		customer.setPassword(encodedPassword);
+		
+		customerService.saveOrUpdate(customer);
+		
+		emailTemplatesUtils.changePasswordNotificationEmail(customer, store, LocaleUtils.getLocale(customer.getDefaultLanguage()), request.getContextPath());
+		
+		model.addAttribute("success", "success");
 
 		return template.toString();
 		
@@ -204,6 +244,40 @@ public class CustomerAccountController extends AbstractController {
 	}
 	
 	@PreAuthorize("hasRole('AUTH_CUSTOMER')")
+	@RequestMapping(value="/billing.html", method=RequestMethod.GET)
+    public String displayCustomerBillingAddress(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        
+
+        MerchantStore store = getSessionAttribute(Constants.MERCHANT_STORE, request);
+        Language language = getSessionAttribute(Constants.LANGUAGE, request);
+    
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Customer customer = null;
+    	if(auth != null &&
+        		 request.isUserInRole("AUTH_CUSTOMER")) {
+    		customer = customerFacade.getCustomerByUserName(auth.getName(), store);
+
+        }
+    	
+    	if(customer==null) {
+    		return "redirect:/"+Constants.SHOP_URI;
+    	}
+        
+        
+        CustomerEntity customerEntity = customerFacade.getCustomerDataByUserName( customer.getNick(), store, language );
+        if(customer !=null){
+           model.addAttribute( "customer",  customerEntity);
+        }
+        
+        
+        /** template **/
+        StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Customer.Billing).append(".").append(store.getStoreTemplate());
+
+        return template.toString();
+        
+    }
+	
+	@PreAuthorize("hasRole('AUTH_CUSTOMER')")
 	@RequestMapping(value="/password.html", method=RequestMethod.GET)
 	public String displayCustomerChangePassword(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -220,16 +294,38 @@ public class CustomerAccountController extends AbstractController {
 		
 	}
 	
-	@PreAuthorize("hasRole('AUTH_CUSTOMER')")
-	@RequestMapping(value="/changePassword.html", method=RequestMethod.POST)
-	public String changePassword(@Valid @ModelAttribute(value="password") CustomerPassword password, BindingResult bindingResult, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+
+	
+	/**
+	 * Dedicated customer logon page
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/customLogon.html", method=RequestMethod.GET)
+	public String displayLogon(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 
 	    MerchantStore store = getSessionAttribute(Constants.MERCHANT_STORE, request);
-	    
-		/** template **/
-		StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Customer.changePassword).append(".").append(store.getStoreTemplate());
 
+
+		//dispatch to dedicated customer logon
+		
+		/** template **/
+		StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Customer.customerLogon).append(".").append(store.getStoreTemplate());
+
+		return template.toString();
+		
+	}
+
+	@PreAuthorize("hasRole('AUTH_CUSTOMER')")
+    @RequestMapping(value="/editAddress.html", method={RequestMethod.GET,RequestMethod.POST})
+    public String editAddress(final Model model, final HttpServletRequest request,
+                              @RequestParam(value = "billingAddress", required = false) Boolean billingAddress) throws Exception {
+        MerchantStore store = getSessionAttribute(Constants.MERCHANT_STORE, request);
+        
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Customer customer = null;
     	if(auth != null &&
@@ -241,44 +337,16 @@ public class CustomerAccountController extends AbstractController {
     	if(customer==null) {
     		return "redirect:/"+Constants.SHOP_URI;
     	}
-    	
-    	String currentPassword = password.getCurrentPassword();
-    	String encodedCurrentPassword = passwordEncoder.encode(currentPassword);
-    	
-    	if(!StringUtils.equals(encodedCurrentPassword, customer.getPassword())) {
-			FieldError error = new FieldError("password","password",messages.getMessage("message.invalidpassword", locale));
-        	bindingResult.addError(error);
-    	}
-
-    	
-        if ( bindingResult.hasErrors() )
-        {
-            LOGGER.info( "found {} validation error while validating customer password",
-                         bindingResult.getErrorCount() );
-    		return template.toString();
-
-        }
-    	
-		CustomerPassword customerPassword = new CustomerPassword();
-		model.addAttribute("password", customerPassword);
-		
-		String newPassword = password.getPassword();
-		String encodedPassword = passwordEncoder.encode(newPassword);
-		
-		customer.setPassword(encodedPassword);
-		
-		customerService.saveOrUpdate(customer);
-		
-		emailTemplatesUtils.changePasswordNotificationEmail(customer, store, LocaleUtils.getLocale(customer.getDefaultLanguage()), request.getContextPath());
-		
-		model.addAttribute("success", "success");
-
-		return template.toString();
-		
-	}
-	
-
-	
+        
+        
+        
+        Address address=customerFacade.getAddress( customer.getId(), store, billingAddress );
+        model.addAttribute( "address", address);
+        model.addAttribute( "customerId", customer.getId() );
+        StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Customer.EditAddress).append(".").append(store.getStoreTemplate());
+        return template.toString();
+    }
+    
 	/**
 	 * Manage the edition of customer attributes
 	 * @param request
@@ -424,67 +492,6 @@ public class CustomerAccountController extends AbstractController {
 		
 
 	}
-
-	@PreAuthorize("hasRole('AUTH_CUSTOMER')")
-	@RequestMapping(value="/billing.html", method=RequestMethod.GET)
-    public String displayCustomerBillingAddress(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        
-
-        MerchantStore store = getSessionAttribute(Constants.MERCHANT_STORE, request);
-        Language language = getSessionAttribute(Constants.LANGUAGE, request);
-    
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Customer customer = null;
-    	if(auth != null &&
-        		 request.isUserInRole("AUTH_CUSTOMER")) {
-    		customer = customerFacade.getCustomerByUserName(auth.getName(), store);
-
-        }
-    	
-    	if(customer==null) {
-    		return "redirect:/"+Constants.SHOP_URI;
-    	}
-        
-        
-        CustomerEntity customerEntity = customerFacade.getCustomerDataByUserName( customer.getNick(), store, language );
-        if(customer !=null){
-           model.addAttribute( "customer",  customerEntity);
-        }
-        
-        
-        /** template **/
-        StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Customer.Billing).append(".").append(store.getStoreTemplate());
-
-        return template.toString();
-        
-    }
-    
-	@PreAuthorize("hasRole('AUTH_CUSTOMER')")
-    @RequestMapping(value="/editAddress.html", method={RequestMethod.GET,RequestMethod.POST})
-    public String editAddress(final Model model, final HttpServletRequest request,
-                              @RequestParam(value = "billingAddress", required = false) Boolean billingAddress) throws Exception {
-        MerchantStore store = getSessionAttribute(Constants.MERCHANT_STORE, request);
-        
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		Customer customer = null;
-    	if(auth != null &&
-        		 request.isUserInRole("AUTH_CUSTOMER")) {
-    		customer = customerFacade.getCustomerByUserName(auth.getName(), store);
-
-        }
-    	
-    	if(customer==null) {
-    		return "redirect:/"+Constants.SHOP_URI;
-    	}
-        
-        
-        
-        Address address=customerFacade.getAddress( customer.getId(), store, billingAddress );
-        model.addAttribute( "address", address);
-        model.addAttribute( "customerId", customer.getId() );
-        StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Customer.EditAddress).append(".").append(store.getStoreTemplate());
-        return template.toString();
-    }
     
     
 	@PreAuthorize("hasRole('AUTH_CUSTOMER')")

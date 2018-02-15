@@ -18,26 +18,26 @@ public class PersistableOrder extends OrderEntity implements Serializable {
 	private boolean shipToDeliveryAddress = false;
 	
 	
-	public void setOrderProductItems(List<PersistableOrderProduct> orderProductItems) {
-		this.orderProductItems = orderProductItems;
+	public PersistableCustomer getCustomer() {
+		return customer;
 	}
 	public List<PersistableOrderProduct> getOrderProductItems() {
 		return orderProductItems;
 	}
-	public void setCustomer(PersistableCustomer customer) {
-		this.customer = customer;
-	}
-	public PersistableCustomer getCustomer() {
-		return customer;
-	}
 	public boolean isShipToBillingAdress() {
 		return shipToBillingAdress;
 	}
-	public void setShipToBillingAdress(boolean shipToBillingAdress) {
-		this.shipToBillingAdress = shipToBillingAdress;
-	}
 	public boolean isShipToDeliveryAddress() {
 		return shipToDeliveryAddress;
+	}
+	public void setCustomer(PersistableCustomer customer) {
+		this.customer = customer;
+	}
+	public void setOrderProductItems(List<PersistableOrderProduct> orderProductItems) {
+		this.orderProductItems = orderProductItems;
+	}
+	public void setShipToBillingAdress(boolean shipToBillingAdress) {
+		this.shipToBillingAdress = shipToBillingAdress;
 	}
 	public void setShipToDeliveryAddress(boolean shipToDeliveryAddress) {
 		this.shipToDeliveryAddress = shipToDeliveryAddress;

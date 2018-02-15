@@ -1,19 +1,22 @@
 package com.salesmanager.test.shop.controller.system.rest;
 
-import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Ignore;
-import org.junit.Test;
-import org.springframework.http.*;
-import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import com.salesmanager.core.business.utils.ajax.AjaxResponse;
 
 @Ignore
 public class SystemAPITest {
@@ -21,19 +24,6 @@ public class SystemAPITest {
 	private RestTemplate restTemplate;
 
 
-	private HttpHeaders getHeader(){
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);//IMPORTANT TO HAVE THIS
-		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
-		//MediaType.APPLICATION_JSON //for application/json
-		headers.setContentType(mediaType);
-		//Basic Authentication
-		String authorisation = "admin" + ":" + "password";
-		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
-		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
-		return headers;
-	}
-	
 	/**
 	 * Contact us email
 	 * @throws Exception
@@ -84,6 +74,19 @@ public class SystemAPITest {
 		}else{
 			System.out.println(response.getBody() + " Success creating module");
 		}
+	}
+	
+	private HttpHeaders getHeader(){
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);//IMPORTANT TO HAVE THIS
+		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
+		//MediaType.APPLICATION_JSON //for application/json
+		headers.setContentType(mediaType);
+		//Basic Authentication
+		String authorisation = "admin" + ":" + "password";
+		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
+		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
+		return headers;
 	}
 	
 		

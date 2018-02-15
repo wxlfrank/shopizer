@@ -22,8 +22,6 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Pattern;
 
-
-
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.salesmanager.core.constants.SchemaConstant;
@@ -72,58 +70,17 @@ public class ProductOption extends SalesManagerEntity<Long, ProductOption> {
 	public ProductOption() {
 	}
 	
-	public Integer getProductOptionSortOrder() {
-		return productOptionSortOrder;
-	}
-	
-	public void setProductOptionSortOrder(Integer productOptionSortOrder) {
-		this.productOptionSortOrder = productOptionSortOrder;
-	}
-	
-	public String getProductOptionType() {
-		return productOptionType;
-	}
-
-	public void setProductOptionType(String productOptionType) {
-		this.productOptionType = productOptionType;
+	public String getCode() {
+		return code;
 	}
 	
 	public Set<ProductOptionDescription> getDescriptions() {
 		return descriptions;
 	}
-
-	public void setDescriptions(Set<ProductOptionDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-
-	@Override
-	public Long getId() {
-		return id;
-	}
 	
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-
-
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
-	}
-
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
-	}
-
-	public void setDescriptionsList(List<ProductOptionDescription> descriptionsList) {
-		this.descriptionsList = descriptionsList;
-	}
-
 	public List<ProductOptionDescription> getDescriptionsList() {
 		return descriptionsList;
 	}
-	
 
 	public List<ProductOptionDescription> getDescriptionsSettoList() {
 		if(descriptionsList==null || descriptionsList.size()==0) {
@@ -132,20 +89,61 @@ public class ProductOption extends SalesManagerEntity<Long, ProductOption> {
 		return descriptionsList;
 
 	}
+	
+	@Override
+	public Long getId() {
+		return id;
+	}
+
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
+	}
+
+	public Integer getProductOptionSortOrder() {
+		return productOptionSortOrder;
+	}
+	
+	public String getProductOptionType() {
+		return productOptionType;
+	}
+
+
+
+	public boolean isReadOnly() {
+		return readOnly;
+	}
 
 	public void setCode(String code) {
 		this.code = code;
 	}
 
-	public String getCode() {
-		return code;
+	public void setDescriptions(Set<ProductOptionDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+	public void setDescriptionsList(List<ProductOptionDescription> descriptionsList) {
+		this.descriptionsList = descriptionsList;
+	}
+	
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
+
+	public void setProductOptionSortOrder(Integer productOptionSortOrder) {
+		this.productOptionSortOrder = productOptionSortOrder;
+	}
+
+	public void setProductOptionType(String productOptionType) {
+		this.productOptionType = productOptionType;
 	}
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
-	}
-
-	public boolean isReadOnly() {
-		return readOnly;
 	}
 }

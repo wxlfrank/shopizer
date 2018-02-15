@@ -38,6 +38,10 @@ public class ContentImageUrlTag extends RequestContextAwareTag {
 	private ImageFilePath imageUtils;
 
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
 	public int doStartTagInternal() throws JspException {
 		try {
 
@@ -68,12 +72,12 @@ public class ContentImageUrlTag extends RequestContextAwareTag {
 		return SKIP_BODY;
 	}
 
-	public int doEndTag() {
-		return EVAL_PAGE;
+	public String getImageName() {
+		return imageName;
 	}
 
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
+	public String getImageType() {
+		return imageType;
 	}
 
 	public MerchantStore getMerchantStore() {
@@ -84,16 +88,12 @@ public class ContentImageUrlTag extends RequestContextAwareTag {
 		this.imageName = imageName;
 	}
 
-	public String getImageName() {
-		return imageName;
-	}
-
 	public void setImageType(String imageType) {
 		this.imageType = imageType;
 	}
 
-	public String getImageType() {
-		return imageType;
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
 	}
 
 

@@ -50,6 +50,13 @@ public class ProductEntity extends Product implements Serializable {
 	private int rentalPeriod;
 	private RentalStatus rentalStatus;
 	
+	public ProductCondition getCondition() {
+		return condition;
+	}
+	public String getDateAvailable() {
+		return dateAvailable;
+	}
+
 	/**
 	 * End RENTAL fields
 	 * @return
@@ -59,148 +66,141 @@ public class ProductEntity extends Product implements Serializable {
 	public BigDecimal getPrice() {
 		return price;
 	}
-	public void setPrice(BigDecimal price) {
-		this.price = price;
-	}
-
-	public int getQuantity() {
-		return quantity;
-	}
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-	public String getSku() {
-		return sku;
-	}
-	public void setSku(String sku) {
-		this.sku = sku;
-	}
-	public boolean isProductShipeable() {
-		return productShipeable;
-	}
-	public void setProductShipeable(boolean productShipeable) {
-		this.productShipeable = productShipeable;
-	}
-	public boolean isProductIsFree() {
-		return productIsFree;
-	}
-	public void setProductIsFree(boolean productIsFree) {
-		this.productIsFree = productIsFree;
+	public BigDecimal getProductHeight() {
+		return productHeight;
 	}
 	public BigDecimal getProductLength() {
 		return productLength;
 	}
-	public void setProductLength(BigDecimal productLength) {
-		this.productLength = productLength;
+	public BigDecimal getProductWeight() {
+		return productWeight;
 	}
 	public BigDecimal getProductWidth() {
 		return productWidth;
 	}
-	public void setProductWidth(BigDecimal productWidth) {
-		this.productWidth = productWidth;
-	}
-	public BigDecimal getProductHeight() {
-		return productHeight;
-	}
-	public void setProductHeight(BigDecimal productHeight) {
-		this.productHeight = productHeight;
-	}
-	public BigDecimal getProductWeight() {
-		return productWeight;
-	}
-	public void setProductWeight(BigDecimal productWeight) {
-		this.productWeight = productWeight;
-	}
-	public int getSortOrder() {
-		return sortOrder;
-	}
-	public void setSortOrder(int sortOrder) {
-		this.sortOrder = sortOrder;
-	}
-	public void setQuantityOrderMaximum(int quantityOrderMaximum) {
-		this.quantityOrderMaximum = quantityOrderMaximum;
+	public int getQuantity() {
+		return quantity;
 	}
 	public int getQuantityOrderMaximum() {
 		return quantityOrderMaximum;
 	}
-	public void setProductVirtual(boolean productVirtual) {
-		this.productVirtual = productVirtual;
-	}
-	public boolean isProductVirtual() {
-		return productVirtual;
-	}
-	public void setAvailable(boolean available) {
-		this.available = available;
-	}
-	public boolean isAvailable() {
-		return available;
-	}
-	public void setDateAvailable(String dateAvailable) {
-		this.dateAvailable = dateAvailable;
-	}
-	public String getDateAvailable() {
-		return dateAvailable;
-	}
 	public int getQuantityOrderMinimum() {
 		return quantityOrderMinimum;
-	}
-	public void setQuantityOrderMinimum(int quantityOrderMinimum) {
-		this.quantityOrderMinimum = quantityOrderMinimum;
-	}
-	public int getRatingCount() {
-		return ratingCount;
-	}
-	public void setRatingCount(int ratingCount) {
-		this.ratingCount = ratingCount;
 	}
 	public Double getRating() {
 		return rating;
 	}
-	public void setRating(Double rating) {
-		this.rating = rating;
-	}
-	public boolean isPreOrder() {
-		return preOrder;
-	}
-	public void setPreOrder(boolean preOrder) {
-		this.preOrder = preOrder;
+	public int getRatingCount() {
+		return ratingCount;
 	}
 	public String getRefSku() {
 		return refSku;
 	}
-	public void setRefSku(String refSku) {
-		this.refSku = refSku;
-	}
-	public boolean isVisible() {
-		return visible;
-	}
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
-	public ProductCondition getCondition() {
-		return condition;
-	}
-	public void setCondition(ProductCondition condition) {
-		this.condition = condition;
-	}
 	public int getRentalDuration() {
 		return rentalDuration;
 	}
-	public void setRentalDuration(int rentalDuration) {
-		this.rentalDuration = rentalDuration;
+	public int getRentalPeriod() {
+		return rentalPeriod;
 	}
 	public RentalStatus getRentalStatus() {
 		return rentalStatus;
 	}
-	public void setRentalStatus(RentalStatus rentalStatus) {
-		this.rentalStatus = rentalStatus;
+	public String getSku() {
+		return sku;
 	}
-	
-	public int getRentalPeriod() {
-		return rentalPeriod;
+	public int getSortOrder() {
+		return sortOrder;
+	}
+	public boolean isAvailable() {
+		return available;
+	}
+	public boolean isPreOrder() {
+		return preOrder;
+	}
+	public boolean isProductIsFree() {
+		return productIsFree;
+	}
+	public boolean isProductShipeable() {
+		return productShipeable;
+	}
+	public boolean isProductVirtual() {
+		return productVirtual;
+	}
+	public boolean isVisible() {
+		return visible;
+	}
+	public void setAvailable(boolean available) {
+		this.available = available;
+	}
+	public void setCondition(ProductCondition condition) {
+		this.condition = condition;
+	}
+	public void setDateAvailable(String dateAvailable) {
+		this.dateAvailable = dateAvailable;
+	}
+	public void setPreOrder(boolean preOrder) {
+		this.preOrder = preOrder;
+	}
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+	public void setProductHeight(BigDecimal productHeight) {
+		this.productHeight = productHeight;
+	}
+	public void setProductIsFree(boolean productIsFree) {
+		this.productIsFree = productIsFree;
+	}
+	public void setProductLength(BigDecimal productLength) {
+		this.productLength = productLength;
+	}
+	public void setProductShipeable(boolean productShipeable) {
+		this.productShipeable = productShipeable;
+	}
+	public void setProductVirtual(boolean productVirtual) {
+		this.productVirtual = productVirtual;
+	}
+	public void setProductWeight(BigDecimal productWeight) {
+		this.productWeight = productWeight;
+	}
+	public void setProductWidth(BigDecimal productWidth) {
+		this.productWidth = productWidth;
+	}
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+	public void setQuantityOrderMaximum(int quantityOrderMaximum) {
+		this.quantityOrderMaximum = quantityOrderMaximum;
+	}
+	public void setQuantityOrderMinimum(int quantityOrderMinimum) {
+		this.quantityOrderMinimum = quantityOrderMinimum;
+	}
+	public void setRating(Double rating) {
+		this.rating = rating;
+	}
+	public void setRatingCount(int ratingCount) {
+		this.ratingCount = ratingCount;
+	}
+	public void setRefSku(String refSku) {
+		this.refSku = refSku;
+	}
+	public void setRentalDuration(int rentalDuration) {
+		this.rentalDuration = rentalDuration;
 	}
 	public void setRentalPeriod(int rentalPeriod) {
 		this.rentalPeriod = rentalPeriod;
+	}
+	public void setRentalStatus(RentalStatus rentalStatus) {
+		this.rentalStatus = rentalStatus;
+	}
+	public void setSku(String sku) {
+		this.sku = sku;
+	}
+	
+	public void setSortOrder(int sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 
 

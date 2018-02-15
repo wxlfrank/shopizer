@@ -31,16 +31,12 @@ public class ProductRelationshipServiceImpl extends
 	}
 	
 	@Override
-	public void saveOrUpdate(ProductRelationship relationship) throws ServiceException {
-		
-		if(relationship.getId()!=null && relationship.getId()>0) {
-			
-			this.update(relationship);
-			
-		} else {
-			this.create(relationship);
+	public void activateGroup(MerchantStore store, String groupName) throws ServiceException {
+		List<ProductRelationship> entities = this.getByGroup(store, groupName);
+		for(ProductRelationship relation : entities) {
+			relation.setActive(true);
+			this.saveOrUpdate(relation);
 		}
-		
 	}
 	
 	
@@ -54,32 +50,10 @@ public class ProductRelationshipServiceImpl extends
 	}
 	
 	@Override
-	public List<ProductRelationship> getGroups(MerchantStore store) {
-		return productRelationshipRepository.getGroups(store);
-	}
-	
-	@Override
-	public void deleteGroup(MerchantStore store, String groupName) throws ServiceException {
-		List<ProductRelationship> entities = productRelationshipRepository.getByGroup(store, groupName);
-		for(ProductRelationship relation : entities) {
-			this.delete(relation);
-		}
-	}
-	
-	@Override
 	public void deactivateGroup(MerchantStore store, String groupName) throws ServiceException {
 		List<ProductRelationship> entities = productRelationshipRepository.getByGroup(store, groupName);
 		for(ProductRelationship relation : entities) {
 			relation.setActive(false);
-			this.saveOrUpdate(relation);
-		}
-	}
-	
-	@Override
-	public void activateGroup(MerchantStore store, String groupName) throws ServiceException {
-		List<ProductRelationship> entities = this.getByGroup(store, groupName);
-		for(ProductRelationship relation : entities) {
-			relation.setActive(true);
 			this.saveOrUpdate(relation);
 		}
 	}
@@ -94,30 +68,11 @@ public class ProductRelationshipServiceImpl extends
 	}
 	
 	@Override
-	public List<ProductRelationship> listByProduct(Product product) throws ServiceException {
-
-		return productRelationshipRepository.listByProducts(product);
-
-	}
-	
-	
-	@Override
-	public List<ProductRelationship> getByType(MerchantStore store, Product product, ProductRelationshipType type, Language language) throws ServiceException {
-
-		return productRelationshipRepository.getByType(store, type.name(), product, language);
-
-	}
-	
-	@Override
-	public List<ProductRelationship> getByType(MerchantStore store, ProductRelationshipType type, Language language) throws ServiceException {
-		return productRelationshipRepository.getByType(store, type.name(), language);
-	}
-	
-	@Override
-	public List<ProductRelationship> getByType(MerchantStore store, ProductRelationshipType type) throws ServiceException {
-
-		return productRelationshipRepository.getByType(store, type.name());
-
+	public void deleteGroup(MerchantStore store, String groupName) throws ServiceException {
+		List<ProductRelationship> entities = productRelationshipRepository.getByGroup(store, groupName);
+		for(ProductRelationship relation : entities) {
+			this.delete(relation);
+		}
 	}
 	
 	@Override
@@ -140,6 +95,51 @@ public class ProductRelationshipServiceImpl extends
 
 		return productRelationshipRepository.getByType(store, type.name(), product);
 				
+		
+	}
+	
+	
+	@Override
+	public List<ProductRelationship> getByType(MerchantStore store, Product product, ProductRelationshipType type, Language language) throws ServiceException {
+
+		return productRelationshipRepository.getByType(store, type.name(), product, language);
+
+	}
+	
+	@Override
+	public List<ProductRelationship> getByType(MerchantStore store, ProductRelationshipType type) throws ServiceException {
+
+		return productRelationshipRepository.getByType(store, type.name());
+
+	}
+	
+	@Override
+	public List<ProductRelationship> getByType(MerchantStore store, ProductRelationshipType type, Language language) throws ServiceException {
+		return productRelationshipRepository.getByType(store, type.name(), language);
+	}
+	
+	@Override
+	public List<ProductRelationship> getGroups(MerchantStore store) {
+		return productRelationshipRepository.getGroups(store);
+	}
+	
+	@Override
+	public List<ProductRelationship> listByProduct(Product product) throws ServiceException {
+
+		return productRelationshipRepository.listByProducts(product);
+
+	}
+	
+	@Override
+	public void saveOrUpdate(ProductRelationship relationship) throws ServiceException {
+		
+		if(relationship.getId()!=null && relationship.getId()>0) {
+			
+			this.update(relationship);
+			
+		} else {
+			this.create(relationship);
+		}
 		
 	}
 

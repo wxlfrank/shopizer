@@ -51,27 +51,6 @@ public class CmsImageFileManagerImpl
     private final static String SMALL = "SMALL";
     private final static String LARGE = "LARGE";
     
-    private String rootName = ROOT_NAME;
-
-    private CacheManager cacheManager;
-
-    /**
-     * Requires to stop the engine when image servlet un-deploys
-     */
-    public void stopFileManager()
-    {
-
-        try
-        {
-        	cacheManager.getManager().stop();
-            LOGGER.info( "Stopping CMS" );
-        }
-        catch ( Exception e )
-        {
-            LOGGER.error( "Error while stopping CmsImageFileManager", e );
-        }
-    }
-
     public static CmsImageFileManagerImpl getInstance()
     {
 
@@ -83,6 +62,10 @@ public class CmsImageFileManagerImpl
         return fileManager;
 
     }
+
+    private String rootName = ROOT_NAME;
+
+    private CacheManager cacheManager;
 
     private CmsImageFileManagerImpl()
     {
@@ -142,15 +125,9 @@ public class CmsImageFileManagerImpl
 
     }
 
-    @Override
-    public OutputContentFile getProductImage( ProductImage productImage )
-        throws ServiceException
-    {
-
-       return getProductImage(productImage.getProduct().getMerchantStore().getCode(),productImage.getProduct().getSku(),productImage.getProductImage());
-
-    }
-
+    public CacheManager getCacheManager() {
+		return cacheManager;
+	}
 
     public List<OutputContentFile> getImages( MerchantStore store, FileContentType imageContentType )
         throws ServiceException
@@ -159,6 +136,7 @@ public class CmsImageFileManagerImpl
          return getImages(store.getCode(),imageContentType);
 
     }
+
 
     @Override
     public List<OutputContentFile> getImages( Product product )
@@ -224,116 +202,6 @@ public class CmsImageFileManagerImpl
 
         return images;
     }
-
-
-
-	@SuppressWarnings("unchecked")
-	@Override
-    public void removeImages( final String merchantStoreCode )
-        throws ServiceException
-    {
-        if ( cacheManager.getTreeCache() == null )
-        {
-            throw new ServiceException( "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()" );
-        }
-
-        try
-        {
-
-
-			final StringBuilder merchantPath = new StringBuilder();
-	        merchantPath.append( getRootName()).append(merchantStoreCode );
-	        cacheManager.getTreeCache().getRoot().remove(merchantPath.toString());
-			
-
-
-        }
-        catch ( Exception e )
-        {
-            throw new ServiceException( e );
-        }
-        finally
-        {
-
-        }
-
-    }
-
-
-    @Override
-    public void removeProductImage( ProductImage productImage )
-        throws ServiceException
-    {
-
-        if ( cacheManager.getTreeCache() == null )
-        {
-            throw new ServiceException( "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()" );
-        }
-
-        try
-        {
-
-        	
-        	StringBuilder nodePath = new StringBuilder();
-        	nodePath.append(productImage.getProduct().getMerchantStore().getCode()).append(Constants.SLASH).append(productImage.getProduct().getSku());
-        	
-        	
-        	Node<String, Object> productNode = this.getNode(nodePath.toString());
-        	productNode.remove(productImage.getProductImage());
-        	
-
-            
-            
-
-        }
-        catch ( Exception e )
-        {
-            throw new ServiceException( e );
-        }
-        finally
-        {
-
-        }
-
-    }
-
-    @Override
-    public void removeProductImages( Product product )
-        throws ServiceException
-    {
-
-        if ( cacheManager.getTreeCache() == null )
-        {
-            throw new ServiceException( "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()" );
-        }
-
-        try
-        {
-
-        	
-        	StringBuilder nodePath = new StringBuilder();
-        	nodePath.append(product.getMerchantStore().getCode());
-        	
-        	
-        	Node<String, Object> merchantNode = this.getNode(nodePath.toString());
-        	
-        	merchantNode.remove(product.getSku());
-        	
-
-            
-
-        }
-        catch ( Exception e )
-        {
-            throw new ServiceException( e );
-        }
-        finally
-        {
-
-        }
-
-    }
-
 
     @Override
 	public List<OutputContentFile> getImages(final String merchantStoreCode,
@@ -403,19 +271,190 @@ public class CmsImageFileManagerImpl
         return images;
 	}
 
+
+
 	@Override
+    public OutputContentFile getProductImage( ProductImage productImage )
+        throws ServiceException
+    {
+
+       return getProductImage(productImage.getProduct().getMerchantStore().getCode(),productImage.getProduct().getSku(),productImage.getProductImage());
+
+    }
+
+
+    @Override
 	public OutputContentFile getProductImage(String merchantStoreCode,
 			String productCode, String imageName) throws ServiceException {
 		return getProductImage(merchantStoreCode, productCode, imageName, ProductImageSize.SMALL.name());
 	}
-	
-	@Override
+
+    @Override
 	public OutputContentFile getProductImage(String merchantStoreCode,
 			String productCode, String imageName, ProductImageSize size)
 			throws ServiceException {
 		return getProductImage(merchantStoreCode, productCode, imageName, size.name());
 	}
+
+
+    public String getRootName() {
+		return rootName;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+    public void removeImages( final String merchantStoreCode )
+        throws ServiceException
+    {
+        if ( cacheManager.getTreeCache() == null )
+        {
+            throw new ServiceException( "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()" );
+        }
+
+        try
+        {
+
+
+			final StringBuilder merchantPath = new StringBuilder();
+	        merchantPath.append( getRootName()).append(merchantStoreCode );
+	        cacheManager.getTreeCache().getRoot().remove(merchantPath.toString());
+			
+
+
+        }
+        catch ( Exception e )
+        {
+            throw new ServiceException( e );
+        }
+        finally
+        {
+
+        }
+
+    }
 	
+	@Override
+    public void removeProductImage( ProductImage productImage )
+        throws ServiceException
+    {
+
+        if ( cacheManager.getTreeCache() == null )
+        {
+            throw new ServiceException( "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()" );
+        }
+
+        try
+        {
+
+        	
+        	StringBuilder nodePath = new StringBuilder();
+        	nodePath.append(productImage.getProduct().getMerchantStore().getCode()).append(Constants.SLASH).append(productImage.getProduct().getSku());
+        	
+        	
+        	Node<String, Object> productNode = this.getNode(nodePath.toString());
+        	productNode.remove(productImage.getProductImage());
+        	
+
+            
+            
+
+        }
+        catch ( Exception e )
+        {
+            throw new ServiceException( e );
+        }
+        finally
+        {
+
+        }
+
+    }
+	
+	@Override
+    public void removeProductImages( Product product )
+        throws ServiceException
+    {
+
+        if ( cacheManager.getTreeCache() == null )
+        {
+            throw new ServiceException( "CmsImageFileManagerInfinispan has a null cacheManager.getTreeCache()" );
+        }
+
+        try
+        {
+
+        	
+        	StringBuilder nodePath = new StringBuilder();
+        	nodePath.append(product.getMerchantStore().getCode());
+        	
+        	
+        	Node<String, Object> merchantNode = this.getNode(nodePath.toString());
+        	
+        	merchantNode.remove(product.getSku());
+        	
+
+            
+
+        }
+        catch ( Exception e )
+        {
+            throw new ServiceException( e );
+        }
+        finally
+        {
+
+        }
+
+    }
+
+	
+	public void setCacheManager(CacheManager cacheManager) {
+		this.cacheManager = cacheManager;
+	}
+
+	public void setRootName(String rootName) {
+		this.rootName = rootName;
+	}
+
+	/**
+     * Requires to stop the engine when image servlet un-deploys
+     */
+    public void stopFileManager()
+    {
+
+        try
+        {
+        	cacheManager.getManager().stop();
+            LOGGER.info( "Stopping CMS" );
+        }
+        catch ( Exception e )
+        {
+            LOGGER.error( "Error while stopping CmsImageFileManager", e );
+        }
+    }
+
+	@SuppressWarnings("unchecked")
+	private Node<String, Object> getNode( final String node )
+    {
+        LOGGER.debug( "Fetching node for store {} from Infinispan", node );
+        final StringBuilder merchantPath = new StringBuilder();
+        merchantPath.append( getRootName() ).append(node);
+
+        Fqn contentFilesFqn = Fqn.fromString(merchantPath.toString()); 
+
+		Node<String,Object> nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn); 
+        
+        if(nd==null) {
+
+            cacheManager.getTreeCache().getRoot().addChild(contentFilesFqn);
+            nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn); 
+
+        }
+        
+        return nd;
+
+    }
+
 	private OutputContentFile getProductImage(String merchantStoreCode,
 			String productCode, String imageName, String size) throws ServiceException {
 		
@@ -477,45 +516,6 @@ public class CmsImageFileManagerImpl
 
         return contentImage;
 		
-	}
-
-	
-	@SuppressWarnings("unchecked")
-	private Node<String, Object> getNode( final String node )
-    {
-        LOGGER.debug( "Fetching node for store {} from Infinispan", node );
-        final StringBuilder merchantPath = new StringBuilder();
-        merchantPath.append( getRootName() ).append(node);
-
-        Fqn contentFilesFqn = Fqn.fromString(merchantPath.toString()); 
-
-		Node<String,Object> nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn); 
-        
-        if(nd==null) {
-
-            cacheManager.getTreeCache().getRoot().addChild(contentFilesFqn);
-            nd = cacheManager.getTreeCache().getRoot().getChild(contentFilesFqn); 
-
-        }
-        
-        return nd;
-
-    }
-
-	public CacheManager getCacheManager() {
-		return cacheManager;
-	}
-
-	public void setCacheManager(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
-	}
-
-	public void setRootName(String rootName) {
-		this.rootName = rootName;
-	}
-
-	public String getRootName() {
-		return rootName;
 	}
 
 

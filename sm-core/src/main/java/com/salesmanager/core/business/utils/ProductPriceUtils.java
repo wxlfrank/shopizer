@@ -48,130 +48,6 @@ public class ProductPriceUtils {
 	
 	
 	/**
-	 * Get the price without discount
-	 * @param store
-	 * @param product
-	 * @param locale
-	 * @return
-	 */
-	public BigDecimal getPrice(MerchantStore store, Product product, Locale locale) {
-		
-		BigDecimal defaultPrice = new BigDecimal(0);
-
-		Set<ProductAvailability> availabilities = product.getAvailabilities();
-		for(ProductAvailability availability : availabilities) {
-			
-			Set<ProductPrice> prices = availability.getPrices();
-			for(ProductPrice price : prices) {
-				
-				if(price.isDefaultPrice()) {
-					defaultPrice = price.getProductPriceAmount();
-				}
-			}
-		}
-		
-		return defaultPrice;
-	}
-	
-	/**
-	 * This method calculates the final price taking into account
-	 * all attributes included having a specified default attribute with an attribute price gt 0
-	 * in the product object. The calculation is based
-	 * on the default price.
-	 * Attributes may be null
-	 * @param Product
-	 * @param List<ProductAttribute>
-	 * @return FinalPrice
-	 */
-	public FinalPrice getFinalProductPrice(Product product, List<ProductAttribute> attributes) {
-
-
-		FinalPrice finalPrice = calculateFinalPrice(product);
-		
-		//attributes
-		BigDecimal attributePrice = null;
-		if(attributes!=null && attributes.size()>0) {
-			for(ProductAttribute attribute : attributes) {
-					if(attribute.getProductAttributePrice()!=null && attribute.getProductAttributePrice().doubleValue()>0) {
-						if(attributePrice==null) {
-							attributePrice = new BigDecimal(0);
-						}
-						attributePrice = attributePrice.add(attribute.getProductAttributePrice());
-					}
-			}
-			
-			if(attributePrice!=null && attributePrice.doubleValue()>0) {
-				BigDecimal fp = finalPrice.getFinalPrice();
-				fp = fp.add(attributePrice);
-				finalPrice.setFinalPrice(fp);
-				
-				BigDecimal op = finalPrice.getOriginalPrice();
-				op = op.add(attributePrice);
-				finalPrice.setOriginalPrice(op);
-				
-				BigDecimal dp = finalPrice.getDiscountedPrice();
-				if(dp!=null) {
-					dp = dp.add(attributePrice);
-					finalPrice.setDiscountedPrice(dp);
-				}
-				
-			}
-		}
-		
-
-		return finalPrice;
-
-	}
-
-	
-	/**
-	 * This is the final price calculated from all configured prices
-	 * and all possibles discounts. This price does not calculate the attributes
-	 * or other prices than the default one
-	 * @param store
-	 * @param product
-	 * @param locale
-	 * @return
-	 */
-	public FinalPrice getFinalPrice(Product product) {
-
-
-
-		FinalPrice finalPrice = calculateFinalPrice(product);
-		
-		//attributes
-		BigDecimal attributePrice = null;
-		if(product.getAttributes()!=null && product.getAttributes().size()>0) {
-			for(ProductAttribute attribute : product.getAttributes()) {
-					if(attribute.getAttributeDefault()) {
-						if(attribute.getProductAttributePrice()!=null && attribute.getProductAttributePrice().doubleValue()>0) {
-							if(attributePrice==null) {
-								attributePrice = new BigDecimal(0);
-							}
-							attributePrice = attributePrice.add(attribute.getProductAttributePrice());
-						}
-					}
-			}
-			
-			if(attributePrice!=null && attributePrice.doubleValue()>0) {
-				BigDecimal fp = finalPrice.getFinalPrice();
-				fp = fp.add(attributePrice);
-				finalPrice.setFinalPrice(fp);
-				
-				BigDecimal op = finalPrice.getOriginalPrice();
-				op = op.add(attributePrice);
-				finalPrice.setOriginalPrice(op);
-			}
-		}
-
-		return finalPrice;
-
-	}
-	
-
-	
-
-	/**
 	 * This is the format that will be displayed
 	 * in the admin input text fields when editing
 	 * an entity having a BigDecimal to be displayed
@@ -201,76 +77,6 @@ public class ProductPriceUtils {
 
 		return nf.format(amount);
 	}
-	
-	
-	/**
-	 * This method has to be used to format store front amounts
-	 * It will display national format amount ex:
-	 * $1,345.99
-	 * Rs.1.345.99
-	 * or international format
-	 * USD1,345.79
-	 * INR1,345.79
-	 * @param store
-	 * @param amount
-	 * @return String
-	 * @throws Exception
-	 */
-	public String getStoreFormatedAmountWithCurrency(MerchantStore store, BigDecimal amount) throws Exception {
-		if(amount==null) {
-			return "";
-		}
-		
-		
-		
-		Currency currency = Constants.DEFAULT_CURRENCY;
-		Locale locale = Constants.DEFAULT_LOCALE; 
-		
-		try {
-
-			currency = store.getCurrency().getCurrency();
-			locale = new Locale(store.getDefaultLanguage().getCode(),store.getCountry().getIsoCode());
-		} catch (Exception e) {
-			LOGGER.error("Cannot create currency or locale instance for store " + store.getCode());
-		}
-
-		
-		NumberFormat currencyInstance = null;
-		
-		
-		if(store.isCurrencyFormatNational()) {
-			currencyInstance = NumberFormat.getCurrencyInstance(locale);//national
-		} else {
-			currencyInstance = NumberFormat.getCurrencyInstance();//international
-		}
-	    currencyInstance.setCurrency(currency);
-		
-	    
-	    return currencyInstance.format(amount.doubleValue());
-		
-
-    }
-	
-	
-	public String getFormatedAmountWithCurrency(Locale locale, com.salesmanager.core.model.reference.currency.Currency currency, BigDecimal amount) throws Exception {
-		if(amount==null) {
-			return "";
-		}
-
-		Currency curr = currency.getCurrency();
-
-
-		
-		NumberFormat currencyInstance = null;
-
-		currencyInstance = NumberFormat.getCurrencyInstance(locale);
-		currencyInstance.setCurrency(curr);
-	    return currencyInstance.format(amount.doubleValue());
-		
-
-    }
-	
-
 	
 	/**
 	 * This method will return the required formated amount
@@ -302,66 +108,7 @@ public class ProductPriceUtils {
 
 		return nf.format(amount);
 	}
-	
-	/**
-	 * Returns a formatted amount using Shopizer Currency
-	 * requires internal java.util.Currency populated
-	 * @param currency
-	 * @param amount
-	 * @return
-	 * @throws Exception
-	 */
-	public String getFormatedAmountWithCurrency(com.salesmanager.core.model.reference.currency.Currency currency, BigDecimal amount) throws Exception {
-		if(amount==null) {
-			return "";
-		}
-		
-		Validate.notNull(currency.getCurrency(),"Currency must be populated with java.util.Currency");
-		
-		NumberFormat nf = null;
 
-		
-		Currency curr = currency.getCurrency();
-		nf = NumberFormat.getInstance(Constants.DEFAULT_LOCALE);
-		nf.setMaximumFractionDigits(Integer.parseInt(Character
-				.toString(DECIMALCOUNT)));
-		nf.setMinimumFractionDigits(Integer.parseInt(Character
-				.toString(DECIMALCOUNT)));
-		nf.setCurrency(curr);
-
-
-		String stringNumber = nf.format(amount);
-		
-		return stringNumber;
-	}
-
-	/**
-	 * This amount will be displayed to the end user
-	 * @param store
-	 * @param amount
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	public String getFormatedAmountWithCurrency(MerchantStore store, BigDecimal amount, Locale locale)
-				throws Exception {
-		
-			NumberFormat nf = null;
-
-			Currency currency = store.getCurrency().getCurrency();
-			
-			nf = NumberFormat.getInstance(locale);
-			nf.setCurrency(currency);
-			nf.setMaximumFractionDigits(Integer.parseInt(Character
-					.toString(DECIMALCOUNT)));
-			nf.setMinimumFractionDigits(Integer.parseInt(Character
-					.toString(DECIMALCOUNT)));
-	
-
-	
-			return nf.format(amount);
-
-	}
 	
 	/**
 	 * Transformation of an amount of money submited by the admin
@@ -430,9 +177,9 @@ public class ProductPriceUtils {
 
 				Locale locale = Constants.DEFAULT_LOCALE;
 				//TODO validate amount using old test case
-				if (DECIMALPOINT == ',') {
-					locale = Locale.GERMAN;
-				}
+//				if (DECIMALPOINT == ',') {
+//					locale = Locale.GERMAN;
+//				}
 
 				BigDecimalValidator validator = CurrencyValidator.getInstance();
 				BigDecimal bdamount = validator.validate(amount, locale);
@@ -445,12 +192,265 @@ public class ProductPriceUtils {
 
 	}
 	
+
+	
+
+	/**
+	 * This is the final price calculated from all configured prices
+	 * and all possibles discounts. This price does not calculate the attributes
+	 * or other prices than the default one
+	 * @param store
+	 * @param product
+	 * @param locale
+	 * @return
+	 */
+	public FinalPrice getFinalPrice(Product product) {
+
+
+
+		FinalPrice finalPrice = calculateFinalPrice(product);
+		
+		//attributes
+		BigDecimal attributePrice = null;
+		if(product.getAttributes()!=null && product.getAttributes().size()>0) {
+			for(ProductAttribute attribute : product.getAttributes()) {
+					if(attribute.getAttributeDefault()) {
+						if(attribute.getProductAttributePrice()!=null && attribute.getProductAttributePrice().doubleValue()>0) {
+							if(attributePrice==null) {
+								attributePrice = new BigDecimal(0);
+							}
+							attributePrice = attributePrice.add(attribute.getProductAttributePrice());
+						}
+					}
+			}
+			
+			if(attributePrice!=null && attributePrice.doubleValue()>0) {
+				BigDecimal fp = finalPrice.getFinalPrice();
+				fp = fp.add(attributePrice);
+				finalPrice.setFinalPrice(fp);
+				
+				BigDecimal op = finalPrice.getOriginalPrice();
+				op = op.add(attributePrice);
+				finalPrice.setOriginalPrice(op);
+			}
+		}
+
+		return finalPrice;
+
+	}
+	
+	
+	/**
+	 * This method calculates the final price taking into account
+	 * all attributes included having a specified default attribute with an attribute price gt 0
+	 * in the product object. The calculation is based
+	 * on the default price.
+	 * Attributes may be null
+	 * @param Product
+	 * @param List<ProductAttribute>
+	 * @return FinalPrice
+	 */
+	public FinalPrice getFinalProductPrice(Product product, List<ProductAttribute> attributes) {
+
+
+		FinalPrice finalPrice = calculateFinalPrice(product);
+		
+		//attributes
+		BigDecimal attributePrice = null;
+		if(attributes!=null && attributes.size()>0) {
+			for(ProductAttribute attribute : attributes) {
+					if(attribute.getProductAttributePrice()!=null && attribute.getProductAttributePrice().doubleValue()>0) {
+						if(attributePrice==null) {
+							attributePrice = new BigDecimal(0);
+						}
+						attributePrice = attributePrice.add(attribute.getProductAttributePrice());
+					}
+			}
+			
+			if(attributePrice!=null && attributePrice.doubleValue()>0) {
+				BigDecimal fp = finalPrice.getFinalPrice();
+				fp = fp.add(attributePrice);
+				finalPrice.setFinalPrice(fp);
+				
+				BigDecimal op = finalPrice.getOriginalPrice();
+				op = op.add(attributePrice);
+				finalPrice.setOriginalPrice(op);
+				
+				BigDecimal dp = finalPrice.getDiscountedPrice();
+				if(dp!=null) {
+					dp = dp.add(attributePrice);
+					finalPrice.setDiscountedPrice(dp);
+				}
+				
+			}
+		}
+		
+
+		return finalPrice;
+
+	}
+	
+	
+	/**
+	 * Returns a formatted amount using Shopizer Currency
+	 * requires internal java.util.Currency populated
+	 * @param currency
+	 * @param amount
+	 * @return
+	 * @throws Exception
+	 */
+	public String getFormatedAmountWithCurrency(com.salesmanager.core.model.reference.currency.Currency currency, BigDecimal amount) throws Exception {
+		if(amount==null) {
+			return "";
+		}
+		
+		Validate.notNull(currency.getCurrency(),"Currency must be populated with java.util.Currency");
+		
+		NumberFormat nf = null;
+
+		
+		Currency curr = currency.getCurrency();
+		nf = NumberFormat.getInstance(Constants.DEFAULT_LOCALE);
+		nf.setMaximumFractionDigits(Integer.parseInt(Character
+				.toString(DECIMALCOUNT)));
+		nf.setMinimumFractionDigits(Integer.parseInt(Character
+				.toString(DECIMALCOUNT)));
+		nf.setCurrency(curr);
+
+
+		String stringNumber = nf.format(amount);
+		
+		return stringNumber;
+	}
+	
+
+	
+	public String getFormatedAmountWithCurrency(Locale locale, com.salesmanager.core.model.reference.currency.Currency currency, BigDecimal amount) throws Exception {
+		if(amount==null) {
+			return "";
+		}
+
+		Currency curr = currency.getCurrency();
+
+
+		
+		NumberFormat currencyInstance = null;
+
+		currencyInstance = NumberFormat.getCurrencyInstance(locale);
+		currencyInstance.setCurrency(curr);
+	    return currencyInstance.format(amount.doubleValue());
+		
+
+    }
+	
+	/**
+	 * This amount will be displayed to the end user
+	 * @param store
+	 * @param amount
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	public String getFormatedAmountWithCurrency(MerchantStore store, BigDecimal amount, Locale locale)
+				throws Exception {
+		
+			NumberFormat nf = null;
+
+			Currency currency = store.getCurrency().getCurrency();
+			
+			nf = NumberFormat.getInstance(locale);
+			nf.setCurrency(currency);
+			nf.setMaximumFractionDigits(Integer.parseInt(Character
+					.toString(DECIMALCOUNT)));
+			nf.setMinimumFractionDigits(Integer.parseInt(Character
+					.toString(DECIMALCOUNT)));
+	
+
+	
+			return nf.format(amount);
+
+	}
+
 	public BigDecimal getOrderProductTotalPrice(MerchantStore store, OrderProduct orderProduct) {
 		
 		BigDecimal finalPrice = orderProduct.getOneTimeCharge();
 		finalPrice = finalPrice.multiply(new BigDecimal(orderProduct.getProductQuantity()));
 		return finalPrice;
 	}
+	
+	/**
+	 * Get the price without discount
+	 * @param store
+	 * @param product
+	 * @param locale
+	 * @return
+	 */
+	public BigDecimal getPrice(MerchantStore store, Product product, Locale locale) {
+		
+		BigDecimal defaultPrice = new BigDecimal(0);
+
+		Set<ProductAvailability> availabilities = product.getAvailabilities();
+		for(ProductAvailability availability : availabilities) {
+			
+			Set<ProductPrice> prices = availability.getPrices();
+			for(ProductPrice price : prices) {
+				
+				if(price.isDefaultPrice()) {
+					defaultPrice = price.getProductPriceAmount();
+				}
+			}
+		}
+		
+		return defaultPrice;
+	}
+	
+	/**
+	 * This method has to be used to format store front amounts
+	 * It will display national format amount ex:
+	 * $1,345.99
+	 * Rs.1.345.99
+	 * or international format
+	 * USD1,345.79
+	 * INR1,345.79
+	 * @param store
+	 * @param amount
+	 * @return String
+	 * @throws Exception
+	 */
+	public String getStoreFormatedAmountWithCurrency(MerchantStore store, BigDecimal amount) throws Exception {
+		if(amount==null) {
+			return "";
+		}
+		
+		
+		
+		Currency currency = Constants.DEFAULT_CURRENCY;
+		Locale locale = Constants.DEFAULT_LOCALE; 
+		
+		try {
+
+			currency = store.getCurrency().getCurrency();
+			locale = new Locale(store.getDefaultLanguage().getCode(),store.getCountry().getIsoCode());
+		} catch (Exception e) {
+			LOGGER.error("Cannot create currency or locale instance for store " + store.getCode());
+		}
+
+		
+		NumberFormat currencyInstance = null;
+		
+		
+		if(store.isCurrencyFormatNational()) {
+			currencyInstance = NumberFormat.getCurrencyInstance(locale);//national
+		} else {
+			currencyInstance = NumberFormat.getCurrencyInstance();//international
+		}
+	    currencyInstance.setCurrency(currency);
+		
+	    
+	    return currencyInstance.format(amount.doubleValue());
+		
+
+    }
 	
 	/**
 	 * Determines if a ProductPrice has a discount
@@ -483,18 +483,6 @@ public class ProductPriceUtils {
 		
 		
 		
-	}
-	
-	private boolean matchPositiveInteger(String amount) {
-
-		Pattern pattern = Pattern.compile("^[+]?\\d*$");
-		Matcher matcher = pattern.matcher(amount);
-		if (matcher.matches()) {
-			return true;
-
-		} else {
-			return false;
-		}
 	}
 	
 	private FinalPrice calculateFinalPrice(Product product) {
@@ -534,6 +522,21 @@ public class ProductPriceUtils {
 		return finalPrice;
 		
 		
+	}
+	
+	private void discountPrice(FinalPrice finalPrice) {
+		
+		finalPrice.setDiscounted(true);
+		
+		double arith = finalPrice.getProductPrice().getProductPriceSpecialAmount().doubleValue() / finalPrice.getProductPrice().getProductPriceAmount().doubleValue();
+		double fsdiscount = 100 - (arith * 100);
+		Float percentagediscount = new Float(fsdiscount);
+		int percent = percentagediscount.intValue();
+		finalPrice.setDiscountPercent(percent);
+		
+		//calculate percent
+//		BigDecimal price = finalPrice.getOriginalPrice();
+		finalPrice.setDiscountedPrice(finalPrice.getProductPrice().getProductPriceSpecialAmount());
 	}
 	
 	private FinalPrice finalPrice(ProductPrice price) {
@@ -594,19 +597,16 @@ public class ProductPriceUtils {
 		return finalPrice;
 	}
 	
-	private void discountPrice(FinalPrice finalPrice) {
-		
-		finalPrice.setDiscounted(true);
-		
-		double arith = finalPrice.getProductPrice().getProductPriceSpecialAmount().doubleValue() / finalPrice.getProductPrice().getProductPriceAmount().doubleValue();
-		double fsdiscount = 100 - (arith * 100);
-		Float percentagediscount = new Float(fsdiscount);
-		int percent = percentagediscount.intValue();
-		finalPrice.setDiscountPercent(percent);
-		
-		//calculate percent
-		BigDecimal price = finalPrice.getOriginalPrice();
-		finalPrice.setDiscountedPrice(finalPrice.getProductPrice().getProductPriceSpecialAmount());
+	private boolean matchPositiveInteger(String amount) {
+
+		Pattern pattern = Pattern.compile("^[+]?\\d*$");
+		Matcher matcher = pattern.matcher(amount);
+		if (matcher.matches()) {
+			return true;
+
+		} else {
+			return false;
+		}
 	}
 
 

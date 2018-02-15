@@ -25,12 +25,12 @@ public class DeliveryEntity extends Address implements Serializable {
 		return countryName;
 	}
 
-	public void setCountryName(String countryName) {
-		this.countryName = countryName;
-	}
-
 	public String getProvinceName() {
 		return provinceName;
+	}
+
+	public void setCountryName(String countryName) {
+		this.countryName = countryName;
 	}
 
 	public void setProvinceName(String provinceName) {

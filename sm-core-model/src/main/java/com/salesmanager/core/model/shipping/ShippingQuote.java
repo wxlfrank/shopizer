@@ -53,83 +53,83 @@ public class ShippingQuote implements Serializable {
 	
 	
 	
-	public void setShippingOptions(List<ShippingOption> shippingOptions) {
-		this.shippingOptions = shippingOptions;
-	}
-	public List<ShippingOption> getShippingOptions() {
-		return shippingOptions;
-	}
-	public void setShippingModuleCode(String shippingModuleCode) {
-		this.shippingModuleCode = shippingModuleCode;
-	}
-	public String getShippingModuleCode() {
-		return shippingModuleCode;
-	}
-	public void setShippingReturnCode(String shippingReturnCode) {
-		this.shippingReturnCode = shippingReturnCode;
-	}
-	public String getShippingReturnCode() {
-		return shippingReturnCode;
-	}
-	public void setFreeShipping(boolean freeShipping) {
-		this.freeShipping = freeShipping;
-	}
-	public boolean isFreeShipping() {
-		return freeShipping;
-	}
-	public void setFreeShippingAmount(BigDecimal freeShippingAmount) {
-		this.freeShippingAmount = freeShippingAmount;
-	}
-	public BigDecimal getFreeShippingAmount() {
-		return freeShippingAmount;
-	}
-	public void setHandlingFees(BigDecimal handlingFees) {
-		this.handlingFees = handlingFees;
-	}
-	public BigDecimal getHandlingFees() {
-		return handlingFees;
-	}
-	public void setApplyTaxOnShipping(boolean applyTaxOnShipping) {
-		this.applyTaxOnShipping = applyTaxOnShipping;
-	}
-	public boolean isApplyTaxOnShipping() {
-		return applyTaxOnShipping;
-	}
-	public void setSelectedShippingOption(ShippingOption selectedShippingOption) {
-		this.selectedShippingOption = selectedShippingOption;
-	}
-	public ShippingOption getSelectedShippingOption() {
-		return selectedShippingOption;
-	}
-	public String getQuoteError() {
-		return quoteError;
-	}
-	public void setQuoteError(String quoteError) {
-		this.quoteError = quoteError;
-	}
-	public Map<String,Object> getQuoteInformations() {
-		return quoteInformations;
-	}
-	public void setQuoteInformations(Map<String,Object> quoteInformations) {
-		this.quoteInformations = quoteInformations;
-	}
 	public IntegrationModule getCurrentShippingModule() {
 		return currentShippingModule;
-	}
-	public void setCurrentShippingModule(IntegrationModule currentShippingModule) {
-		this.currentShippingModule = currentShippingModule;
-	}
-	public List<String> getWarnings() {
-		return warnings;
-	}
-	public void setWarnings(List<String> warnings) {
-		this.warnings = warnings;
 	}
 	public Delivery getDeliveryAddress() {
 		return deliveryAddress;
 	}
+	public BigDecimal getFreeShippingAmount() {
+		return freeShippingAmount;
+	}
+	public BigDecimal getHandlingFees() {
+		return handlingFees;
+	}
+	public String getQuoteError() {
+		return quoteError;
+	}
+	public Map<String,Object> getQuoteInformations() {
+		return quoteInformations;
+	}
+	public ShippingOption getSelectedShippingOption() {
+		return selectedShippingOption;
+	}
+	public String getShippingModuleCode() {
+		return shippingModuleCode;
+	}
+	public List<ShippingOption> getShippingOptions() {
+		return shippingOptions;
+	}
+	public String getShippingReturnCode() {
+		return shippingReturnCode;
+	}
+	public List<String> getWarnings() {
+		return warnings;
+	}
+	public boolean isApplyTaxOnShipping() {
+		return applyTaxOnShipping;
+	}
+	public boolean isFreeShipping() {
+		return freeShipping;
+	}
+	public void setApplyTaxOnShipping(boolean applyTaxOnShipping) {
+		this.applyTaxOnShipping = applyTaxOnShipping;
+	}
+	public void setCurrentShippingModule(IntegrationModule currentShippingModule) {
+		this.currentShippingModule = currentShippingModule;
+	}
 	public void setDeliveryAddress(Delivery deliveryAddress) {
 		this.deliveryAddress = deliveryAddress;
+	}
+	public void setFreeShipping(boolean freeShipping) {
+		this.freeShipping = freeShipping;
+	}
+	public void setFreeShippingAmount(BigDecimal freeShippingAmount) {
+		this.freeShippingAmount = freeShippingAmount;
+	}
+	public void setHandlingFees(BigDecimal handlingFees) {
+		this.handlingFees = handlingFees;
+	}
+	public void setQuoteError(String quoteError) {
+		this.quoteError = quoteError;
+	}
+	public void setQuoteInformations(Map<String,Object> quoteInformations) {
+		this.quoteInformations = quoteInformations;
+	}
+	public void setSelectedShippingOption(ShippingOption selectedShippingOption) {
+		this.selectedShippingOption = selectedShippingOption;
+	}
+	public void setShippingModuleCode(String shippingModuleCode) {
+		this.shippingModuleCode = shippingModuleCode;
+	}
+	public void setShippingOptions(List<ShippingOption> shippingOptions) {
+		this.shippingOptions = shippingOptions;
+	}
+	public void setShippingReturnCode(String shippingReturnCode) {
+		this.shippingReturnCode = shippingReturnCode;
+	}
+	public void setWarnings(List<String> warnings) {
+		this.warnings = warnings;
 	}
 
 	

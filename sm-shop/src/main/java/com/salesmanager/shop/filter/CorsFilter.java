@@ -18,11 +18,6 @@ public class CorsFilter implements Filter {
 		public void destroy() {
 		}
 		@Override
-		public void init(FilterConfig filterConfig) throws ServletException {
-			// TODO Auto-generated method stub
-			
-		}
-		@Override
 		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 				throws IOException, ServletException {
         	HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -33,6 +28,11 @@ public class CorsFilter implements Filter {
 	        //httpResponse.setHeader("Access-Control-Max-Age", "4800");
 	        //System.out.println("---CORS Configuration Completed---");
 	        chain.doFilter(request, response);
+			
+		}
+		@Override
+		public void init(FilterConfig filterConfig) throws ServletException {
+			// TODO Auto-generated method stub
 			
 		}
 }

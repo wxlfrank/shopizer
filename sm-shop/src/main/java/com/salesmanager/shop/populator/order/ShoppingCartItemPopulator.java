@@ -2,17 +2,17 @@ package com.salesmanager.shop.populator.order;
 
 import org.apache.commons.lang3.Validate;
 
-import com.salesmanager.core.model.catalog.product.Product;
-import com.salesmanager.core.model.catalog.product.attribute.ProductAttribute;
-import com.salesmanager.core.business.services.catalog.product.ProductService;
-import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
 import com.salesmanager.core.business.exception.ConversionException;
 import com.salesmanager.core.business.exception.ServiceException;
+import com.salesmanager.core.business.services.catalog.product.ProductService;
+import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
+import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
+import com.salesmanager.core.business.utils.AbstractDataPopulator;
+import com.salesmanager.core.model.catalog.product.Product;
+import com.salesmanager.core.model.catalog.product.attribute.ProductAttribute;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
-import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
-import com.salesmanager.core.business.utils.AbstractDataPopulator;
 import com.salesmanager.shop.model.order.PersistableOrderProduct;
 
 public class ShoppingCartItemPopulator extends
@@ -22,6 +22,18 @@ public class ShoppingCartItemPopulator extends
 	private ProductService productService;
 	private ProductAttributeService productAttributeService;
 	private ShoppingCartService shoppingCartService;
+
+	public ProductAttributeService getProductAttributeService() {
+		return productAttributeService;
+	}
+
+	public ProductService getProductService() {
+		return productService;
+	}
+
+	public ShoppingCartService getShoppingCartService() {
+		return shoppingCartService;
+	}
 
 	@Override
 	public ShoppingCartItem populate(PersistableOrderProduct source,
@@ -54,34 +66,22 @@ public class ShoppingCartItemPopulator extends
 		
 	}
 
-	@Override
-	protected ShoppingCartItem createTarget() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public void setProductAttributeService(ProductAttributeService productAttributeService) {
 		this.productAttributeService = productAttributeService;
-	}
-
-	public ProductAttributeService getProductAttributeService() {
-		return productAttributeService;
 	}
 
 	public void setProductService(ProductService productService) {
 		this.productService = productService;
 	}
 
-	public ProductService getProductService() {
-		return productService;
-	}
-
 	public void setShoppingCartService(ShoppingCartService shoppingCartService) {
 		this.shoppingCartService = shoppingCartService;
 	}
 
-	public ShoppingCartService getShoppingCartService() {
-		return shoppingCartService;
+	@Override
+	protected ShoppingCartItem createTarget() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

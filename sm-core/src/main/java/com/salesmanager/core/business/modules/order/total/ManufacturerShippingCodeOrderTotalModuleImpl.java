@@ -45,14 +45,6 @@ public class ManufacturerShippingCodeOrderTotalModuleImpl implements OrderTotalP
 	
 
 	
-	public PricingService getPricingService() {
-		return pricingService;
-	}
-
-	public void setPricingService(PricingService pricingService) {
-		this.pricingService = pricingService;
-	}
-
 	@Override
 	public OrderTotal caculateProductPiceVariation(final OrderSummary summary, ShoppingCartItem shoppingCartItem, Product product, Customer customer, MerchantStore store)
 			throws Exception {
@@ -100,27 +92,37 @@ public class ManufacturerShippingCodeOrderTotalModuleImpl implements OrderTotalP
 		return orderTotal;
 
 	}
-	
+
+	@Override
+	public String getCode() {
+		return code;
+	}
+
 	public KnowledgeBase getKbase() {
 		return kbase;
 	}
-
-
-	public void setKbase(KnowledgeBase kbase) {
-		this.kbase = kbase;
+	
+	@Override
+	public String getName() {
+		return name;
 	}
+
 
 	public StatelessKnowledgeSession getOrderTotalMethodDecision() {
 		return orderTotalMethodDecision;
 	}
 
-	public void setOrderTotalMethodDecision(StatelessKnowledgeSession orderTotalMethodDecision) {
-		this.orderTotalMethodDecision = orderTotalMethodDecision;
+	public PricingService getPricingService() {
+		return pricingService;
 	}
 
 	@Override
-	public String getName() {
-		return name;
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public void setKbase(KnowledgeBase kbase) {
+		this.kbase = kbase;
 	}
 
 	@Override
@@ -128,14 +130,12 @@ public class ManufacturerShippingCodeOrderTotalModuleImpl implements OrderTotalP
 		this.name = name;
 	}
 
-	@Override
-	public String getCode() {
-		return code;
+	public void setOrderTotalMethodDecision(StatelessKnowledgeSession orderTotalMethodDecision) {
+		this.orderTotalMethodDecision = orderTotalMethodDecision;
 	}
 
-	@Override
-	public void setCode(String code) {
-		this.code = code;
+	public void setPricingService(PricingService pricingService) {
+		this.pricingService = pricingService;
 	}
 
 

@@ -27,6 +27,10 @@ public class ActiveLinkTag extends TagSupport {
 	private String inactiveReturnCode = null;
 		
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
 	public int doStartTag() throws JspException {
 		try {
 
@@ -67,24 +71,20 @@ public class ActiveLinkTag extends TagSupport {
 		return SKIP_BODY;
 	}
 
-	public int doEndTag() {
-		return EVAL_PAGE;
+	public String getActiveReturnCode() {
+		return activeReturnCode;
 	}
 
 	public String getLinkCode() {
 		return linkCode;
 	}
 
-	public void setLinkCode(String linkCode) {
-		this.linkCode = linkCode;
-	}
-
-	public String getActiveReturnCode() {
-		return activeReturnCode;
-	}
-
 	public void setActiveReturnCode(String activeReturnCode) {
 		this.activeReturnCode = activeReturnCode;
+	}
+
+	public void setLinkCode(String linkCode) {
+		this.linkCode = linkCode;
 	}
 
 

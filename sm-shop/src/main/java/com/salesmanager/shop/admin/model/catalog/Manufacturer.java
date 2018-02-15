@@ -1,14 +1,16 @@
 package com.salesmanager.shop.admin.model.catalog;
 
-import com.salesmanager.core.model.catalog.product.image.ProductImage;
-import com.salesmanager.core.model.catalog.product.manufacturer.ManufacturerDescription;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import com.salesmanager.core.model.catalog.product.image.ProductImage;
+import com.salesmanager.core.model.catalog.product.manufacturer.ManufacturerDescription;
 
 
 public class Manufacturer implements Serializable {
@@ -32,15 +34,15 @@ public class Manufacturer implements Serializable {
 	private MultipartFile image = null;
 	@NotNull
 	private String code;
+	private ProductImage productImage = null;
+
 	public String getCode() {
 		return code;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
+	public List<ManufacturerDescription> getDescriptions() {
+		return descriptions;
 	}
-
-	private ProductImage productImage = null;
 	
 	
 	
@@ -48,20 +50,28 @@ public class Manufacturer implements Serializable {
 		return image;
 	}
 
-	public void setImage(MultipartFile image) {
-		this.image = image;
+	public com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer getManufacturer() {
+		return manufacturer;
+	}
+
+	public Integer getOrder() {
+		return order;
 	}
 
 	public ProductImage getProductImage() {
 		return productImage;
 	}
 
-	public void setProductImage(ProductImage productImage) {
-		this.productImage = productImage;
+	public void setCode(String code) {
+		this.code = code;
 	}
 
-	public com.salesmanager.core.model.catalog.product.manufacturer.Manufacturer getManufacturer() {
-		return manufacturer;
+	public void setDescriptions(List<ManufacturerDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+	public void setImage(MultipartFile image) {
+		this.image = image;
 	}
 
 	public void setManufacturer(
@@ -69,20 +79,12 @@ public class Manufacturer implements Serializable {
 		this.manufacturer = manufacturer;
 	}
 
-	public List<ManufacturerDescription> getDescriptions() {
-		return descriptions;
-	}
-
-	public void setDescriptions(List<ManufacturerDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-
-	public Integer getOrder() {
-		return order;
-	}
-
 	public void setOrder(Integer order) {
 		this.order = order;
+	}
+
+	public void setProductImage(ProductImage productImage) {
+		this.productImage = productImage;
 	}
 	
 	

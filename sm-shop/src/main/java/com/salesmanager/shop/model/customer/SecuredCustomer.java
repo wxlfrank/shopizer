@@ -28,23 +28,23 @@ public class SecuredCustomer extends PersistableCustomer implements Serializable
 	
 
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-    public String getCheckPassword()
+	public String getCheckPassword()
     {
         return checkPassword;
     }
+
+	public String getPassword() {
+		return password;
+	}
 
     public void setCheckPassword( String checkPassword )
     {
         this.checkPassword = checkPassword;
     }
+
+    public void setPassword(String password) {
+		this.password = password;
+	}
 	
 	
 

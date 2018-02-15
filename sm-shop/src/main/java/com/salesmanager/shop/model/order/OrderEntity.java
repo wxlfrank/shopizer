@@ -31,84 +31,84 @@ public class OrderEntity extends Order implements Serializable {
 	private boolean confirmedAddress;
 	private String comments;
 	
-	public void setTotals(List<OrderTotal> totals) {
-		this.totals = totals;
-	}
-	public List<OrderTotal> getTotals() {
-		return totals;
-	}
-	public PaymentType getPaymentType() {
-		return paymentType;
-	}
-	public void setPaymentType(PaymentType paymentType) {
-		this.paymentType = paymentType;
-	}
-	public String getPaymentModule() {
-		return paymentModule;
-	}
-	public void setPaymentModule(String paymentModule) {
-		this.paymentModule = paymentModule;
-	}
-	public String getShippingModule() {
-		return shippingModule;
-	}
-	public void setShippingModule(String shippingModule) {
-		this.shippingModule = shippingModule;
-	}
-
-	public CreditCard getCreditCard() {
-		return creditCard;
-	}
-	public void setCreditCard(CreditCard creditCard) {
-		this.creditCard = creditCard;
-	}
-	public Date getDatePurchased() {
-		return datePurchased;
-	}
-	public void setDatePurchased(Date datePurchased) {
-		this.datePurchased = datePurchased;
-	}
-	public void setPreviousOrderStatus(List<OrderStatus> previousOrderStatus) {
-		this.previousOrderStatus = previousOrderStatus;
-	}
-	public List<OrderStatus> getPreviousOrderStatus() {
-		return previousOrderStatus;
-	}
-	public void setOrderStatus(OrderStatus orderStatus) {
-		this.orderStatus = orderStatus;
-	}
-	public OrderStatus getOrderStatus() {
-		return orderStatus;
-	}
-	public String getCurrency() {
-		return currency;
-	}
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
-	public boolean isCustomerAgreed() {
-		return customerAgreed;
-	}
-	public void setCustomerAgreed(boolean customerAgreed) {
-		this.customerAgreed = customerAgreed;
-	}
-	public boolean isConfirmedAddress() {
-		return confirmedAddress;
-	}
-	public void setConfirmedAddress(boolean confirmedAddress) {
-		this.confirmedAddress = confirmedAddress;
+	public List<OrderAttribute> getAttributes() {
+		return attributes;
 	}
 	public String getComments() {
 		return comments;
 	}
-	public void setComments(String comments) {
-		this.comments = comments;
+	public CreditCard getCreditCard() {
+		return creditCard;
 	}
-	public List<OrderAttribute> getAttributes() {
-		return attributes;
+	public String getCurrency() {
+		return currency;
+	}
+	public Date getDatePurchased() {
+		return datePurchased;
+	}
+	public OrderStatus getOrderStatus() {
+		return orderStatus;
+	}
+	public String getPaymentModule() {
+		return paymentModule;
+	}
+	public PaymentType getPaymentType() {
+		return paymentType;
+	}
+
+	public List<OrderStatus> getPreviousOrderStatus() {
+		return previousOrderStatus;
+	}
+	public String getShippingModule() {
+		return shippingModule;
+	}
+	public List<OrderTotal> getTotals() {
+		return totals;
+	}
+	public boolean isConfirmedAddress() {
+		return confirmedAddress;
+	}
+	public boolean isCustomerAgreed() {
+		return customerAgreed;
 	}
 	public void setAttributes(List<OrderAttribute> attributes) {
 		this.attributes = attributes;
+	}
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+	public void setConfirmedAddress(boolean confirmedAddress) {
+		this.confirmedAddress = confirmedAddress;
+	}
+	public void setCreditCard(CreditCard creditCard) {
+		this.creditCard = creditCard;
+	}
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+	public void setCustomerAgreed(boolean customerAgreed) {
+		this.customerAgreed = customerAgreed;
+	}
+	public void setDatePurchased(Date datePurchased) {
+		this.datePurchased = datePurchased;
+	}
+	public void setOrderStatus(OrderStatus orderStatus) {
+		this.orderStatus = orderStatus;
+	}
+	public void setPaymentModule(String paymentModule) {
+		this.paymentModule = paymentModule;
+	}
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
+	}
+	public void setPreviousOrderStatus(List<OrderStatus> previousOrderStatus) {
+		this.previousOrderStatus = previousOrderStatus;
+	}
+	public void setShippingModule(String shippingModule) {
+		this.shippingModule = shippingModule;
+	}
+	public void setTotals(List<OrderTotal> totals) {
+		this.totals = totals;
 	}
 
 

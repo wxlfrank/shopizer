@@ -22,18 +22,8 @@ public class PersistableImage extends Entity {
 	   
 
 
-	public void setBytes(byte[] bytes) {
-		this.bytes = bytes;
-	}
-
-
 	public byte[] getBytes() {
 		return bytes;
-	}
-
-
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
 	}
 
 
@@ -42,23 +32,8 @@ public class PersistableImage extends Entity {
 	}
 
 
-	public void setImageName(String imageName) {
-		this.imageName = imageName;
-	}
-
-
 	public String getImageName() {
 		return imageName;
-	}
-
-
-	public String getImageUrl() {
-		return imageUrl;
-	}
-
-
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
 	}
 
 
@@ -67,8 +42,8 @@ public class PersistableImage extends Entity {
 	}
 
 
-	public void setImageType(int imageType) {
-		this.imageType = imageType;
+	public String getImageUrl() {
+		return imageUrl;
 	}
 
 
@@ -77,8 +52,33 @@ public class PersistableImage extends Entity {
 	}
 
 
+	public void setBytes(byte[] bytes) {
+		this.bytes = bytes;
+	}
+
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
+
 	public void setDefaultImage(boolean defaultImage) {
 		this.defaultImage = defaultImage;
+	}
+
+
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
+
+
+	public void setImageType(int imageType) {
+		this.imageType = imageType;
+	}
+
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 }

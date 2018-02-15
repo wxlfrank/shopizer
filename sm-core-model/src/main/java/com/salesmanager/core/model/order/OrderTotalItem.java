@@ -11,8 +11,8 @@ public class OrderTotalItem implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private BigDecimal itemPrice;
 	private String itemCode;
-	public void setItemPrice(BigDecimal itemPrice) {
-		this.itemPrice = itemPrice;
+	public String getItemCode() {
+		return itemCode;
 	}
 	public BigDecimal getItemPrice() {
 		return itemPrice;
@@ -20,8 +20,8 @@ public class OrderTotalItem implements Serializable {
 	public void setItemCode(String itemCode) {
 		this.itemCode = itemCode;
 	}
-	public String getItemCode() {
-		return itemCode;
+	public void setItemPrice(BigDecimal itemPrice) {
+		this.itemPrice = itemPrice;
 	}
 
 }

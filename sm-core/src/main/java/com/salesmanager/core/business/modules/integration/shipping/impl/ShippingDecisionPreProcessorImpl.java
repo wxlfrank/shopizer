@@ -41,6 +41,19 @@ public class ShippingDecisionPreProcessorImpl implements ShippingQuotePrePostPro
 	
 	private KnowledgeBase kbase;
 	
+	public KnowledgeBase getKbase() {
+		return kbase;
+	}
+
+	@Override
+	public String getModuleCode() {
+		return MODULE_CODE;
+	}
+
+	public StatelessKnowledgeSession getShippingMethodDecision() {
+		return shippingMethodDecision;
+	}
+
 	@Override
 	public void prePostProcessShippingQuotes(ShippingQuote quote,
 			List<PackageDetails> packages, BigDecimal orderTotal,
@@ -140,25 +153,12 @@ public class ShippingDecisionPreProcessorImpl implements ShippingQuotePrePostPro
 		
 	}
 
-	public StatelessKnowledgeSession getShippingMethodDecision() {
-		return shippingMethodDecision;
-	}
-
-	public void setShippingMethodDecision(StatelessKnowledgeSession shippingMethodDecision) {
-		this.shippingMethodDecision = shippingMethodDecision;
-	}
-
-	public KnowledgeBase getKbase() {
-		return kbase;
-	}
-
 	public void setKbase(KnowledgeBase kbase) {
 		this.kbase = kbase;
 	}
 
-	@Override
-	public String getModuleCode() {
-		return MODULE_CODE;
+	public void setShippingMethodDecision(StatelessKnowledgeSession shippingMethodDecision) {
+		this.shippingMethodDecision = shippingMethodDecision;
 	}
 	
 

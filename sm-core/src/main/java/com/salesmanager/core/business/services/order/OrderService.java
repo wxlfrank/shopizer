@@ -76,40 +76,7 @@ public interface OrderService extends SalesManagerEntityService<Long, Order> {
     ByteArrayOutputStream generateInvoice(MerchantStore store, Order order,
                                           Language language) throws ServiceException;
 
-    Order getOrder(Long id);
-
-    
     /**
-     * For finding orders. Mainly used in the administration tool
-     * @param store
-     * @param criteria
-     * @return
-     */
-    OrderList listByStore(MerchantStore store, OrderCriteria criteria);
-
-    void saveOrUpdate(Order order) throws ServiceException;
-
-	Order processOrder(Order order, Customer customer,
-			List<ShoppingCartItem> items, OrderTotalSummary summary,
-			Payment payment, MerchantStore store) throws ServiceException;
-
-	Order processOrder(Order order, Customer customer,
-			List<ShoppingCartItem> items, OrderTotalSummary summary,
-			Payment payment, Transaction transaction, MerchantStore store)
-			throws ServiceException;
-
-
-
-	
-	/**
-	 * Determines if an Order has download files
-	 * @param order
-	 * @return
-	 * @throws ServiceException
-	 */
-	boolean hasDownloadFiles(Order order) throws ServiceException;
-	
-	/**
 	 * List all orders that have been pre-authorized but not captured
 	 * @param store
 	 * @param startDate
@@ -118,5 +85,38 @@ public interface OrderService extends SalesManagerEntityService<Long, Order> {
 	 * @throws ServiceException
 	 */
 	List<Order> getCapturableOrders(MerchantStore store, Date startDate, Date endDate) throws ServiceException;
+
+    
+    Order getOrder(Long id);
+
+    /**
+	 * Determines if an Order has download files
+	 * @param order
+	 * @return
+	 * @throws ServiceException
+	 */
+	boolean hasDownloadFiles(Order order) throws ServiceException;
+
+	/**
+     * For finding orders. Mainly used in the administration tool
+     * @param store
+     * @param criteria
+     * @return
+     */
+    OrderList listByStore(MerchantStore store, OrderCriteria criteria);
+
+	Order processOrder(Order order, Customer customer,
+			List<ShoppingCartItem> items, OrderTotalSummary summary,
+			Payment payment, MerchantStore store) throws ServiceException;
+
+
+
+	
+	Order processOrder(Order order, Customer customer,
+			List<ShoppingCartItem> items, OrderTotalSummary summary,
+			Payment payment, Transaction transaction, MerchantStore store)
+			throws ServiceException;
+	
+	void saveOrUpdate(Order order) throws ServiceException;
 
 }

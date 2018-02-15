@@ -120,97 +120,60 @@ public class TaxRate  extends SalesManagerEntity<Long, TaxRate> implements Audit
 	private String rateText;
 	
 	
-	public String getRateText() {
-		return rateText;
-	}
-
-	public void setRateText(String rateText) {
-		this.rateText = rateText;
-	}
-
 	public TaxRate() {
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
 	@Override
 	public AuditSection getAuditSection() {
 		return auditSection;
 	}
-	
-	@Override
-	public void setAuditSection(AuditSection auditSection) {
-		this.auditSection = auditSection;
-	}
 
-	public Integer getTaxPriority() {
-		return taxPriority;
-	}
-
-	public void setTaxPriority(Integer taxPriority) {
-		this.taxPriority = taxPriority;
-	}
-
-	public BigDecimal getTaxRate() {
-		return taxRate;
-	}
-
-	public void setTaxRate(BigDecimal taxRate) {
-		this.taxRate = taxRate;
-	}
-
-	public boolean isPiggyback() {
-		return piggyback;
-	}
-
-	public void setPiggyback(boolean piggyback) {
-		this.piggyback = piggyback;
-	}
-
-	public TaxClass getTaxClass() {
-		return taxClass;
-	}
-
-	public void setTaxClass(TaxClass taxClass) {
-		this.taxClass = taxClass;
-	}
-
-
-
-	public List<TaxRateDescription> getDescriptions() {
-		return descriptions;
-	}
-
-	public void setDescriptions(List<TaxRateDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-
-
-
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
-	}
-
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
-	}
-
-	public void setCountry(Country country) {
-		this.country = country;
+	public String getCode() {
+		return code;
 	}
 
 	public Country getCountry() {
 		return country;
 	}
 
-	public void setZone(Zone zone) {
-		this.zone = zone;
+	public List<TaxRateDescription> getDescriptions() {
+		return descriptions;
+	}
+	
+	public Long getId() {
+		return id;
+	}
+	
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
+	}
+
+	public TaxRate getParent() {
+		return parent;
+	}
+
+	public String getRateText() {
+		return rateText;
+	}
+
+	public String getStateProvince() {
+		return stateProvince;
+	}
+
+	public TaxClass getTaxClass() {
+		return taxClass;
+	}
+
+	public Integer getTaxPriority() {
+		return taxPriority;
+	}
+
+	public BigDecimal getTaxRate() {
+		return taxRate;
+	}
+
+	public List<TaxRate> getTaxRates() {
+		return taxRates;
 	}
 
 	public Zone getZone() {
@@ -218,35 +181,72 @@ public class TaxRate  extends SalesManagerEntity<Long, TaxRate> implements Audit
 	}
 
 
-	public void setTaxRates(List<TaxRate> taxRates) {
-		this.taxRates = taxRates;
+
+	public boolean isPiggyback() {
+		return piggyback;
 	}
 
-	public List<TaxRate> getTaxRates() {
-		return taxRates;
+	@Override
+	public void setAuditSection(AuditSection auditSection) {
+		this.auditSection = auditSection;
+	}
+
+
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public void setCountry(Country country) {
+		this.country = country;
+	}
+
+	public void setDescriptions(List<TaxRateDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
 	}
 
 	public void setParent(TaxRate parent) {
 		this.parent = parent;
 	}
 
-	public TaxRate getParent() {
-		return parent;
+
+	public void setPiggyback(boolean piggyback) {
+		this.piggyback = piggyback;
+	}
+
+	public void setRateText(String rateText) {
+		this.rateText = rateText;
 	}
 
 	public void setStateProvince(String stateProvince) {
 		this.stateProvince = stateProvince;
 	}
 
-	public String getStateProvince() {
-		return stateProvince;
+	public void setTaxClass(TaxClass taxClass) {
+		this.taxClass = taxClass;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
+	public void setTaxPriority(Integer taxPriority) {
+		this.taxPriority = taxPriority;
 	}
 
-	public String getCode() {
-		return code;
+	public void setTaxRate(BigDecimal taxRate) {
+		this.taxRate = taxRate;
+	}
+
+	public void setTaxRates(List<TaxRate> taxRates) {
+		this.taxRates = taxRates;
+	}
+
+	public void setZone(Zone zone) {
+		this.zone = zone;
 	}
 }

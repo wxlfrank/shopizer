@@ -13,20 +13,20 @@ import com.salesmanager.core.model.user.PermissionList;
 
 public interface PermissionService extends SalesManagerEntityService<Integer, Permission> {
 
-	List<Permission> getByName();
-
-	List<Permission> listPermission()  throws ServiceException;
+	void deletePermission(Permission permission) throws ServiceException;
 
 	Permission getById(Integer permissionId);
+
+	List<Permission> getByName();
 
 
 //	void deletePermission(Permission permission) throws ServiceException;
 
 	List<Permission> getPermissions(List<Integer> groupIds) throws ServiceException;
 
-	void deletePermission(Permission permission) throws ServiceException;
-
 	PermissionList listByCriteria(PermissionCriteria criteria) throws ServiceException ;
+
+	List<Permission> listPermission()  throws ServiceException;
 
 	void removePermission(Permission permission, Group group) throws ServiceException;
 

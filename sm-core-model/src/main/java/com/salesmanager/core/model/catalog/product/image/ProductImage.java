@@ -71,36 +71,8 @@ public class ProductImage extends SalesManagerEntity<Long, ProductImage> {
 	public ProductImage(){
 	}
 
-	public String getProductImage() {
-		return productImage;
-	}
-
-	public void setProductImage(String productImage) {
-		this.productImage = productImage;
-	}
-
-	public boolean isDefaultImage() {
-		return defaultImage;
-	}
-
-	public void setDefaultImage(boolean defaultImage) {
-		this.defaultImage = defaultImage;
-	}
-
-	public int getImageType() {
-		return imageType;
-	}
-
-	public void setImageType(int imageType) {
-		this.imageType = imageType;
-	}
-
-	public boolean isImageCrop() {
-		return imageCrop;
-	}
-
-	public void setImageCrop(boolean imageCrop) {
-		this.imageCrop = imageCrop;
+	public List<ProductImageDescription> getDescriptions() {
+		return descriptions;
 	}
 
 	@Override
@@ -108,37 +80,65 @@ public class ProductImage extends SalesManagerEntity<Long, ProductImage> {
 		return id;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
+	public InputStream getImage() {
+		return image;
+	}
+
+	public int getImageType() {
+		return imageType;
 	}
 
 	public Product getProduct() {
 		return product;
 	}
 
-	public void setProduct(Product product) {
-		this.product = product;
+	public String getProductImage() {
+		return productImage;
+	}
+
+	public String getProductImageUrl() {
+		return productImageUrl;
+	}
+
+	public boolean isDefaultImage() {
+		return defaultImage;
+	}
+
+	public boolean isImageCrop() {
+		return imageCrop;
+	}
+
+	public void setDefaultImage(boolean defaultImage) {
+		this.defaultImage = defaultImage;
 	}
 
 	public void setDescriptions(List<ProductImageDescription> descriptions) {
 		this.descriptions = descriptions;
 	}
 
-	public List<ProductImageDescription> getDescriptions() {
-		return descriptions;
-	}
-
-	public InputStream getImage() {
-		return image;
+	@Override
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public void setImage(InputStream image) {
 		this.image = image;
 	}
 
-	public String getProductImageUrl() {
-		return productImageUrl;
+	public void setImageCrop(boolean imageCrop) {
+		this.imageCrop = imageCrop;
+	}
+
+	public void setImageType(int imageType) {
+		this.imageType = imageType;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
+	public void setProductImage(String productImage) {
+		this.productImage = productImage;
 	}
 
 	public void setProductImageUrl(String productImageUrl) {

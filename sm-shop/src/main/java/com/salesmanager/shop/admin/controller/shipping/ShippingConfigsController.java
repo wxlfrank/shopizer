@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,15 +24,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.salesmanager.core.model.merchant.MerchantStore;
-import com.salesmanager.core.model.reference.country.Country;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salesmanager.core.business.services.reference.country.CountryService;
+import com.salesmanager.core.business.services.shipping.ShippingService;
+import com.salesmanager.core.business.utils.ajax.AjaxResponse;
+import com.salesmanager.core.model.merchant.MerchantStore;
+import com.salesmanager.core.model.reference.country.Country;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.shipping.ShippingConfiguration;
 import com.salesmanager.core.model.shipping.ShippingType;
-import com.salesmanager.core.business.services.shipping.ShippingService;
-import com.salesmanager.core.business.utils.ajax.AjaxResponse;
 import com.salesmanager.shop.admin.model.web.Menu;
 import com.salesmanager.shop.constants.Constants;
 
@@ -78,30 +78,6 @@ public class ShippingConfigsController {
 		model.addAttribute("configuration", shippingConfiguration);
 		return "shipping-configs";
 		
-		
-	}
-	
-	@PreAuthorize("hasRole('SHIPPING')")
-	@RequestMapping(value="/admin/shipping/saveShippingConfiguration.html", method=RequestMethod.POST)
-	public String saveShippingConfiguration(@ModelAttribute("configuration") ShippingConfiguration configuration, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-		
-		this.setMenu(model, request);
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		//get original configuration
-		ShippingConfiguration shippingConfiguration =  shippingService.getShippingConfiguration(store);
-		
-		if(shippingConfiguration==null) {
-			shippingConfiguration = new ShippingConfiguration();
-		}
-		
-		shippingConfiguration.setShippingType(configuration.getShippingType());
-		
-		shippingService.saveShippingConfiguration(shippingConfiguration, store);
-		
-		model.addAttribute("configuration", shippingConfiguration);
-		model.addAttribute("success","success");
-		return "shipping-configs";
 		
 	}
 	
@@ -159,6 +135,30 @@ public class ShippingConfigsController {
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	@PreAuthorize("hasRole('SHIPPING')")
+	@RequestMapping(value="/admin/shipping/saveShippingConfiguration.html", method=RequestMethod.POST)
+	public String saveShippingConfiguration(@ModelAttribute("configuration") ShippingConfiguration configuration, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		
+		this.setMenu(model, request);
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		//get original configuration
+		ShippingConfiguration shippingConfiguration =  shippingService.getShippingConfiguration(store);
+		
+		if(shippingConfiguration==null) {
+			shippingConfiguration = new ShippingConfiguration();
+		}
+		
+		shippingConfiguration.setShippingType(configuration.getShippingType());
+		
+		shippingService.saveShippingConfiguration(shippingConfiguration, store);
+		
+		model.addAttribute("configuration", shippingConfiguration);
+		model.addAttribute("success","success");
+		return "shipping-configs";
+		
 	}
 	
 	@PreAuthorize("hasRole('SHIPPING')")

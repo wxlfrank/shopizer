@@ -80,78 +80,78 @@ public class ProductReview extends SalesManagerEntity<Long, ProductReview> imple
 	public ProductReview() {
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Double getReviewRating() {
-		return reviewRating;
-	}
-
-	public void setReviewRating(Double reviewRating) {
-		this.reviewRating = reviewRating;
-	}
-
-	public Long getReviewRead() {
-		return reviewRead;
-	}
-
-	public void setReviewRead(Long reviewRead) {
-		this.reviewRead = reviewRead;
-	}
-
-	public Integer getStatus() {
-		return status;
-	}
-
-	public void setStatus(Integer status) {
-		this.status = status;
+	@Override
+	public AuditSection getAuditSection() {
+		return audit;
 	}
 
 	public Customer getCustomer() {
 		return customer;
 	}
 
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
+	public Set<ProductReviewDescription> getDescriptions() {
+		return descriptions;
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public Product getProduct() {
 		return product;
 	}
 
-	public void setProduct(Product product) {
-		this.product = product;
+	public Date getReviewDate() {
+		return reviewDate;
 	}
 
-	public Set<ProductReviewDescription> getDescriptions() {
-		return descriptions;
+	public Double getReviewRating() {
+		return reviewRating;
+	}
+
+	public Long getReviewRead() {
+		return reviewRead;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	@Override
+	public void setAuditSection(AuditSection audit) {
+		this.audit = audit;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 	public void setDescriptions(Set<ProductReviewDescription> descriptions) {
 		this.descriptions = descriptions;
 	}
-	
-	@Override
-	public AuditSection getAuditSection() {
-		return audit;
-	}
-	
-	@Override
-	public void setAuditSection(AuditSection audit) {
-		this.audit = audit;
-	}
-	
-	public Date getReviewDate() {
-		return reviewDate;
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+	
 	public void setReviewDate(Date reviewDate) {
 		this.reviewDate = reviewDate;
+	}
+	
+	public void setReviewRating(Double reviewRating) {
+		this.reviewRating = reviewRating;
+	}
+	
+	public void setReviewRead(Long reviewRead) {
+		this.reviewRead = reviewRead;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
 }

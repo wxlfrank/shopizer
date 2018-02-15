@@ -15,26 +15,12 @@ public class TaxConfiguration implements JSONAware {
 	private boolean collectTaxIfDifferentProvinceOfStoreCountry = true;
 	private boolean collectTaxIfDifferentCountryOfStoreCountry = false;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public String toJSONString() {
-		JSONObject data = new JSONObject();
-		data.put("taxBasisCalculation", this.getTaxBasisCalculation().name());
-		
-		return data.toJSONString();
-	}
-
-	public void setTaxBasisCalculation(TaxBasisCalculation taxBasisCalculation) {
-		this.taxBasisCalculation = taxBasisCalculation;
-	}
-
 	public TaxBasisCalculation getTaxBasisCalculation() {
 		return taxBasisCalculation;
 	}
 
-	public void setCollectTaxIfDifferentProvinceOfStoreCountry(
-			boolean collectTaxIfDifferentProvinceOfStoreCountry) {
-		this.collectTaxIfDifferentProvinceOfStoreCountry = collectTaxIfDifferentProvinceOfStoreCountry;
+	public boolean isCollectTaxIfDifferentCountryOfStoreCountry() {
+		return collectTaxIfDifferentCountryOfStoreCountry;
 	}
 
 	public boolean isCollectTaxIfDifferentProvinceOfStoreCountry() {
@@ -46,8 +32,22 @@ public class TaxConfiguration implements JSONAware {
 		this.collectTaxIfDifferentCountryOfStoreCountry = collectTaxIfDifferentCountryOfStoreCountry;
 	}
 
-	public boolean isCollectTaxIfDifferentCountryOfStoreCountry() {
-		return collectTaxIfDifferentCountryOfStoreCountry;
+	public void setCollectTaxIfDifferentProvinceOfStoreCountry(
+			boolean collectTaxIfDifferentProvinceOfStoreCountry) {
+		this.collectTaxIfDifferentProvinceOfStoreCountry = collectTaxIfDifferentProvinceOfStoreCountry;
+	}
+
+	public void setTaxBasisCalculation(TaxBasisCalculation taxBasisCalculation) {
+		this.taxBasisCalculation = taxBasisCalculation;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public String toJSONString() {
+		JSONObject data = new JSONObject();
+		data.put("taxBasisCalculation", this.getTaxBasisCalculation().name());
+		
+		return data.toJSONString();
 	}
 
 }

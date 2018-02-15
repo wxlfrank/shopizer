@@ -51,44 +51,6 @@ public class TaxServiceImpl
 	private TaxClassService taxClassService;
 	
 	@Override
-	public TaxConfiguration getTaxConfiguration(MerchantStore store) throws ServiceException {
-		
-		
-		
-		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(TAX_CONFIGURATION, store);
-		TaxConfiguration taxConfiguration = null;
-		if(configuration!=null) {
-			String value = configuration.getValue();
-			
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-				taxConfiguration = mapper.readValue(value, TaxConfiguration.class);
-			} catch(Exception e) {
-				throw new ServiceException("Cannot parse json string " + value);
-			}
-		}
-		return taxConfiguration;
-	}
-	
-	
-	@Override
-	public void saveTaxConfiguration(TaxConfiguration shippingConfiguration, MerchantStore store) throws ServiceException {
-		
-		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(TAX_CONFIGURATION, store);
-
-		if(configuration==null) {
-			configuration = new MerchantConfiguration();
-			configuration.setMerchantStore(store);
-			configuration.setKey(TAX_CONFIGURATION);
-		}
-		
-		String value = shippingConfiguration.toJSONString();
-		configuration.setValue(value);
-		merchantConfigurationService.saveOrUpdate(configuration);
-		
-	}
-	
-	@Override
 	public List<TaxItem> calculateTax(OrderSummary orderSummary, Customer customer, MerchantStore store, Language language) throws ServiceException {
 		
 
@@ -288,14 +250,50 @@ public class TaxServiceImpl
 		}
 			
 			
-		@SuppressWarnings("rawtypes")
 		Collection<TaxItem> values = taxItemsMap.values();
 		
 		
-		@SuppressWarnings("unchecked")
 		List<TaxItem> list = new ArrayList<TaxItem>(values);
 		return list;
 
+	}
+	
+	
+	@Override
+	public TaxConfiguration getTaxConfiguration(MerchantStore store) throws ServiceException {
+		
+		
+		
+		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(TAX_CONFIGURATION, store);
+		TaxConfiguration taxConfiguration = null;
+		if(configuration!=null) {
+			String value = configuration.getValue();
+			
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				taxConfiguration = mapper.readValue(value, TaxConfiguration.class);
+			} catch(Exception e) {
+				throw new ServiceException("Cannot parse json string " + value);
+			}
+		}
+		return taxConfiguration;
+	}
+	
+	@Override
+	public void saveTaxConfiguration(TaxConfiguration shippingConfiguration, MerchantStore store) throws ServiceException {
+		
+		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(TAX_CONFIGURATION, store);
+
+		if(configuration==null) {
+			configuration = new MerchantConfiguration();
+			configuration.setMerchantStore(store);
+			configuration.setKey(TAX_CONFIGURATION);
+		}
+		
+		String value = shippingConfiguration.toJSONString();
+		configuration.setValue(value);
+		merchantConfigurationService.saveOrUpdate(configuration);
+		
 	}
 
 

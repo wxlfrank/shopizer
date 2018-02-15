@@ -28,11 +28,11 @@ public abstract class AbstractCustomerServices implements UserDetailsService{
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCustomerServices.class);
 	
+	public final static String ROLE_PREFIX = "ROLE_";//Spring Security 4
 	protected CustomerService customerService;
 	protected PermissionService  permissionService;
-	protected GroupService   groupService;
 	
-	public final static String ROLE_PREFIX = "ROLE_";//Spring Security 4
+	protected GroupService   groupService;
 	
 	public AbstractCustomerServices(
 			CustomerService customerService, 
@@ -44,9 +44,6 @@ public abstract class AbstractCustomerServices implements UserDetailsService{
 		this.groupService = groupService;
 	}
 	
-	protected abstract UserDetails userDetails(String userName, Customer customer, Collection<GrantedAuthority> authorities);
-	
-
 	public UserDetails loadUserByUsername(String userName)
 			throws UsernameNotFoundException, DataAccessException {
 		Customer user = null;
@@ -96,5 +93,8 @@ public abstract class AbstractCustomerServices implements UserDetailsService{
 		return userDetails(userName, user, authorities);
 		
 	}
+	
+
+	protected abstract UserDetails userDetails(String userName, Customer customer, Collection<GrantedAuthority> authorities);
 
 }

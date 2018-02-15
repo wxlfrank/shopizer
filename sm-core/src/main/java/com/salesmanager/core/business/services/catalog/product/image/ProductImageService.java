@@ -25,6 +25,9 @@ public interface ProductImageService extends SalesManagerEntityService<Long, Pro
 	void addProductImage(Product product, ProductImage productImage, ImageContentFile inputImage)
 			throws ServiceException;
 
+	void addProductImages(Product product, List<ProductImage> productImages)
+			throws ServiceException;
+
 	/**
 	 * Get the image ByteArrayOutputStream and content description from CMS
 	 * @param productImage
@@ -33,19 +36,6 @@ public interface ProductImageService extends SalesManagerEntityService<Long, Pro
 	 */
 	OutputContentFile getProductImage(ProductImage productImage, ProductImageSize size)
 			throws ServiceException;
-
-	/**
-	 * Returns all Images for a given product
-	 * @param product
-	 * @return
-	 * @throws ServiceException
-	 */
-	List<OutputContentFile> getProductImages(Product product)
-			throws ServiceException;
-
-	void removeProductImage(ProductImage productImage) throws ServiceException;
-
-	void saveOrUpdate(ProductImage productImage) throws ServiceException;
 
 	/**
 	 * Returns an image file from required identifier. This method is
@@ -60,7 +50,17 @@ public interface ProductImageService extends SalesManagerEntityService<Long, Pro
 	OutputContentFile getProductImage(String storeCode, String productCode,
 			String fileName, final ProductImageSize size) throws ServiceException;
 
-	void addProductImages(Product product, List<ProductImage> productImages)
+	/**
+	 * Returns all Images for a given product
+	 * @param product
+	 * @return
+	 * @throws ServiceException
+	 */
+	List<OutputContentFile> getProductImages(Product product)
 			throws ServiceException;
+
+	void removeProductImage(ProductImage productImage) throws ServiceException;
+
+	void saveOrUpdate(ProductImage productImage) throws ServiceException;
 	
 }

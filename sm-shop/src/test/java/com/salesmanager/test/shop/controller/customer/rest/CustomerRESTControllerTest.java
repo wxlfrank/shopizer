@@ -1,5 +1,20 @@
 package com.salesmanager.test.shop.controller.customer.rest;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Ignore;
+import org.junit.Test;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.codec.Base64;
+import org.springframework.web.client.RestTemplate;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.salesmanager.shop.model.customer.Address;
@@ -10,15 +25,6 @@ import com.salesmanager.shop.model.customer.attribute.CustomerOptionDescription;
 import com.salesmanager.shop.model.customer.attribute.CustomerOptionValueDescription;
 import com.salesmanager.shop.model.customer.attribute.PersistableCustomerOption;
 import com.salesmanager.shop.model.customer.attribute.PersistableCustomerOptionValue;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.springframework.http.*;
-import org.springframework.security.crypto.codec.Base64;
-import org.springframework.web.client.RestTemplate;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 @Ignore
 public class CustomerRESTControllerTest {
@@ -29,86 +35,17 @@ public class CustomerRESTControllerTest {
 	
 
 	
-	public HttpHeaders getHeader(){
-		HttpHeaders headers = new HttpHeaders();
-		//headers.setContentType(MediaType.APPLICATION_JSON);
-		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
-		headers.setContentType(mediaType);
-		//Basic Authentication
-		String authorisation = "admin" + ":" + "password";
-		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
-		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
-		return headers;
-	}
-	
 	@Test
 	@Ignore
-	public void postCustomerOptionValue() throws Exception {
+	public void deleteCustomer() throws Exception {
 		restTemplate = new RestTemplate();
-
-		PersistableCustomerOptionValue optionValue = new PersistableCustomerOptionValue();
-		optionValue.setCode("yes");
-		optionValue.setOrder(0);
 		
-		CustomerOptionValueDescription description = new CustomerOptionValueDescription();
-		description.setLanguage("en");
-		description.setName("Yes");
+		HttpEntity<String> httpEntity = new HttpEntity<String>(getHeader());
 		
-		List<CustomerOptionValueDescription> descriptions = new ArrayList<CustomerOptionValueDescription>();
-		descriptions.add(description);
-		
-		optionValue.setDescriptions(descriptions);
-		
-		ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
-		String json = writer.writeValueAsString(optionValue);
-		
-		System.out.println(json);
-		
-
-		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
-
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/customer/optionValue", entity, PersistableCustomerOptionValue.class);
-
-		PersistableCustomerOptionValue optVal = (PersistableCustomerOptionValue) response.getBody();
-		System.out.println("New Option value ID : " + optVal .getId());
-
+		restTemplate.exchange("http://localhost:8080/sm-shop/services/private/DEFAULT/customer/"+testCustmerID, HttpMethod.DELETE, httpEntity, Customer.class);
+		System.out.println("Customer "+testCustmerID+" Deleted.");
 	}
 	
-	@Test
-	@Ignore
-	public void postCustomerOption() throws Exception {
-		restTemplate = new RestTemplate();
-
-		PersistableCustomerOption option = new PersistableCustomerOption();
-		option.setCode("subscribetonewsletter");
-		option.setOrder(0);
-
-		
-		CustomerOptionDescription description = new CustomerOptionDescription();
-		description.setLanguage("en");
-		description.setName("Subscribe to newsletter?");
-		
-		List<CustomerOptionDescription> descriptions = new ArrayList<CustomerOptionDescription>();
-		descriptions.add(description);
-		
-		option.setDescriptions(descriptions);
-		
-		ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
-		String json = writer.writeValueAsString(option);
-		
-		System.out.println(json);
-		
-
-		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
-
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/customer/option", entity, PersistableCustomerOption.class);
-
-		PersistableCustomerOption opt = (PersistableCustomerOption) response.getBody();
-		System.out.println("New Option ID : " + opt .getId());
-
-	}
-	
-
 	@Test
 	@Ignore
 	public void getCustomers() throws Exception {
@@ -127,6 +64,19 @@ public class CustomerRESTControllerTest {
 			System.out.println(response.getBody().length + " Customer records found.");
 		}
 	}
+	
+	public HttpHeaders getHeader(){
+		HttpHeaders headers = new HttpHeaders();
+		//headers.setContentType(MediaType.APPLICATION_JSON);
+		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
+		headers.setContentType(mediaType);
+		//Basic Authentication
+		String authorisation = "admin" + ":" + "password";
+		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
+		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
+		return headers;
+	}
+	
 
 	@Test
 	@Ignore
@@ -158,22 +108,78 @@ public class CustomerRESTControllerTest {
 
 		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
 
-		ResponseEntity response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/customer", entity, PersistableCustomer.class);
+		ResponseEntity<PersistableCustomer> response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/customer", entity, PersistableCustomer.class);
 
 		Customer cust = (Customer) response.getBody();
 		System.out.println("New Customer ID : " + cust.getId());
 		testCustmerID = cust.getId();
 	}
+
+	@Test
+	@Ignore
+	public void postCustomerOption() throws Exception {
+		restTemplate = new RestTemplate();
+
+		PersistableCustomerOption option = new PersistableCustomerOption();
+		option.setCode("subscribetonewsletter");
+		option.setOrder(0);
+
+		
+		CustomerOptionDescription description = new CustomerOptionDescription();
+		description.setLanguage("en");
+		description.setName("Subscribe to newsletter?");
+		
+		List<CustomerOptionDescription> descriptions = new ArrayList<CustomerOptionDescription>();
+		descriptions.add(description);
+		
+		option.setDescriptions(descriptions);
+		
+		ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
+		String json = writer.writeValueAsString(option);
+		
+		System.out.println(json);
+		
+
+		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
+
+		ResponseEntity<PersistableCustomerOption> response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/customer/option", entity, PersistableCustomerOption.class);
+
+		PersistableCustomerOption opt = (PersistableCustomerOption) response.getBody();
+		System.out.println("New Option ID : " + opt .getId());
+
+	}
 	
 	@Test
 	@Ignore
-	public void deleteCustomer() throws Exception {
+	public void postCustomerOptionValue() throws Exception {
 		restTemplate = new RestTemplate();
+
+		PersistableCustomerOptionValue optionValue = new PersistableCustomerOptionValue();
+		optionValue.setCode("yes");
+		optionValue.setOrder(0);
 		
-		HttpEntity<String> httpEntity = new HttpEntity<String>(getHeader());
+		CustomerOptionValueDescription description = new CustomerOptionValueDescription();
+		description.setLanguage("en");
+		description.setName("Yes");
 		
-		restTemplate.exchange("http://localhost:8080/sm-shop/services/private/DEFAULT/customer/"+testCustmerID, HttpMethod.DELETE, httpEntity, Customer.class);
-		System.out.println("Customer "+testCustmerID+" Deleted.");
+		List<CustomerOptionValueDescription> descriptions = new ArrayList<CustomerOptionValueDescription>();
+		descriptions.add(description);
+		
+		optionValue.setDescriptions(descriptions);
+		
+		ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
+		String json = writer.writeValueAsString(optionValue);
+		
+		System.out.println(json);
+		
+
+		HttpEntity<String> entity = new HttpEntity<String>(json, getHeader());
+
+		ResponseEntity<PersistableCustomerOptionValue> response = restTemplate.postForEntity("http://localhost:8080/sm-shop/services/private/DEFAULT/customer/optionValue", entity, PersistableCustomerOptionValue.class);
+
+		PersistableCustomerOptionValue optVal = (PersistableCustomerOptionValue) response.getBody();
+		System.out.println("New Option value ID : " + optVal .getId());
+
 	}
 	
 }

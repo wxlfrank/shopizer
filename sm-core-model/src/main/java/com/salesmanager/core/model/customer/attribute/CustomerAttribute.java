@@ -55,9 +55,40 @@ public class CustomerAttribute extends SalesManagerEntity<Long, CustomerAttribut
 	public CustomerAttribute() {
 	}
 
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public CustomerOption getCustomerOption() {
+		return customerOption;
+	}
+
+
+
+	public CustomerOptionValue getCustomerOptionValue() {
+		return customerOptionValue;
+	}
+
 	@Override
 	public Long getId() {
 		return id;
+	}
+
+	public String getTextValue() {
+		return textValue;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+
+	public void setCustomerOption(CustomerOption customerOption) {
+		this.customerOption = customerOption;
+	}
+
+	public void setCustomerOptionValue(CustomerOptionValue customerOptionValue) {
+		this.customerOptionValue = customerOptionValue;
 	}
 
 	@Override
@@ -65,39 +96,8 @@ public class CustomerAttribute extends SalesManagerEntity<Long, CustomerAttribut
 		this.id = id;
 	}
 
-
-
-	public CustomerOption getCustomerOption() {
-		return customerOption;
-	}
-
-	public void setCustomerOption(CustomerOption customerOption) {
-		this.customerOption = customerOption;
-	}
-
-	public CustomerOptionValue getCustomerOptionValue() {
-		return customerOptionValue;
-	}
-
-	public void setCustomerOptionValue(CustomerOptionValue customerOptionValue) {
-		this.customerOptionValue = customerOptionValue;
-	}
-
-
-	public Customer getCustomer() {
-		return customer;
-	}
-
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
-
 	public void setTextValue(String textValue) {
 		this.textValue = textValue;
-	}
-
-	public String getTextValue() {
-		return textValue;
 	}
 
 

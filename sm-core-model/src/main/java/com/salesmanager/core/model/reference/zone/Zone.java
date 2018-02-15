@@ -56,22 +56,18 @@ public class Zone extends SalesManagerEntity<Long, Zone>{
 		this.setCode(name);
 	}
 	
-	public Country getCountry() {
-		return country;
-	}
-
-	public void setCountry(Country country) {
-		this.country = country;
-	}
-
-
-
 	public String getCode() {
 		return code;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
+	public Country getCountry() {
+		return country;
+	}
+
+
+
+	public List<ZoneDescription> getDescriptions() {
+		return descriptions;
 	}
 
 	@Override
@@ -79,20 +75,24 @@ public class Zone extends SalesManagerEntity<Long, Zone>{
 		return id;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
+	public String getName() {
+		return name;
 	}
-	public List<ZoneDescription> getDescriptions() {
-		return descriptions;
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public void setCountry(Country country) {
+		this.country = country;
 	}
 
 	public void setDescriptons(List<ZoneDescription> descriptions) {
 		this.descriptions = descriptions;
 	}
 
-	public String getName() {
-		return name;
+	@Override
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public void setName(String name) {

@@ -23,10 +23,6 @@ public class ReadableProductPricePopulator extends
 		return pricingService;
 	}
 
-	public void setPricingService(PricingService pricingService) {
-		this.pricingService = pricingService;
-	}
-
 	@Override
 	public ReadableProductPrice populate(ProductPrice source,
 			ReadableProductPrice target, MerchantStore store, Language language)
@@ -54,6 +50,10 @@ public class ReadableProductPricePopulator extends
 		
 		
 		return target;
+	}
+
+	public void setPricingService(PricingService pricingService) {
+		this.pricingService = pricingService;
 	}
 
 	@Override

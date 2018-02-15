@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -39,7 +37,7 @@ import com.salesmanager.shop.constants.Constants;
 @Controller
 public class ConfigurationController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationController.class);
+//	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationController.class);
 	
 	@Inject
 	private MerchantConfigurationService merchantConfigurationService;
@@ -122,6 +120,29 @@ public class ConfigurationController {
 	}
 	
 	@PreAuthorize("hasRole('AUTH')")
+	@RequestMapping(value="/admin/configuration/email.html", method=RequestMethod.GET)
+	public String displayEmailSettings(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		setEmailConfigurationMenu(model, request);
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		EmailConfig emailConfig = emailService.getEmailConfiguration(store);
+		if(emailConfig == null){
+			emailConfig = new EmailConfig();
+			//TODO: Need to check below properties. When there are no record available in MerchantConfguration table with EMAIL_CONFIG key, 
+			// instead of showing blank fields in setup screen, show default configured values from email.properties
+			emailConfig.setProtocol(env.getProperty("mailSender.protocol"));
+			emailConfig.setHost(env.getProperty("mailSender.host"));
+			emailConfig.setPort(env.getProperty("mailSender.port}"));
+			emailConfig.setUsername(env.getProperty("mailSender.username"));
+			emailConfig.setPassword(env.getProperty("mailSender.password"));
+			emailConfig.setSmtpAuth(Boolean.parseBoolean(env.getProperty("mailSender.mail.smtp.auth")));
+			emailConfig.setStarttls(Boolean.parseBoolean(env.getProperty("mail.smtp.starttls.enable")));
+		}
+		
+		model.addAttribute("configuration", emailConfig);
+		return ControllerConstants.Tiles.Configuration.email;
+	}
+	
+	@PreAuthorize("hasRole('AUTH')")
 	@RequestMapping(value="/admin/configuration/saveConfiguration.html", method=RequestMethod.POST)
 	public String saveConfigurations(@ModelAttribute("configuration") ConfigListWrapper configWrapper, BindingResult result, Model model, HttpServletRequest request, Locale locale) throws Exception
 	{
@@ -145,29 +166,6 @@ public class ConfigurationController {
 		model.addAttribute("configuration",configWrapper);
 		return com.salesmanager.shop.admin.controller.ControllerConstants.Tiles.Configuration.accounts;
 		
-	}
-	
-	@PreAuthorize("hasRole('AUTH')")
-	@RequestMapping(value="/admin/configuration/email.html", method=RequestMethod.GET)
-	public String displayEmailSettings(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		setEmailConfigurationMenu(model, request);
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		EmailConfig emailConfig = emailService.getEmailConfiguration(store);
-		if(emailConfig == null){
-			emailConfig = new EmailConfig();
-			//TODO: Need to check below properties. When there are no record available in MerchantConfguration table with EMAIL_CONFIG key, 
-			// instead of showing blank fields in setup screen, show default configured values from email.properties
-			emailConfig.setProtocol(env.getProperty("mailSender.protocol"));
-			emailConfig.setHost(env.getProperty("mailSender.host"));
-			emailConfig.setPort(env.getProperty("mailSender.port}"));
-			emailConfig.setUsername(env.getProperty("mailSender.username"));
-			emailConfig.setPassword(env.getProperty("mailSender.password"));
-			emailConfig.setSmtpAuth(Boolean.parseBoolean(env.getProperty("mailSender.mail.smtp.auth")));
-			emailConfig.setStarttls(Boolean.parseBoolean(env.getProperty("mail.smtp.starttls.enable")));
-		}
-		
-		model.addAttribute("configuration", emailConfig);
-		return ControllerConstants.Tiles.Configuration.email;
 	}
 	
 	@PreAuthorize("hasRole('AUTH')")

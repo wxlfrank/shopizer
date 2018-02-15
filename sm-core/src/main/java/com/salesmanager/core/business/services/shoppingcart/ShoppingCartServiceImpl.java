@@ -1,5 +1,20 @@
 package com.salesmanager.core.business.services.shoppingcart;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.repositories.shoppingcart.ShoppingCartAttributeRepository;
 import com.salesmanager.core.business.repositories.shoppingcart.ShoppingCartItemRepository;
@@ -17,44 +32,31 @@ import com.salesmanager.core.model.shipping.ShippingProduct;
 import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Service("shoppingCartService")
 public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long, ShoppingCart>
 		implements ShoppingCartService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingCartServiceImpl.class);
+
 	private ShoppingCartRepository shoppingCartRepository;
 
 	@Inject
 	private ProductService productService;
-
+	
 	@Inject
 	private ShoppingCartItemRepository shoppingCartItemRepository;
 	
 	@Inject
 	private ShoppingCartAttributeRepository shoppingCartAttributeItemRepository;
-	
+
 	@Inject
 	private PricingService pricingService;
+	
+
 
 	@Inject
 	private ProductAttributeService productAttributeService;
-	
-
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingCartServiceImpl.class);
 
 	@Inject
 	public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository) {
@@ -63,99 +65,41 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 
 	}
 
-	/**
-	 * Retrieve a {@link ShoppingCart} cart for a given customer
-	 */
 	@Override
-	@Transactional
-	public ShoppingCart getShoppingCart(final Customer customer) throws ServiceException {
-
-		try {
-
-			ShoppingCart shoppingCart = shoppingCartRepository.findByCustomer(customer.getId());
-			getPopulatedShoppingCart(shoppingCart);
-			if (shoppingCart != null && shoppingCart.isObsolete()) {
-				delete(shoppingCart);
-				return null;
-			} else {
-				return shoppingCart;
+	public List<ShippingProduct> createShippingProduct(final ShoppingCart cart) throws ServiceException {
+		/**
+		 * Determines if products are virtual
+		 */
+		Set<ShoppingCartItem> items = cart.getLineItems();
+		List<ShippingProduct> shippingProducts = null;
+		for (ShoppingCartItem item : items) {
+			Product product = item.getProduct();
+			if (!product.isProductVirtual() && product.isProductShipeable()) {
+				if (shippingProducts == null) {
+					shippingProducts = new ArrayList<ShippingProduct>();
+				}
+				ShippingProduct shippingProduct = new ShippingProduct(product);
+				shippingProduct.setQuantity(item.getQuantity());
+				shippingProduct.setFinalPrice(item.getFinalPrice());
+				shippingProducts.add(shippingProduct);
 			}
-
-		} catch (Exception e) {
-			throw new ServiceException(e);
 		}
+
+		return shippingProducts;
 
 	}
 
-	/**
-	 * Save or update a {@link ShoppingCart} for a given customer
-	 */
 	@Override
-	public void saveOrUpdate(final ShoppingCart shoppingCart) throws ServiceException {
-		if (shoppingCart.getId() == null || shoppingCart.getId().longValue() == 0) {
-			super.create(shoppingCart);
-		} else {
-			super.update(shoppingCart);
+	public void deleteCart(final ShoppingCart shoppingCart) throws ServiceException {
+		ShoppingCart cart = this.getById(shoppingCart.getId());
+		if (cart != null) {
+			super.delete(cart);
 		}
 	}
 
-	/**
-	 * Get a {@link ShoppingCart} for a given id and MerchantStore. Will update
-	 * the shopping cart prices and items based on the actual inventory. This
-	 * method will remove the shopping cart if no items are attached.
-	 */
 	@Override
-	@Transactional
-	public ShoppingCart getById(final Long id, final MerchantStore store) throws ServiceException {
-
-		try {
-			ShoppingCart shoppingCart = shoppingCartRepository.findById(store.getId(), id);
-			if (shoppingCart == null) {
-				return null;
-			}
-			getPopulatedShoppingCart(shoppingCart);
-
-			if (shoppingCart.isObsolete()) {
-				delete(shoppingCart);
-				return null;
-			} else {
-				return shoppingCart;
-			}
-
-		} catch (Exception e) {
-			throw new ServiceException(e);
-		}
-
-	}
-
-	/**
-	 * Get a {@link ShoppingCart} for a given id. Will update the shopping cart
-	 * prices and items based on the actual inventory. This method will remove
-	 * the shopping cart if no items are attached.
-	 */
-	@Override
-	@Transactional
-	public ShoppingCart getById(final Long id) {
-
-		try {
-			ShoppingCart shoppingCart = shoppingCartRepository.findOne(id);
-			if (shoppingCart == null) {
-				return null;
-			}
-			getPopulatedShoppingCart(shoppingCart);
-
-			if (shoppingCart.isObsolete()) {
-				delete(shoppingCart);
-				return null;
-			} else {
-				return shoppingCart;
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-
+	public void deleteShoppingCartItem(Long id) {
+		shoppingCartItemRepository.delete(id);
 	}
 
 	/**
@@ -194,14 +138,6 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	}
 
 	@Override
-	public void deleteCart(final ShoppingCart shoppingCart) throws ServiceException {
-		ShoppingCart cart = this.getById(shoppingCart.getId());
-		if (cart != null) {
-			super.delete(cart);
-		}
-	}
-
-	@Override
 	@Transactional
 	public ShoppingCart getByCustomer(final Customer customer) throws ServiceException {
 
@@ -217,62 +153,162 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		}
 	}
 
-	@Transactional(noRollbackFor = { org.springframework.dao.EmptyResultDataAccessException.class })
-	private ShoppingCart getPopulatedShoppingCart(final ShoppingCart shoppingCart) throws Exception {
+	/**
+	 * Get a {@link ShoppingCart} for a given id. Will update the shopping cart
+	 * prices and items based on the actual inventory. This method will remove
+	 * the shopping cart if no items are attached.
+	 */
+	@Override
+	@Transactional
+	public ShoppingCart getById(final Long id) {
 
 		try {
+			ShoppingCart shoppingCart = shoppingCartRepository.findOne(id);
+			if (shoppingCart == null) {
+				return null;
+			}
+			getPopulatedShoppingCart(shoppingCart);
 
-			boolean cartIsObsolete = false;
-			if (shoppingCart != null) {
+			if (shoppingCart.isObsolete()) {
+				delete(shoppingCart);
+				return null;
+			} else {
+				return shoppingCart;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 
-				Set<ShoppingCartItem> items = shoppingCart.getLineItems();
-				if (items == null || items.size() == 0) {
-					shoppingCart.setObsolete(true);
-					return shoppingCart;
+	}
 
-				}
+	/**
+	 * Get a {@link ShoppingCart} for a given id and MerchantStore. Will update
+	 * the shopping cart prices and items based on the actual inventory. This
+	 * method will remove the shopping cart if no items are attached.
+	 */
+	@Override
+	@Transactional
+	public ShoppingCart getById(final Long id, final MerchantStore store) throws ServiceException {
 
-				// Set<ShoppingCartItem> shoppingCartItems = new
-				// HashSet<ShoppingCartItem>();
-				for (ShoppingCartItem item : items) {
-					LOGGER.debug("Populate item " + item.getId());
-					getPopulatedItem(item);
-					LOGGER.debug("Obsolete item ? " + item.isObsolete());
-					if (item.isObsolete()) {
-						cartIsObsolete = true;
-					} 
-				}
+		try {
+			ShoppingCart shoppingCart = shoppingCartRepository.findById(store.getId(), id);
+			if (shoppingCart == null) {
+				return null;
+			}
+			getPopulatedShoppingCart(shoppingCart);
 
-				// shoppingCart.setLineItems(shoppingCartItems);
-				boolean refreshCart = false;
-				Set<ShoppingCartItem> refreshedItems = new HashSet<ShoppingCartItem>();
-				for (ShoppingCartItem item : items) {
-/*					if (!item.isObsolete()) {
-						refreshedItems.add(item);
-					} else {
-						refreshCart = true;
-					}*/
-					refreshedItems.add(item);
-				}
-
-				//if (refreshCart) {
-					shoppingCart.setLineItems(refreshedItems);
-				    update(shoppingCart);
-				//}
-
-				if (cartIsObsolete) {
-					shoppingCart.setObsolete(true);
-				}
+			if (shoppingCart.isObsolete()) {
+				delete(shoppingCart);
+				return null;
+			} else {
 				return shoppingCart;
 			}
 
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage());
 			throw new ServiceException(e);
 		}
 
-		return shoppingCart;
+	}
 
+	/**
+	 * Retrieve a {@link ShoppingCart} cart for a given customer
+	 */
+	@Override
+	@Transactional
+	public ShoppingCart getShoppingCart(final Customer customer) throws ServiceException {
+
+		try {
+
+			ShoppingCart shoppingCart = shoppingCartRepository.findByCustomer(customer.getId());
+			getPopulatedShoppingCart(shoppingCart);
+			if (shoppingCart != null && shoppingCart.isObsolete()) {
+				delete(shoppingCart);
+				return null;
+			} else {
+				return shoppingCart;
+			}
+
+		} catch (Exception e) {
+			throw new ServiceException(e);
+		}
+
+	}
+
+	@Override
+	public boolean isFreeShoppingCart(List<ShoppingCartItem> items) throws ServiceException {
+		ShoppingCart cart = new ShoppingCart();
+		Set<ShoppingCartItem> cartItems = new HashSet<ShoppingCartItem>(items);
+		cart.setLineItems(cartItems);
+		return this.isFreeShoppingCart(cart);
+	}
+
+	@Override
+	public boolean isFreeShoppingCart(final ShoppingCart cart) throws ServiceException {
+		/**
+		 * Determines if products are free
+		 */
+		Set<ShoppingCartItem> items = cart.getLineItems();
+		for (ShoppingCartItem item : items) {
+			Product product = item.getProduct();
+			FinalPrice finalPrice = pricingService.calculateProductPrice(product);
+			if (finalPrice.getFinalPrice().longValue() > 0) {
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+
+	@Override
+	public ShoppingCart mergeShoppingCarts(final ShoppingCart userShoppingModel, final ShoppingCart sessionCart,
+			final MerchantStore store) throws Exception {
+		if (sessionCart.getCustomerId() != null && sessionCart.getCustomerId() == userShoppingModel.getCustomerId()) {
+			LOGGER.info("Session Shopping cart belongs to same logged in user");
+			if (CollectionUtils.isNotEmpty(userShoppingModel.getLineItems())
+					&& CollectionUtils.isNotEmpty(sessionCart.getLineItems())) {
+				return userShoppingModel;
+			}
+		}
+
+		LOGGER.info("Starting merging shopping carts");
+		if (CollectionUtils.isNotEmpty(sessionCart.getLineItems())) {
+			Set<ShoppingCartItem> shoppingCartItemsSet = getShoppingCartItems(sessionCart, store, userShoppingModel);
+			boolean duplicateFound = false;
+			if (CollectionUtils.isNotEmpty(shoppingCartItemsSet)) {
+				for (ShoppingCartItem sessionShoppingCartItem : shoppingCartItemsSet) {
+					if (CollectionUtils.isNotEmpty(userShoppingModel.getLineItems())) {
+						for (ShoppingCartItem cartItem : userShoppingModel.getLineItems()) {
+							if (cartItem.getProduct().getId().longValue() == sessionShoppingCartItem.getProduct()
+									.getId().longValue()) {
+								if (CollectionUtils.isNotEmpty(cartItem.getAttributes())) {
+									if (!duplicateFound) {
+										LOGGER.info("Dupliate item found..updating exisitng product quantity");
+										cartItem.setQuantity(
+												cartItem.getQuantity() + sessionShoppingCartItem.getQuantity());
+										duplicateFound = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+					if (!duplicateFound) {
+						LOGGER.info("New item found..adding item to Shopping cart");
+						userShoppingModel.getLineItems().add(sessionShoppingCartItem);
+					}
+				}
+
+			}
+
+		}
+		LOGGER.info("Shopping Cart merged successfully.....");
+		saveOrUpdate(userShoppingModel);
+		removeShoppingCart(sessionCart);
+
+		return userShoppingModel;
 	}
 
 	@Override
@@ -307,6 +343,41 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 		item.setItemPrice(price.getFinalPrice());
 		return item;
 
+	}
+
+	@Override
+	public void removeShoppingCart(final ShoppingCart cart) throws ServiceException {
+		shoppingCartRepository.delete(cart);
+	}
+
+	@Override
+	public boolean requiresShipping(final ShoppingCart cart) throws ServiceException {
+
+		Validate.notNull(cart, "Shopping cart cannot be null");
+		Validate.notNull(cart.getLineItems(), "ShoppingCart items cannot be null");
+		boolean requiresShipping = false;
+		for (ShoppingCartItem item : cart.getLineItems()) {
+			Product product = item.getProduct();
+			if (product.isProductShipeable()) {
+				requiresShipping = true;
+				break;
+			}
+		}
+
+		return requiresShipping;
+
+	}
+
+	/**
+	 * Save or update a {@link ShoppingCart} for a given customer
+	 */
+	@Override
+	public void saveOrUpdate(final ShoppingCart shoppingCart) throws ServiceException {
+		if (shoppingCart.getId() == null || shoppingCart.getId().longValue() == 0) {
+			super.create(shoppingCart);
+		} else {
+			super.update(shoppingCart);
+		}
 	}
 
 	@Transactional
@@ -378,118 +449,62 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 
 	}
 
-	@Override
-	public List<ShippingProduct> createShippingProduct(final ShoppingCart cart) throws ServiceException {
-		/**
-		 * Determines if products are virtual
-		 */
-		Set<ShoppingCartItem> items = cart.getLineItems();
-		List<ShippingProduct> shippingProducts = null;
-		for (ShoppingCartItem item : items) {
-			Product product = item.getProduct();
-			if (!product.isProductVirtual() && product.isProductShipeable()) {
-				if (shippingProducts == null) {
-					shippingProducts = new ArrayList<ShippingProduct>();
-				}
-				ShippingProduct shippingProduct = new ShippingProduct(product);
-				shippingProduct.setQuantity(item.getQuantity());
-				shippingProduct.setFinalPrice(item.getFinalPrice());
-				shippingProducts.add(shippingProduct);
-			}
-		}
+	@Transactional(noRollbackFor = { org.springframework.dao.EmptyResultDataAccessException.class })
+	private ShoppingCart getPopulatedShoppingCart(final ShoppingCart shoppingCart) throws Exception {
 
-		return shippingProducts;
+		try {
 
-	}
+			boolean cartIsObsolete = false;
+			if (shoppingCart != null) {
 
-	@Override
-	public boolean isFreeShoppingCart(final ShoppingCart cart) throws ServiceException {
-		/**
-		 * Determines if products are free
-		 */
-		Set<ShoppingCartItem> items = cart.getLineItems();
-		for (ShoppingCartItem item : items) {
-			Product product = item.getProduct();
-			FinalPrice finalPrice = pricingService.calculateProductPrice(product);
-			if (finalPrice.getFinalPrice().longValue() > 0) {
-				return false;
-			}
-		}
+				Set<ShoppingCartItem> items = shoppingCart.getLineItems();
+				if (items == null || items.size() == 0) {
+					shoppingCart.setObsolete(true);
+					return shoppingCart;
 
-		return true;
-
-	}
-
-	@Override
-	public boolean requiresShipping(final ShoppingCart cart) throws ServiceException {
-
-		Validate.notNull(cart, "Shopping cart cannot be null");
-		Validate.notNull(cart.getLineItems(), "ShoppingCart items cannot be null");
-		boolean requiresShipping = false;
-		for (ShoppingCartItem item : cart.getLineItems()) {
-			Product product = item.getProduct();
-			if (product.isProductShipeable()) {
-				requiresShipping = true;
-				break;
-			}
-		}
-
-		return requiresShipping;
-
-	}
-
-	@Override
-	public void removeShoppingCart(final ShoppingCart cart) throws ServiceException {
-		shoppingCartRepository.delete(cart);
-	}
-
-	@Override
-	public ShoppingCart mergeShoppingCarts(final ShoppingCart userShoppingModel, final ShoppingCart sessionCart,
-			final MerchantStore store) throws Exception {
-		if (sessionCart.getCustomerId() != null && sessionCart.getCustomerId() == userShoppingModel.getCustomerId()) {
-			LOGGER.info("Session Shopping cart belongs to same logged in user");
-			if (CollectionUtils.isNotEmpty(userShoppingModel.getLineItems())
-					&& CollectionUtils.isNotEmpty(sessionCart.getLineItems())) {
-				return userShoppingModel;
-			}
-		}
-
-		LOGGER.info("Starting merging shopping carts");
-		if (CollectionUtils.isNotEmpty(sessionCart.getLineItems())) {
-			Set<ShoppingCartItem> shoppingCartItemsSet = getShoppingCartItems(sessionCart, store, userShoppingModel);
-			boolean duplicateFound = false;
-			if (CollectionUtils.isNotEmpty(shoppingCartItemsSet)) {
-				for (ShoppingCartItem sessionShoppingCartItem : shoppingCartItemsSet) {
-					if (CollectionUtils.isNotEmpty(userShoppingModel.getLineItems())) {
-						for (ShoppingCartItem cartItem : userShoppingModel.getLineItems()) {
-							if (cartItem.getProduct().getId().longValue() == sessionShoppingCartItem.getProduct()
-									.getId().longValue()) {
-								if (CollectionUtils.isNotEmpty(cartItem.getAttributes())) {
-									if (!duplicateFound) {
-										LOGGER.info("Dupliate item found..updating exisitng product quantity");
-										cartItem.setQuantity(
-												cartItem.getQuantity() + sessionShoppingCartItem.getQuantity());
-										duplicateFound = true;
-										break;
-									}
-								}
-							}
-						}
-					}
-					if (!duplicateFound) {
-						LOGGER.info("New item found..adding item to Shopping cart");
-						userShoppingModel.getLineItems().add(sessionShoppingCartItem);
-					}
 				}
 
+				// Set<ShoppingCartItem> shoppingCartItems = new
+				// HashSet<ShoppingCartItem>();
+				for (ShoppingCartItem item : items) {
+					LOGGER.debug("Populate item " + item.getId());
+					getPopulatedItem(item);
+					LOGGER.debug("Obsolete item ? " + item.isObsolete());
+					if (item.isObsolete()) {
+						cartIsObsolete = true;
+					} 
+				}
+
+				// shoppingCart.setLineItems(shoppingCartItems);
+//				boolean refreshCart = false;
+				Set<ShoppingCartItem> refreshedItems = new HashSet<ShoppingCartItem>();
+				for (ShoppingCartItem item : items) {
+/*					if (!item.isObsolete()) {
+						refreshedItems.add(item);
+					} else {
+						refreshCart = true;
+					}*/
+					refreshedItems.add(item);
+				}
+
+				//if (refreshCart) {
+					shoppingCart.setLineItems(refreshedItems);
+				    update(shoppingCart);
+				//}
+
+				if (cartIsObsolete) {
+					shoppingCart.setObsolete(true);
+				}
+				return shoppingCart;
 			}
 
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			throw new ServiceException(e);
 		}
-		LOGGER.info("Shopping Cart merged successfully.....");
-		saveOrUpdate(userShoppingModel);
-		removeShoppingCart(sessionCart);
 
-		return userShoppingModel;
+		return shoppingCart;
+
 	}
 
 	private Set<ShoppingCartItem> getShoppingCartItems(final ShoppingCart sessionCart, final MerchantStore store,
@@ -538,19 +553,6 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 
 		}
 		return shoppingCartItemsSet;
-	}
-
-	@Override
-	public boolean isFreeShoppingCart(List<ShoppingCartItem> items) throws ServiceException {
-		ShoppingCart cart = new ShoppingCart();
-		Set<ShoppingCartItem> cartItems = new HashSet<ShoppingCartItem>(items);
-		cart.setLineItems(cartItems);
-		return this.isFreeShoppingCart(cart);
-	}
-
-	@Override
-	public void deleteShoppingCartItem(Long id) {
-		shoppingCartItemRepository.delete(id);
 	}
 
 }

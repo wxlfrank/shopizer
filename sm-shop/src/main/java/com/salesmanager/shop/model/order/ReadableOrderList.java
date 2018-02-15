@@ -17,17 +17,17 @@ public class ReadableOrderList extends ServiceEntity implements Serializable {
 	
 	
 	
-	public int getTotal() {
-		return total;
-	}
-	public void setTotal(int total) {
-		this.total = total;
-	}
 	public List<ReadableOrder> getOrders() {
 		return orders;
 	}
+	public int getTotal() {
+		return total;
+	}
 	public void setOrders(List<ReadableOrder> orders) {
 		this.orders = orders;
+	}
+	public void setTotal(int total) {
+		this.total = total;
 	}
 
 }

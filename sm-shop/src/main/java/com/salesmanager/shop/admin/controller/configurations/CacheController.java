@@ -42,24 +42,6 @@ public class CacheController {
 
 
 	@PreAuthorize("hasRole('AUTH')")
-	@RequestMapping(value="/admin/cache/cacheManagement.html", method=RequestMethod.GET)
-	public String displayAccounts(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		this.setMenu(model, request);
-		
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		//get cache keys
-		List<String> cacheKeysList = cache.getCacheKeys(store);
-
-		model.addAttribute("keys", cacheKeysList);
-
-		return ControllerConstants.Tiles.Configuration.cache;
-		
-	}
-	
-	
-	@PreAuthorize("hasRole('AUTH')")
 	@RequestMapping(value="/admin/cache/clear.html", method=RequestMethod.POST)
 	public @ResponseBody ResponseEntity<String> clearCache(HttpServletRequest request, HttpServletResponse response) {
 		String cacheKey = request.getParameter("cacheKey");
@@ -90,6 +72,24 @@ public class CacheController {
 		final HttpHeaders httpHeaders= new HttpHeaders();
 	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
 		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	
+	@PreAuthorize("hasRole('AUTH')")
+	@RequestMapping(value="/admin/cache/cacheManagement.html", method=RequestMethod.GET)
+	public String displayAccounts(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		this.setMenu(model, request);
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		//get cache keys
+		List<String> cacheKeysList = cache.getCacheKeys(store);
+
+		model.addAttribute("keys", cacheKeysList);
+
+		return ControllerConstants.Tiles.Configuration.cache;
+		
 	}
 	
 

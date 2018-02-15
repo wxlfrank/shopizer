@@ -21,29 +21,29 @@ public class TransactionEntity extends Entity implements Serializable {
 	private String amount;
 	
 	
-	public String getTransactionDate() {
-		return transactionDate;
-	}
-	public void setTransactionDate(String transactionDate) {
-		this.transactionDate = transactionDate;
-	}
-	public Long getOrderId() {
-		return orderId;
-	}
-	public void setOrderId(Long orderId) {
-		this.orderId = orderId;
+	public String getAmount() {
+		return amount;
 	}
 	public String getDetails() {
 		return details;
 	}
-	public void setDetails(String details) {
-		this.details = details;
+	public Long getOrderId() {
+		return orderId;
 	}
-	public String getAmount() {
-		return amount;
+	public String getTransactionDate() {
+		return transactionDate;
 	}
 	public void setAmount(String amount) {
 		this.amount = amount;
+	}
+	public void setDetails(String details) {
+		this.details = details;
+	}
+	public void setOrderId(Long orderId) {
+		this.orderId = orderId;
+	}
+	public void setTransactionDate(String transactionDate) {
+		this.transactionDate = transactionDate;
 	}
 
 

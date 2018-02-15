@@ -8,9 +8,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.modules.cms.impl.LocalCacheManagerImpl;
@@ -36,7 +33,7 @@ public class CmsImageFileManagerImpl
     implements ProductImagePut, ProductImageGet, ProductImageRemove
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger( CmsImageFileManagerImpl.class );
+//    private static final Logger LOGGER = LoggerFactory.getLogger( CmsImageFileManagerImpl.class );
 
     private static CmsImageFileManagerImpl fileManager = null;
     
@@ -47,11 +44,6 @@ public class CmsImageFileManagerImpl
     
     private static final String ROOT_CONTAINER = "products";
     
-    private String rootName = ROOT_NAME;
-    
-    private LocalCacheManagerImpl cacheManager;
-
-
     public static CmsImageFileManagerImpl getInstance()
     {
 
@@ -63,6 +55,11 @@ public class CmsImageFileManagerImpl
         return fileManager;
 
     }
+    
+    private String rootName = ROOT_NAME;
+
+
+    private LocalCacheManagerImpl cacheManager;
 
     private CmsImageFileManagerImpl()
     {
@@ -131,15 +128,9 @@ public class CmsImageFileManagerImpl
 
     }
 
-    @Override
-    public OutputContentFile getProductImage( ProductImage productImage )
-        throws ServiceException
-    {
-
-    	 //the web server takes care of the images
-    	return null;
-
-    }
+    public LocalCacheManagerImpl getCacheManager() {
+		return cacheManager;
+	}
 
 
     public List<OutputContentFile> getImages( MerchantStore store, FileContentType imageContentType )
@@ -164,6 +155,44 @@ public class CmsImageFileManagerImpl
 
 
 
+	@Override
+	public List<OutputContentFile> getImages(final String merchantStoreCode,
+			FileContentType imageContentType) throws ServiceException {
+
+    	//the web server taks care of the images
+    	
+    	return null;
+	}
+
+
+    @Override
+    public OutputContentFile getProductImage( ProductImage productImage )
+        throws ServiceException
+    {
+
+    	 //the web server takes care of the images
+    	return null;
+
+    }
+
+    @Override
+	public OutputContentFile getProductImage(String merchantStoreCode,
+			String productCode, String imageName) throws ServiceException {
+		return getProductImage(merchantStoreCode, productCode, imageName, ProductImageSize.SMALL.name());
+	}
+
+
+    @Override
+	public OutputContentFile getProductImage(String merchantStoreCode,
+			String productCode, String imageName, ProductImageSize size)
+			throws ServiceException {
+		return getProductImage(merchantStoreCode, productCode, imageName, size.name());
+	}
+
+	public String getRootName() {
+		return rootName;
+	}
+	
 	@Override
     public void removeImages( final String merchantStoreCode )
         throws ServiceException
@@ -191,9 +220,8 @@ public class CmsImageFileManagerImpl
 
 
     }
-
-
-    @Override
+	
+	@Override
     public void removeProductImage( ProductImage productImage )
         throws ServiceException
     {
@@ -235,7 +263,8 @@ public class CmsImageFileManagerImpl
 
     }
 
-    @Override
+
+	@Override
     public void removeProductImages( Product product )
         throws ServiceException
     {
@@ -261,43 +290,20 @@ public class CmsImageFileManagerImpl
         }
 
     }
-
-
-    @Override
-	public List<OutputContentFile> getImages(final String merchantStoreCode,
-			FileContentType imageContentType) throws ServiceException {
-
-    	//the web server taks care of the images
-    	
-    	return null;
-	}
-
-	@Override
-	public OutputContentFile getProductImage(String merchantStoreCode,
-			String productCode, String imageName) throws ServiceException {
-		return getProductImage(merchantStoreCode, productCode, imageName, ProductImageSize.SMALL.name());
-	}
 	
-	@Override
-	public OutputContentFile getProductImage(String merchantStoreCode,
-			String productCode, String imageName, ProductImageSize size)
-			throws ServiceException {
-		return getProductImage(merchantStoreCode, productCode, imageName, size.name());
-	}
-	
-	private OutputContentFile getProductImage(String merchantStoreCode,
-			String productCode, String imageName, String size) throws ServiceException {
-		
-		return null;
-		
+
+	public void setCacheManager(LocalCacheManagerImpl cacheManager) {
+		this.cacheManager = cacheManager;
 	}
 
+	public void setRootName(String rootName) {
+		this.rootName = rootName;
+	}
 
 	private String buildRootPath() {
 		return new StringBuilder().append(getRootName()).append(Constants.SLASH).append(ROOT_CONTAINER).append(Constants.SLASH).toString();
 
 	}
-	
 
 	private void createDirectoryIfNorExist(Path path) throws IOException {
 
@@ -306,20 +312,11 @@ public class CmsImageFileManagerImpl
     	}
 	}
 
-	public void setRootName(String rootName) {
-		this.rootName = rootName;
-	}
-
-	public String getRootName() {
-		return rootName;
-	}
-
-	public LocalCacheManagerImpl getCacheManager() {
-		return cacheManager;
-	}
-
-	public void setCacheManager(LocalCacheManagerImpl cacheManager) {
-		this.cacheManager = cacheManager;
+	private OutputContentFile getProductImage(String merchantStoreCode,
+			String productCode, String imageName, String size) throws ServiceException {
+		
+		return null;
+		
 	}
 
 

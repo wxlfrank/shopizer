@@ -91,28 +91,6 @@ public class CustomerApi {
 	}
 	
     @ResponseStatus(HttpStatus.OK)
-	@RequestMapping( value="/private/customers/{id}", method=RequestMethod.PUT)
-    public @ResponseBody PersistableCustomer update(@PathVariable Long id, @Valid @RequestBody PersistableCustomer customer, HttpServletRequest request, HttpServletResponse response) throws Exception {
-	
-    	
-		try {
-
-			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			customerFacade.update(customer, merchantStore);
-			return customer;
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while saving customer",e);
-			try {
-				response.sendError(503, "Error while saving customer " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return null;
-		}
-    }
-    
-    @ResponseStatus(HttpStatus.OK)
 	@RequestMapping( value="/private/customers/{id}", method=RequestMethod.DELETE)
     public void delete(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
@@ -134,7 +112,76 @@ public class CustomerApi {
 		}
 	}
     
-    /**
+    @RequestMapping( value="/auth/customers/profile", method=RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public ReadableCustomer get(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		
+		try {
+			
+			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			Language language = languageUtils.getRESTLanguage(request, merchantStore);
+
+			Principal principal = request.getUserPrincipal();
+			String userName = principal.getName();
+			
+			Customer c = customerService.getByNick(userName);
+			
+			if(c == null) {
+				response.sendError(401, "Error while getting customer, customer not authorized");
+				return null;
+			}
+			
+			
+			ReadableCustomer customer = customerFacade.getCustomerById(c.getId(), merchantStore, language);
+			if(customer == null){
+				response.sendError(404, "No Customer found for ID : " + c.getId());
+			}
+			
+			return customer;
+		} catch (Exception e) {
+			LOGGER.error("Error while getting customer",e);
+			try {
+				response.sendError(503, "Error while getting customer " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+		}
+		
+		return null;
+		
+	}
+    
+    @RequestMapping( value="/private/customers/{id}", method=RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public ReadableCustomer get(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		
+		try {
+			
+			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			Language language = languageUtils.getRESTLanguage(request, merchantStore);
+
+			ReadableCustomer customer = customerFacade.getCustomerById(id, merchantStore, language);
+			if(customer == null){
+				response.sendError(404, "No Customer found for ID : " + id);
+			}
+			
+			return customer;
+		} catch (Exception e) {
+			LOGGER.error("Error while getting customer",e);
+			try {
+				response.sendError(503, "Error while getting customer " + e.getMessage());
+			} catch (Exception ignore) {
+			}
+		}
+		
+		return null;
+		
+	}
+	
+	/**
      * Get all customers
      * @param start
      * @param count
@@ -195,74 +242,27 @@ public class CustomerApi {
 		return null;
 	}
 	
-	@RequestMapping( value="/private/customers/{id}", method=RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public ReadableCustomer get(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		
-		try {
-			
-			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			Language language = languageUtils.getRESTLanguage(request, merchantStore);
-
-			ReadableCustomer customer = customerFacade.getCustomerById(id, merchantStore, language);
-			if(customer == null){
-				response.sendError(404, "No Customer found for ID : " + id);
-			}
-			
-			return customer;
-		} catch (Exception e) {
-			LOGGER.error("Error while getting customer",e);
-			try {
-				response.sendError(503, "Error while getting customer " + e.getMessage());
-			} catch (Exception ignore) {
-			}
-		}
-		
-		return null;
-		
-	}
+	@RequestMapping( value="/private/customers/{id}", method=RequestMethod.PUT)
+    public @ResponseBody PersistableCustomer update(@PathVariable Long id, @Valid @RequestBody PersistableCustomer customer, HttpServletRequest request, HttpServletResponse response) throws Exception {
 	
-	@RequestMapping( value="/auth/customers/profile", method=RequestMethod.GET)
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public ReadableCustomer get(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		
+    	
 		try {
-			
-			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			Language language = languageUtils.getRESTLanguage(request, merchantStore);
 
-			Principal principal = request.getUserPrincipal();
-			String userName = principal.getName();
-			
-			Customer c = customerService.getByNick(userName);
-			
-			if(c == null) {
-				response.sendError(401, "Error while getting customer, customer not authorized");
-				return null;
-			}
-			
-			
-			ReadableCustomer customer = customerFacade.getCustomerById(c.getId(), merchantStore, language);
-			if(customer == null){
-				response.sendError(404, "No Customer found for ID : " + c.getId());
-			}
-			
+			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			customerFacade.update(customer, merchantStore);
 			return customer;
+			
 		} catch (Exception e) {
-			LOGGER.error("Error while getting customer",e);
+			LOGGER.error("Error while saving customer",e);
 			try {
-				response.sendError(503, "Error while getting customer " + e.getMessage());
+				response.sendError(503, "Error while saving customer " + e.getMessage());
 			} catch (Exception ignore) {
 			}
+			
+			return null;
 		}
-		
-		return null;
-		
-	}
+    }
 
 
 }

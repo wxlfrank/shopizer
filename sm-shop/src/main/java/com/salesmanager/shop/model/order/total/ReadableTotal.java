@@ -17,17 +17,17 @@ public class ReadableTotal implements Serializable {
 	
 	private List<ReadableOrderTotal> totals;
 	private String grandTotal;
-	public List<ReadableOrderTotal> getTotals() {
-		return totals;
-	}
-	public void setTotals(List<ReadableOrderTotal> totals) {
-		this.totals = totals;
-	}
 	public String getGrandTotal() {
 		return grandTotal;
 	}
+	public List<ReadableOrderTotal> getTotals() {
+		return totals;
+	}
 	public void setGrandTotal(String grandTotal) {
 		this.grandTotal = grandTotal;
+	}
+	public void setTotals(List<ReadableOrderTotal> totals) {
+		this.totals = totals;
 	}
 
 }

@@ -18,37 +18,19 @@ import com.salesmanager.core.model.merchant.MerchantStore;
 public class CacheUtils {
 	
 	
-    @Inject
+    public final static String REFERENCE_CACHE = "REF";
+	
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CacheUtils.class);
+	
+	private final static String KEY_DELIMITER = "_";
+
+	@Inject
     @Qualifier("serviceCache")
     private Cache cache;
 	
-	
-	public final static String REFERENCE_CACHE = "REF";
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CacheUtils.class);
-
-	private final static String KEY_DELIMITER = "_";
-	
 
 
-	public void putInCache(Object object, String keyName) throws Exception {
-
-		cache.put(keyName, object);
-		
-	}
-	
-
-	public Object getFromCache(String keyName) throws Exception {
-
-		ValueWrapper vw = cache.get(keyName);
-		if(vw!=null) {
-			return vw.get();
-		}
-		
-		return null;
-		
-	}
-	
 	public List<String> getCacheKeys(MerchantStore store) throws Exception {
 		
 		  net.sf.ehcache.Cache cacheImpl = (net.sf.ehcache.Cache) cache.getNativeCache();
@@ -77,12 +59,22 @@ public class CacheUtils {
 		return returnKeys;
 	}
 	
-	public void shutDownCache() throws Exception {
+
+	public Object getFromCache(String keyName) throws Exception {
+
+		ValueWrapper vw = cache.get(keyName);
+		if(vw!=null) {
+			return vw.get();
+		}
+		
+		return null;
 		
 	}
 	
-	public void removeFromCache(String keyName) throws Exception {
-		cache.evict(keyName);
+	public void putInCache(Object object, String keyName) throws Exception {
+
+		cache.put(keyName, object);
+		
 	}
 	
 	public void removeAllFromCache(MerchantStore store) throws Exception {
@@ -105,6 +97,14 @@ public class CacheUtils {
 					LOGGER.equals("key " + key + " cannot be converted to a String or parsed");
 				}  
 		  }
+	}
+	
+	public void removeFromCache(String keyName) throws Exception {
+		cache.evict(keyName);
+	}
+	
+	public void shutDownCache() throws Exception {
+		
 	}
 	
 

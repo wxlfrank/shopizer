@@ -13,23 +13,19 @@ package com.salesmanager.shop.store.controller;
 public interface ControllerConstants
 {
 
-    final static String REDIRECT="redirect:";
-    
     interface Tiles{
-        interface ShoppingCart{
-            final static String shoppingCart="maincart";
-        }
-        
         interface Category{
             final static String category="category";
         }
         
-        interface Product{
-            final static String product="product";
+        interface Checkout{
+            final static String checkout="checkout";
+            final static String confirmation="confirmation";
         }
         
-        interface Items{
-            final static String items_manufacturer="items.manufacturer";
+        interface Content{
+            final static String content="content";
+            final static String contactus="contactus";
         }
         
         interface Customer{
@@ -44,9 +40,17 @@ public interface ControllerConstants
             final static String EditAddress="editCustomerAddress";
         }
         
-        interface Content{
-            final static String content="content";
-            final static String contactus="contactus";
+        interface Error {
+        	final static String accessDenied = "accessDenied";
+        	final static String error = "error";
+        }
+        
+        interface Items{
+            final static String items_manufacturer="items.manufacturer";
+        }
+        
+        interface Merchant{
+            final static String contactUs="contactus";
         }
         
         interface Pages{
@@ -54,28 +58,22 @@ public interface ControllerConstants
             final static String timeout="timeout";
         }
         
-        interface Merchant{
-            final static String contactUs="contactus";
-        }
-        
-        interface Checkout{
-            final static String checkout="checkout";
-            final static String confirmation="confirmation";
+        interface Product{
+            final static String product="product";
         }
         
         interface Search{
             final static String search="search";
         }
         
-        interface Error {
-        	final static String accessDenied = "accessDenied";
-        	final static String error = "error";
+        interface ShoppingCart{
+            final static String shoppingCart="maincart";
         }
         
 
         
     }
-
+    
     interface Views
     {
         interface Controllers
@@ -86,4 +84,6 @@ public interface ControllerConstants
             }
         }
     }
+
+    final static String REDIRECT="redirect:";
 }

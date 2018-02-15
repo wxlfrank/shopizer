@@ -14,6 +14,15 @@ public abstract class CacheManagerImpl implements CacheManager {
 	@SuppressWarnings("rawtypes")
 	private TreeCache treeCache = null;
 
+	public EmbeddedCacheManager getManager() {
+		return VendorCacheManager.getInstance().getManager();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public TreeCache getTreeCache() {
+		return treeCache;
+	}
+
 	@SuppressWarnings("unchecked")
 	protected void init(String namedCache) {
 		
@@ -49,15 +58,6 @@ public abstract class CacheManagerImpl implements CacheManager {
 		
 		
 		
-	}
-	
-	public EmbeddedCacheManager getManager() {
-		return VendorCacheManager.getInstance().getManager();
-	}
-
-	@SuppressWarnings("rawtypes")
-	public TreeCache getTreeCache() {
-		return treeCache;
 	}
 	
 	

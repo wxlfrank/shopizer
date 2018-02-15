@@ -85,11 +85,7 @@ public class ShoppingCartItem extends SalesManagerEntity<Long, ShoppingCartItem>
 
 
 
-	public ShoppingCartItem(ShoppingCart shoppingCart, Product product) {
-		this.product = product;
-		this.productId = product.getId();
-		this.quantity = 1;
-		this.shoppingCart = shoppingCart;
+	public ShoppingCartItem() {
 		
 	}
 	
@@ -100,8 +96,21 @@ public class ShoppingCartItem extends SalesManagerEntity<Long, ShoppingCartItem>
 
 	}
 	
-	public ShoppingCartItem() {
+	public ShoppingCartItem(ShoppingCart shoppingCart, Product product) {
+		this.product = product;
+		this.productId = product.getId();
+		this.quantity = 1;
+		this.shoppingCart = shoppingCart;
 		
+	}
+
+	public void addAttributes(ShoppingCartAttributeItem shoppingCartAttributeItem)
+	{
+	    this.attributes.add(shoppingCartAttributeItem);
+	}
+
+	public Set<ShoppingCartAttributeItem> getAttributes() {
+		return attributes;
 	}
 
 	@Override
@@ -109,24 +118,59 @@ public class ShoppingCartItem extends SalesManagerEntity<Long, ShoppingCartItem>
 		return auditSection;
 	}
 
-	@Override
-	public void setAuditSection(AuditSection audit) {
-		this.auditSection = audit;
-		
+	public FinalPrice getFinalPrice() {
+		return finalPrice;
 	}
+
+
 
 	@Override
 	public Long getId() {
 		return id;
 	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-		
+	public BigDecimal getItemPrice() {
+		return itemPrice;
+	}
+
+	public Product getProduct() {
+		return product;
+	}
+
+	public Long getProductId() {
+		return productId;
+	}
+
+	public Integer getQuantity() {
+		return quantity;
+	}
+
+	public ShoppingCart getShoppingCart() {
+		return shoppingCart;
 	}
 
 
+
+	public BigDecimal getSubTotal() {
+		return subTotal;
+	}
+
+	public boolean isObsolete() {
+		return obsolete;
+	}
+
+	public boolean isProductVirtual() {
+		return productVirtual;
+	}
+
+	public void removeAllAttributes(){
+		this.attributes.removeAll(Collections.EMPTY_SET);
+	}
+
+	public void removeAttributes(ShoppingCartAttributeItem shoppingCartAttributeItem)
+	{
+	    this.attributes.remove(shoppingCartAttributeItem);
+	}
 
 	public void setAttributes(Set<ShoppingCartAttributeItem> attributes) {
 /*	    if(attributes==null) {
@@ -137,98 +181,54 @@ public class ShoppingCartItem extends SalesManagerEntity<Long, ShoppingCartItem>
 	    this.attributes.addAll( attributes );*/
 		this.attributes = attributes;
 	}
+	
+	@Override
+	public void setAuditSection(AuditSection audit) {
+		this.auditSection = audit;
+		
+	}
+	
+	public void setFinalPrice(FinalPrice finalPrice) {
+		this.finalPrice = finalPrice;
+	}
 
-	public Set<ShoppingCartAttributeItem> getAttributes() {
-		return attributes;
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+		
 	}
 
 	public void setItemPrice(BigDecimal itemPrice) {
 		this.itemPrice = itemPrice;
 	}
 
-	public BigDecimal getItemPrice() {
-		return itemPrice;
-	}
-
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
-
-	public Integer getQuantity() {
-		return quantity;
-	}
-
-
-
-	public ShoppingCart getShoppingCart() {
-		return shoppingCart;
-	}
-
-	public void setShoppingCart(ShoppingCart shoppingCart) {
-		this.shoppingCart = shoppingCart;
-	}
-
-	public void setProductId(Long productId) {
-		this.productId = productId;
-	}
-
-	public Long getProductId() {
-		return productId;
+	public void setObsolete(boolean obsolete) {
+		this.obsolete = obsolete;
 	}
 
 	public void setProduct(Product product) {
 		this.product = product;
 	}
 
-	public Product getProduct() {
-		return product;
+	public void setProductId(Long productId) {
+		this.productId = productId;
 	}
 	
-	public void addAttributes(ShoppingCartAttributeItem shoppingCartAttributeItem)
-	{
-	    this.attributes.add(shoppingCartAttributeItem);
-	}
-	
-	public void removeAttributes(ShoppingCartAttributeItem shoppingCartAttributeItem)
-	{
-	    this.attributes.remove(shoppingCartAttributeItem);
+	public void setProductVirtual(boolean productVirtual) {
+		this.productVirtual = productVirtual;
 	}
 
-	public void removeAllAttributes(){
-		this.attributes.removeAll(Collections.EMPTY_SET);
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
+	}
+	
+
+	public void setShoppingCart(ShoppingCart shoppingCart) {
+		this.shoppingCart = shoppingCart;
 	}
 
 	public void setSubTotal(BigDecimal subTotal) {
 		this.subTotal = subTotal;
-	}
-
-	public BigDecimal getSubTotal() {
-		return subTotal;
-	}
-
-	public void setFinalPrice(FinalPrice finalPrice) {
-		this.finalPrice = finalPrice;
-	}
-
-	public FinalPrice getFinalPrice() {
-		return finalPrice;
-	}
-	
-	public boolean isObsolete() {
-		return obsolete;
-	}
-
-	public void setObsolete(boolean obsolete) {
-		this.obsolete = obsolete;
-	}
-	
-
-	public boolean isProductVirtual() {
-		return productVirtual;
-	}
-
-	public void setProductVirtual(boolean productVirtual) {
-		this.productVirtual = productVirtual;
 	}
 
 }

@@ -23,48 +23,48 @@ public class Email implements Serializable {
 		return from;
 	}
 
-	public void setFrom(String from) {
-		this.from = from;
-	}
-
-	public String getTo() {
-		return to;
-	}
-
-	public void setTo(String to) {
-		this.to = to;
+	public String getFromEmail() {
+		return fromEmail;
 	}
 
 	public String getSubject() {
 		return subject;
 	}
 
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
 	public String getTemplateName() {
 		return templateName;
-	}
-
-	public void setTemplateName(String templateName) {
-		this.templateName = templateName;
 	}
 
 	public Map<String, String> getTemplateTokens() {
 		return templateTokens;
 	}
 
-	public void setTemplateTokens(Map<String, String> templateTokens) {
-		this.templateTokens = templateTokens;
+	public String getTo() {
+		return to;
+	}
+
+	public void setFrom(String from) {
+		this.from = from;
 	}
 
 	public void setFromEmail(String fromEmail) {
 		this.fromEmail = fromEmail;
 	}
 
-	public String getFromEmail() {
-		return fromEmail;
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
+	}
+
+	public void setTemplateTokens(Map<String, String> templateTokens) {
+		this.templateTokens = templateTokens;
+	}
+
+	public void setTo(String to) {
+		this.to = to;
 	}
 
 }

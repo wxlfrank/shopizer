@@ -23,15 +23,6 @@ public class EmailServiceImpl implements EmailService {
 	private HtmlEmailSender sender;
 	
 	@Override
-	public void sendHtmlEmail(MerchantStore store, Email email) throws ServiceException, Exception {
-
-		EmailConfig emailConfig = getEmailConfiguration(store);
-		
-		sender.setEmailConfig(emailConfig);
-		sender.send(email);
-	}
-
-	@Override
 	public EmailConfig getEmailConfiguration(MerchantStore store) throws ServiceException {
 		
 		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(Constants.EMAIL_CONFIG, store);
@@ -48,8 +39,7 @@ public class EmailServiceImpl implements EmailService {
 		}
 		return emailConfig;
 	}
-	
-	
+
 	@Override
 	public void saveEmailConfiguration(EmailConfig emailConfig, MerchantStore store) throws ServiceException {
 		MerchantConfiguration configuration = merchantConfigurationService.getMerchantConfiguration(Constants.EMAIL_CONFIG, store);
@@ -62,6 +52,16 @@ public class EmailServiceImpl implements EmailService {
 		String value = emailConfig.toJSONString();
 		configuration.setValue(value);
 		merchantConfigurationService.saveOrUpdate(configuration);
+	}
+	
+	
+	@Override
+	public void sendHtmlEmail(MerchantStore store, Email email) throws ServiceException, Exception {
+
+		EmailConfig emailConfig = getEmailConfiguration(store);
+		
+		sender.setEmailConfig(emailConfig);
+		sender.send(email);
 	}
 
 }

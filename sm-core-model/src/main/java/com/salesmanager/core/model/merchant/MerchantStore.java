@@ -138,213 +138,213 @@ public class MerchantStore extends SalesManagerEntity<Integer, MerchantStore> {
 	public MerchantStore() {
 	}
 	
-	public boolean isUseCache() {
-		return useCache;
+	public String getCode() {
+		return code;
 	}
 
-	public void setUseCache(boolean useCache) {
-		this.useCache = useCache;
+	public String getContinueshoppingurl() {
+		return continueshoppingurl;
 	}
 	
-	@Override
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	@Override
-	public Integer getId() {
-		return this.id;
-	}
-	
-	public String getStorename() {
-		return storename;
-	}
-
-	public void setStorename(String storename) {
-		this.storename = storename;
-	}
-
-	public String getStorephone() {
-		return storephone;
-	}
-
-	public void setStorephone(String storephone) {
-		this.storephone = storephone;
-	}
-
-	public String getStoreaddress() {
-		return storeaddress;
-	}
-
-	public void setStoreaddress(String storeaddress) {
-		this.storeaddress = storeaddress;
-	}
-
-	public String getStorecity() {
-		return storecity;
-	}
-
-	public void setStorecity(String storecity) {
-		this.storecity = storecity;
-	}
-
-	public String getStorepostalcode() {
-		return storepostalcode;
-	}
-
-	public void setStorepostalcode(String storepostalcode) {
-		this.storepostalcode = storepostalcode;
-	}
-
 	public Country getCountry() {
 		return country;
-	}
-
-	public void setCountry(Country country) {
-		this.country = country;
-	}
-
-	public Zone getZone() {
-		return zone;
-	}
-
-	public void setZone(Zone zone) {
-		this.zone = zone;
-	}
-
-	public String getStorestateprovince() {
-		return storestateprovince;
-	}
-
-	public void setStorestateprovince(String storestateprovince) {
-		this.storestateprovince = storestateprovince;
 	}
 
 	public Currency getCurrency() {
 		return currency;
 	}
-
-	public void setCurrency(Currency currency) {
-		this.currency = currency;
-	}
-
-	public String getWeightunitcode() {
-		return weightunitcode;
-	}
-
-	public void setWeightunitcode(String weightunitcode) {
-		this.weightunitcode = weightunitcode;
-	}
-
-	public String getSeizeunitcode() {
-		return seizeunitcode;
-	}
-
-	public void setSeizeunitcode(String seizeunitcode) {
-		this.seizeunitcode = seizeunitcode;
-	}
-
-
-
-	public Date getInBusinessSince() {
-		return CloneUtils.clone(inBusinessSince);
-	}
-
-	public void setInBusinessSince(Date inBusinessSince) {
-		this.inBusinessSince = CloneUtils.clone(inBusinessSince);
+	
+	public String getDateBusinessSince() {
+		return dateBusinessSince;
 	}
 
 	public Language getDefaultLanguage() {
 		return defaultLanguage;
 	}
 
-	public void setDefaultLanguage(Language defaultLanguage) {
-		this.defaultLanguage = defaultLanguage;
+	public String getDomainName() {
+		return domainName;
 	}
 
-
-
-	public List<Language> getLanguages() {
-		return languages;
+	@Override
+	public Integer getId() {
+		return this.id;
 	}
 
-	public void setLanguages(List<Language> languages) {
-		this.languages = languages;
-	}
-
-	
-
-	
-	public String getStoreLogo() {
-		return storeLogo;
-	}
-
-	public void setStoreLogo(String storeLogo) {
-		this.storeLogo = storeLogo;
-	}
-
-	public String getStoreTemplate() {
-		return storeTemplate;
-	}
-
-	public void setStoreTemplate(String storeTemplate) {
-		this.storeTemplate = storeTemplate;
+	public Date getInBusinessSince() {
+		return CloneUtils.clone(inBusinessSince);
 	}
 
 	public String getInvoiceTemplate() {
 		return invoiceTemplate;
 	}
 
-	public void setInvoiceTemplate(String invoiceTemplate) {
-		this.invoiceTemplate = invoiceTemplate;
+	public List<Language> getLanguages() {
+		return languages;
 	}
 
-	public String getDomainName() {
-		return domainName;
+	public String getSeizeunitcode() {
+		return seizeunitcode;
 	}
 
-	public void setDomainName(String domainName) {
-		this.domainName = domainName;
+	public String getStoreaddress() {
+		return storeaddress;
 	}
 
-	public String getContinueshoppingurl() {
-		return continueshoppingurl;
-	}
-
-	public void setContinueshoppingurl(String continueshoppingurl) {
-		this.continueshoppingurl = continueshoppingurl;
+	public String getStorecity() {
+		return storecity;
 	}
 
 	public String getStoreEmailAddress() {
 		return storeEmailAddress;
 	}
 
-	public void setStoreEmailAddress(String storeEmailAddress) {
-		this.storeEmailAddress = storeEmailAddress;
+	public String getStoreLogo() {
+		return storeLogo;
 	}
 
-	public String getCode() {
-		return code;
+	public String getStorename() {
+		return storename;
+	}
+
+	public String getStorephone() {
+		return storephone;
+	}
+
+	public String getStorepostalcode() {
+		return storepostalcode;
+	}
+
+	public String getStorestateprovince() {
+		return storestateprovince;
+	}
+
+	public String getStoreTemplate() {
+		return storeTemplate;
+	}
+
+	public String getWeightunitcode() {
+		return weightunitcode;
+	}
+
+	public Zone getZone() {
+		return zone;
+	}
+
+	public boolean isCurrencyFormatNational() {
+		return currencyFormatNational;
+	}
+
+	public boolean isUseCache() {
+		return useCache;
 	}
 
 	public void setCode(String code) {
 		this.code = code;
 	}
 
-	public void setDateBusinessSince(String dateBusinessSince) {
-		this.dateBusinessSince = dateBusinessSince;
+
+
+	public void setContinueshoppingurl(String continueshoppingurl) {
+		this.continueshoppingurl = continueshoppingurl;
 	}
 
-	public String getDateBusinessSince() {
-		return dateBusinessSince;
+	public void setCountry(Country country) {
+		this.country = country;
+	}
+
+	public void setCurrency(Currency currency) {
+		this.currency = currency;
 	}
 
 	public void setCurrencyFormatNational(boolean currencyFormatNational) {
 		this.currencyFormatNational = currencyFormatNational;
 	}
 
-	public boolean isCurrencyFormatNational() {
-		return currencyFormatNational;
+
+
+	public void setDateBusinessSince(String dateBusinessSince) {
+		this.dateBusinessSince = dateBusinessSince;
+	}
+
+	public void setDefaultLanguage(Language defaultLanguage) {
+		this.defaultLanguage = defaultLanguage;
+	}
+
+	
+
+	
+	public void setDomainName(String domainName) {
+		this.domainName = domainName;
+	}
+
+	@Override
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public void setInBusinessSince(Date inBusinessSince) {
+		this.inBusinessSince = CloneUtils.clone(inBusinessSince);
+	}
+
+	public void setInvoiceTemplate(String invoiceTemplate) {
+		this.invoiceTemplate = invoiceTemplate;
+	}
+
+	public void setLanguages(List<Language> languages) {
+		this.languages = languages;
+	}
+
+	public void setSeizeunitcode(String seizeunitcode) {
+		this.seizeunitcode = seizeunitcode;
+	}
+
+	public void setStoreaddress(String storeaddress) {
+		this.storeaddress = storeaddress;
+	}
+
+	public void setStorecity(String storecity) {
+		this.storecity = storecity;
+	}
+
+	public void setStoreEmailAddress(String storeEmailAddress) {
+		this.storeEmailAddress = storeEmailAddress;
+	}
+
+	public void setStoreLogo(String storeLogo) {
+		this.storeLogo = storeLogo;
+	}
+
+	public void setStorename(String storename) {
+		this.storename = storename;
+	}
+
+	public void setStorephone(String storephone) {
+		this.storephone = storephone;
+	}
+
+	public void setStorepostalcode(String storepostalcode) {
+		this.storepostalcode = storepostalcode;
+	}
+
+	public void setStorestateprovince(String storestateprovince) {
+		this.storestateprovince = storestateprovince;
+	}
+
+	public void setStoreTemplate(String storeTemplate) {
+		this.storeTemplate = storeTemplate;
+	}
+
+	public void setUseCache(boolean useCache) {
+		this.useCache = useCache;
+	}
+
+	public void setWeightunitcode(String weightunitcode) {
+		this.weightunitcode = weightunitcode;
+	}
+
+	public void setZone(Zone zone) {
+		this.zone = zone;
 	}
 
 

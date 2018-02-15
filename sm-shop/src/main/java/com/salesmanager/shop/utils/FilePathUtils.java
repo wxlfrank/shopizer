@@ -18,6 +18,11 @@ import com.salesmanager.shop.model.order.ReadableOrderProductDownload;
 @Component
 public class FilePathUtils {
 	
+	private final static String DOWNLOADS = "/downloads/";
+	
+	private final static String DOUBLE_SLASH = "://";
+	
+	
 	@Inject
 	private CoreConfiguration coreConfiguration;
 	
@@ -26,28 +31,78 @@ public class FilePathUtils {
 	private ImageFilePath imageUtils;
 	
 	
-	private final static String DOWNLOADS = "/downloads/";
-	
-	private final static String DOUBLE_SLASH = "://";
-	
-	
-	/**
-	 * Builds a static content content file path that can be used by image servlet
-	 * utility for getting the physical image
-	 * @param store
-	 * @param imageName
-	 * @return
-	 */
-	public String buildStaticFilePath(MerchantStore store, String imageName) {
-		return new StringBuilder().append(Constants.FILES_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).append(imageName).toString();
-	}
-	
 	public String buildAdminDownloadProductFilePath(MerchantStore store, DigitalProduct digitalProduct) {
 		return new StringBuilder().append(Constants.ADMIN_URI).append(Constants.FILES_URI).append(DOWNLOADS).append(store.getCode()).append(Constants.SLASH).append(digitalProduct.getProductFileName()).toString();
 	}
 	
+	public String buildAdminUri(MerchantStore store, HttpServletRequest request) {
+		StringBuilder resourcePath = new StringBuilder();
+
+		String baseUrl = this.buildBaseUrl(request, store);
+		
+		resourcePath
+		.append(baseUrl)
+		.append(Constants.ADMIN_URI);
+		
+		return resourcePath.toString();
+	}
+	
+	public String buildCategoryUrl(MerchantStore store, String contextPath, String url) {
+		StringBuilder resourcePath = new StringBuilder();
+		resourcePath.append(buildStoreUri(store, contextPath))
+	
+			.append(Constants.SHOP_URI)
+			
+			.append(Constants.CATEGORY_URI)
+			.append(Constants.SLASH)
+			.append(url)
+			.append(Constants.URL_EXTENSION);
+
+		return resourcePath.toString();
+		
+	}
+	
+	/**
+	 * Access to the customer section
+	 * @param store
+	 * @param request
+	 * @return
+	 */
+	public String buildCustomerUri(MerchantStore store,  String contextPath) {
+
+		return buildStoreUri(store, contextPath);
+	}
+	
 	public String buildOrderDownloadProductFilePath(MerchantStore store, ReadableOrderProductDownload digitalProduct, Long orderId) {
 		return new StringBuilder().append(Constants.SHOP_URI).append(Constants.ORDER_DOWNLOAD_URI).append(Constants.SLASH).append(orderId).append(Constants.SLASH).append(digitalProduct.getId()).append(Constants.URL_EXTENSION).toString();
+	}
+	
+	public String buildProductUrl(MerchantStore store, String contextPath, String url) {
+		StringBuilder resourcePath = new StringBuilder();
+		resourcePath.append(buildStoreUri(store, contextPath))
+			.append(Constants.SHOP_URI)
+			.append(Constants.PRODUCT_URI)
+			.append(Constants.SLASH)
+			.append(url)
+			.append(Constants.URL_EXTENSION);
+
+		return resourcePath.toString();
+		
+	}
+	
+	public String buildRelativeStoreUri(HttpServletRequest request, MerchantStore store) {
+		
+		StringBuilder resourcePath = new StringBuilder();
+		
+		String path = request.getContextPath();
+		if(Constants.SLASH.equals(path)) {
+			path = Constants.BLANK;
+		}
+
+		resourcePath.append(path);
+		
+		return resourcePath.toString();
+		
 	}
 	
 	public String buildStaticFileAbsolutePath(MerchantStore store, String fileName) {
@@ -87,6 +142,18 @@ public class FilePathUtils {
 		
 	}
 	
+	
+	/**
+	 * Builds a static content content file path that can be used by image servlet
+	 * utility for getting the physical image
+	 * @param store
+	 * @param imageName
+	 * @return
+	 */
+	public String buildStaticFilePath(MerchantStore store, String imageName) {
+		return new StringBuilder().append(Constants.FILES_URI).append(Constants.SLASH).append(store.getCode()).append(Constants.SLASH).append(imageName).toString();
+	}
+	
 	/**
 	 * Builds http[s]://<domain name>/<context path>
 	 * @param store
@@ -122,21 +189,6 @@ public class FilePathUtils {
 		
 	}
 	
-	public String buildRelativeStoreUri(HttpServletRequest request, MerchantStore store) {
-		
-		StringBuilder resourcePath = new StringBuilder();
-		
-		String path = request.getContextPath();
-		if(Constants.SLASH.equals(path)) {
-			path = Constants.BLANK;
-		}
-
-		resourcePath.append(path);
-		
-		return resourcePath.toString();
-		
-	}
-	
 	private String buildBaseUrl(HttpServletRequest request, MerchantStore store) {
 		StringBuilder resourcePath = new StringBuilder();
 		
@@ -157,58 +209,6 @@ public class FilePathUtils {
 		.append(contextPath);
 		
 		return resourcePath.toString();
-	}
-	
-	
-	/**
-	 * Access to the customer section
-	 * @param store
-	 * @param request
-	 * @return
-	 */
-	public String buildCustomerUri(MerchantStore store,  String contextPath) {
-
-		return buildStoreUri(store, contextPath);
-	}
-	
-	public String buildAdminUri(MerchantStore store, HttpServletRequest request) {
-		StringBuilder resourcePath = new StringBuilder();
-
-		String baseUrl = this.buildBaseUrl(request, store);
-		
-		resourcePath
-		.append(baseUrl)
-		.append(Constants.ADMIN_URI);
-		
-		return resourcePath.toString();
-	}
-	
-	public String buildCategoryUrl(MerchantStore store, String contextPath, String url) {
-		StringBuilder resourcePath = new StringBuilder();
-		resourcePath.append(buildStoreUri(store, contextPath))
-	
-			.append(Constants.SHOP_URI)
-			
-			.append(Constants.CATEGORY_URI)
-			.append(Constants.SLASH)
-			.append(url)
-			.append(Constants.URL_EXTENSION);
-
-		return resourcePath.toString();
-		
-	}
-	
-	public String buildProductUrl(MerchantStore store, String contextPath, String url) {
-		StringBuilder resourcePath = new StringBuilder();
-		resourcePath.append(buildStoreUri(store, contextPath))
-			.append(Constants.SHOP_URI)
-			.append(Constants.PRODUCT_URI)
-			.append(Constants.SLASH)
-			.append(url)
-			.append(Constants.URL_EXTENSION);
-
-		return resourcePath.toString();
-		
 	}
 	
 

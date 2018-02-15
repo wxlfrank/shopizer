@@ -39,6 +39,10 @@ public class ProductImageUrlTag extends RequestContextAwareTag {
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
 	public int doStartTagInternal() throws JspException {
 		try {
 
@@ -75,33 +79,29 @@ public class ProductImageUrlTag extends RequestContextAwareTag {
 		return SKIP_BODY;
 	}
 
-	public int doEndTag() {
-		return EVAL_PAGE;
-	}
-
-
-	public void setImageName(String imageName) {
-		this.imageName = imageName;
-	}
 
 	public String getImageName() {
 		return imageName;
-	}
-
-	public void setImageType(String imageType) {
-		this.imageType = imageType;
 	}
 
 	public String getImageType() {
 		return imageType;
 	}
 
-	public void setProduct(Product product) {
-		this.product = product;
-	}
-
 	public Product getProduct() {
 		return product;
+	}
+
+	public void setImageName(String imageName) {
+		this.imageName = imageName;
+	}
+
+	public void setImageType(String imageType) {
+		this.imageType = imageType;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
 

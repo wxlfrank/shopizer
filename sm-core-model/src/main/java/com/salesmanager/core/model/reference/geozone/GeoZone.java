@@ -46,9 +46,38 @@ public class GeoZone extends SalesManagerEntity<Long, GeoZone> {
 	public GeoZone() {
 	}
 
+	public String getCode() {
+		return code;
+	}
+
+	public List<Country> getCountries() {
+		return countries;
+	}
+
+
+	public List<GeoZoneDescription> getDescriptions() {
+		return descriptions;
+	}
+
 	@Override
 	public Long getId() {
 		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public void setCountries(List<Country> countries) {
+		this.countries = countries;
+	}
+
+	public void setDescriptions(List<GeoZoneDescription> descriptions) {
+		this.descriptions = descriptions;
 	}
 
 	@Override
@@ -56,37 +85,8 @@ public class GeoZone extends SalesManagerEntity<Long, GeoZone> {
 		this.id = id;
 	}
 
-
-	public String getName() {
-		return name;
-	}
-
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public List<Country> getCountries() {
-		return countries;
-	}
-
-	public void setCountries(List<Country> countries) {
-		this.countries = countries;
-	}
-
-	public List<GeoZoneDescription> getDescriptions() {
-		return descriptions;
-	}
-
-	public void setDescriptions(List<GeoZoneDescription> descriptions) {
-		this.descriptions = descriptions;
 	}
 
 

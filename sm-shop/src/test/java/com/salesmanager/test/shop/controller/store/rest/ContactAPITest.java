@@ -1,15 +1,21 @@
 package com.salesmanager.test.shop.controller.store.rest;
 
+import java.nio.charset.Charset;
+
+import org.junit.Ignore;
+import org.junit.Test;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.salesmanager.core.business.utils.ajax.AjaxResponse;
 import com.salesmanager.shop.model.shop.ContactForm;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
-
-import java.nio.charset.Charset;
 
 @Ignore
 public class ContactAPITest {
@@ -17,14 +23,6 @@ public class ContactAPITest {
 	private RestTemplate restTemplate;
 
 
-	private HttpHeaders getHeader(){
-		HttpHeaders headers = new HttpHeaders();
-		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
-		//MediaType.APPLICATION_JSON //for application/json
-		headers.setContentType(mediaType);
-		return headers;
-	}
-	
 	/**
 	 * Contact us email
 	 * @throws Exception
@@ -55,6 +53,14 @@ public class ContactAPITest {
 		}else{
 			System.out.println(response.getBody() + " Success sending contact");
 		}
+	}
+	
+	private HttpHeaders getHeader(){
+		HttpHeaders headers = new HttpHeaders();
+		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
+		//MediaType.APPLICATION_JSON //for application/json
+		headers.setContentType(mediaType);
+		return headers;
 	}
 	
 		

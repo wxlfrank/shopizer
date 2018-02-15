@@ -16,28 +16,28 @@ public class ProductAttributeEntity extends ProductAttribute implements Serializ
 
 
 
-	public void setProductAttributePrice(BigDecimal productAttributePrice) {
-		this.productAttributePrice = productAttributePrice;
-	}
 	public BigDecimal getProductAttributePrice() {
 		return productAttributePrice;
-	}
-	public void setSortOrder(int sortOrder) {
-		this.sortOrder = sortOrder;
-	}
-	public int getSortOrder() {
-		return sortOrder;
-	}
-	public void setProductAttributeWeight(BigDecimal productAttributeWeight) {
-		this.productAttributeWeight = productAttributeWeight;
 	}
 	public BigDecimal getProductAttributeWeight() {
 		return productAttributeWeight;
 	}
-	public void setAttributeDefault(boolean attributeDefault) {
-		this.attributeDefault = attributeDefault;
+	public int getSortOrder() {
+		return sortOrder;
 	}
 	public boolean isAttributeDefault() {
 		return attributeDefault;
+	}
+	public void setAttributeDefault(boolean attributeDefault) {
+		this.attributeDefault = attributeDefault;
+	}
+	public void setProductAttributePrice(BigDecimal productAttributePrice) {
+		this.productAttributePrice = productAttributePrice;
+	}
+	public void setProductAttributeWeight(BigDecimal productAttributeWeight) {
+		this.productAttributeWeight = productAttributeWeight;
+	}
+	public void setSortOrder(int sortOrder) {
+		this.sortOrder = sortOrder;
 	}
 }

@@ -32,6 +32,36 @@ public class CustomerReviewServiceImpl extends
 	}
 	
 	
+	public void create(CustomerReview review) throws ServiceException {
+		this.saveOrUpdate(review);
+	}
+	
+	@Override
+	public List<CustomerReview> getByCustomer(Customer customer) {
+		Validate.notNull(customer,"Customer cannot be null");
+		return customerReviewRepository.findByReviewer(customer.getId());
+	}
+	
+	@Override
+	public List<CustomerReview> getByReviewedCustomer(Customer customer) {
+		Validate.notNull(customer,"Customer cannot be null");
+		return customerReviewRepository.findByReviewed(customer.getId());
+	}
+	
+	
+
+	@Override
+	public CustomerReview getByReviewerAndReviewed(Long reviewer, Long reviewed) {
+		Validate.notNull(reviewer,"Reviewer customer cannot be null");
+		Validate.notNull(reviewed,"Reviewer customer cannot be null");
+		return customerReviewRepository.findByRevieweAndReviewed(reviewer, reviewed);
+	}
+
+	public void update(CustomerReview review) throws ServiceException {
+		this.saveOrUpdate(review);
+	}
+
+
 	private void saveOrUpdate(CustomerReview review) throws ServiceException {
 		
 
@@ -74,36 +104,6 @@ public class CustomerReviewServiceImpl extends
 		review.setReviewedCustomer(customer);
 
 		
-	}
-	
-	public void update(CustomerReview review) throws ServiceException {
-		this.saveOrUpdate(review);
-	}
-	
-	public void create(CustomerReview review) throws ServiceException {
-		this.saveOrUpdate(review);
-	}
-	
-	
-
-	@Override
-	public List<CustomerReview> getByCustomer(Customer customer) {
-		Validate.notNull(customer,"Customer cannot be null");
-		return customerReviewRepository.findByReviewer(customer.getId());
-	}
-
-	@Override
-	public List<CustomerReview> getByReviewedCustomer(Customer customer) {
-		Validate.notNull(customer,"Customer cannot be null");
-		return customerReviewRepository.findByReviewed(customer.getId());
-	}
-
-
-	@Override
-	public CustomerReview getByReviewerAndReviewed(Long reviewer, Long reviewed) {
-		Validate.notNull(reviewer,"Reviewer customer cannot be null");
-		Validate.notNull(reviewed,"Reviewer customer cannot be null");
-		return customerReviewRepository.findByRevieweAndReviewed(reviewer, reviewed);
 	}
 
 }

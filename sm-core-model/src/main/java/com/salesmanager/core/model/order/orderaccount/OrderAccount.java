@@ -59,48 +59,48 @@ private static final long serialVersionUID = -2429388347536330540L;
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public Order getOrder() {
 		return order;
-	}
-
-	public void setOrder(Order order) {
-		this.order = order;
-	}
-
-	public Date getOrderAccountStartDate() {
-		return CloneUtils.clone(orderAccountStartDate);
-	}
-
-	public void setOrderAccountStartDate(Date orderAccountStartDate) {
-		this.orderAccountStartDate = CloneUtils.clone(orderAccountStartDate);
-	}
-
-	public Date getOrderAccountEndDate() {
-		return CloneUtils.clone(orderAccountEndDate);
-	}
-
-	public void setOrderAccountEndDate(Date orderAccountEndDate) {
-		this.orderAccountEndDate = CloneUtils.clone(orderAccountEndDate);
 	}
 
 	public Integer getOrderAccountBillDay() {
 		return orderAccountBillDay;
 	}
 
-	public void setOrderAccountBillDay(Integer orderAccountBillDay) {
-		this.orderAccountBillDay = orderAccountBillDay;
+	public Date getOrderAccountEndDate() {
+		return CloneUtils.clone(orderAccountEndDate);
 	}
 
 	public Set<OrderAccountProduct> getOrderAccountProducts() {
 		return orderAccountProducts;
 	}
 
+	public Date getOrderAccountStartDate() {
+		return CloneUtils.clone(orderAccountStartDate);
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setOrder(Order order) {
+		this.order = order;
+	}
+
+	public void setOrderAccountBillDay(Integer orderAccountBillDay) {
+		this.orderAccountBillDay = orderAccountBillDay;
+	}
+
+	public void setOrderAccountEndDate(Date orderAccountEndDate) {
+		this.orderAccountEndDate = CloneUtils.clone(orderAccountEndDate);
+	}
+
 	public void setOrderAccountProducts(
 			Set<OrderAccountProduct> orderAccountProducts) {
 		this.orderAccountProducts = orderAccountProducts;
+	}
+
+	public void setOrderAccountStartDate(Date orderAccountStartDate) {
+		this.orderAccountStartDate = CloneUtils.clone(orderAccountStartDate);
 	}
 }

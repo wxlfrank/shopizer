@@ -23,36 +23,36 @@ public class CustomerOption extends ShopEntity implements Serializable {
 	private List<CustomerOptionValue> availableValues;
 
 
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+	public List<CustomerOptionValue> getAvailableValues() {
+		return availableValues;
 	}
 
 	public CustomerOptionValue getDefaultValue() {
 		return defaultValue;
 	}
 
-	public void setDefaultValue(CustomerOptionValue defaultValue) {
-		this.defaultValue = defaultValue;
+	public String getName() {
+		return name;
 	}
 
-	public List<CustomerOptionValue> getAvailableValues() {
-		return availableValues;
+	public String getType() {
+		return type;
 	}
 
 	public void setAvailableValues(List<CustomerOptionValue> availableValues) {
 		this.availableValues = availableValues;
+	}
+
+	public void setDefaultValue(CustomerOptionValue defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 

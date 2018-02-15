@@ -33,6 +33,52 @@ public class SystemRESTController {
 	@Inject
 	private ModuleConfigurationService moduleConfigurationService;
 	
+	@RequestMapping( value="/private/system/optin", method=RequestMethod.POST)
+	@ResponseBody
+	public AjaxResponse createOptin(@RequestBody final String json, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		
+		AjaxResponse resp = new AjaxResponse();
+		
+		try {
+			LOGGER.debug("Creating an optin : " + json);
+			//moduleConfigurationService.createOrUpdateModule(json);
+			response.setStatus(200);
+			resp.setStatus(200);
+			
+		} catch(Exception e) {
+			resp.setStatus(500);
+			resp.setErrorMessage(e);
+			response.sendError(503, "Exception while creating optin " + e.getMessage());
+		}
+
+		return resp;
+
+	}
+	
+	@RequestMapping( value="/private/system/optin/{code}/customer", method=RequestMethod.POST, consumes = "application/json")
+	@ResponseBody
+	public AjaxResponse createOptinCustomer(@RequestBody final String code, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		
+		AjaxResponse resp = new AjaxResponse();
+		
+		try {
+			LOGGER.debug("Adding a customer optin : " + code);
+			//moduleConfigurationService.createOrUpdateModule(json);
+			response.setStatus(200);
+			resp.setStatus(200);
+			
+		} catch(Exception e) {
+			resp.setStatus(500);
+			resp.setErrorMessage(e);
+			response.sendError(503, "Exception while creating uptin " + e.getMessage());
+		}
+
+		return resp;
+
+	}
+	
 	/**
 	 * Creates or updates a configuration module. A JSON has to be created on the client side which represents
 	 * an object that will create a new module (payment, shipping ...) which can be used and configured from
@@ -84,29 +130,6 @@ public class SystemRESTController {
 
 	}
 	
-	@RequestMapping( value="/private/system/optin", method=RequestMethod.POST)
-	@ResponseBody
-	public AjaxResponse createOptin(@RequestBody final String json, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		
-		AjaxResponse resp = new AjaxResponse();
-		
-		try {
-			LOGGER.debug("Creating an optin : " + json);
-			//moduleConfigurationService.createOrUpdateModule(json);
-			response.setStatus(200);
-			resp.setStatus(200);
-			
-		} catch(Exception e) {
-			resp.setStatus(500);
-			resp.setErrorMessage(e);
-			response.sendError(503, "Exception while creating optin " + e.getMessage());
-		}
-
-		return resp;
-
-	}
-	
 	@RequestMapping( value="/private/system/optin/{code}", method=RequestMethod.DELETE)
 	@ResponseBody
 	public AjaxResponse deleteOptin(@RequestBody final String code, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -124,29 +147,6 @@ public class SystemRESTController {
 			resp.setStatus(500);
 			resp.setErrorMessage(e);
 			response.sendError(503, "Exception while deleting optin " + e.getMessage());
-		}
-
-		return resp;
-
-	}
-	
-	@RequestMapping( value="/private/system/optin/{code}/customer", method=RequestMethod.POST, consumes = "application/json")
-	@ResponseBody
-	public AjaxResponse createOptinCustomer(@RequestBody final String code, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		
-		AjaxResponse resp = new AjaxResponse();
-		
-		try {
-			LOGGER.debug("Adding a customer optin : " + code);
-			//moduleConfigurationService.createOrUpdateModule(json);
-			response.setStatus(200);
-			resp.setStatus(200);
-			
-		} catch(Exception e) {
-			resp.setStatus(500);
-			resp.setErrorMessage(e);
-			response.sendError(503, "Exception while creating uptin " + e.getMessage());
 		}
 
 		return resp;

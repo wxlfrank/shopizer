@@ -9,18 +9,36 @@ import com.salesmanager.core.model.system.IntegrationConfiguration;
 
 public class CustomShippingQuotesConfiguration extends IntegrationConfiguration implements CustomIntegrationConfiguration, Serializable {
 	
+	private static final long serialVersionUID = 1L;
+	
 	/**
 	 * 
 	 */
 	private String moduleCode;
 	
+	
 	private List<CustomShippingQuotesRegion> regions = new ArrayList<CustomShippingQuotesRegion>();
-	
-	
-	private static final long serialVersionUID = 1L;
 
 	
-	@SuppressWarnings("unchecked")
+	@Override
+	public String getModuleCode() {
+		return moduleCode;
+	}
+
+	public List<CustomShippingQuotesRegion> getRegions() {
+		return regions;
+	}
+
+	@Override
+	public void setModuleCode(String moduleCode) {
+		this.moduleCode = moduleCode;
+		
+	}
+
+	public void setRegions(List<CustomShippingQuotesRegion> regions) {
+		this.regions = regions;
+	}
+
 	public String toJSONString() {
 		//JSONObject data = new JSONObject();
 		
@@ -61,25 +79,6 @@ public class CustomShippingQuotesConfiguration extends IntegrationConfiguration 
 		
 		
 
-	}
-
-	@Override
-	public String getModuleCode() {
-		return moduleCode;
-	}
-
-	@Override
-	public void setModuleCode(String moduleCode) {
-		this.moduleCode = moduleCode;
-		
-	}
-
-	public void setRegions(List<CustomShippingQuotesRegion> regions) {
-		this.regions = regions;
-	}
-
-	public List<CustomShippingQuotesRegion> getRegions() {
-		return regions;
 	}
 
 }

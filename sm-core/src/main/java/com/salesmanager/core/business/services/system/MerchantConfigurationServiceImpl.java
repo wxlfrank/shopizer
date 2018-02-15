@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.repositories.system.MerchantConfigurationRepository;
 import com.salesmanager.core.business.services.common.generic.SalesManagerEntityServiceImpl;
@@ -31,35 +30,6 @@ public class MerchantConfigurationServiceImpl extends
 	}
 	
 
-	@Override
-	public MerchantConfiguration getMerchantConfiguration(String key, MerchantStore store) throws ServiceException {
-		return merchantConfigurationRepository.findByMerchantStoreAndKey(store.getId(), key);
-	}
-	
-	@Override
-	public List<MerchantConfiguration> listByStore(MerchantStore store) throws ServiceException {
-		return merchantConfigurationRepository.findByMerchantStore(store.getId());
-	}
-	
-	@Override
-	public List<MerchantConfiguration> listByType(MerchantConfigurationType type, MerchantStore store) throws ServiceException {
-		return merchantConfigurationRepository.findByMerchantStoreAndType(store.getId(), type);
-	}
-	
-	@Override
-	public void saveOrUpdate(MerchantConfiguration entity) throws ServiceException {
-		
-
-		
-		if(entity.getId()!=null && entity.getId()>0) {
-			super.update(entity);
-		} else {
-			super.create(entity);
-
-		}
-	}
-	
-	
 	@Override
 	public void delete(MerchantConfiguration merchantConfiguration) throws ServiceException {
 		MerchantConfiguration config = merchantConfigurationRepository.findOne(merchantConfiguration.getId());
@@ -89,6 +59,22 @@ public class MerchantConfigurationServiceImpl extends
 	}
 	
 	@Override
+	public MerchantConfiguration getMerchantConfiguration(String key, MerchantStore store) throws ServiceException {
+		return merchantConfigurationRepository.findByMerchantStoreAndKey(store.getId(), key);
+	}
+	
+	@Override
+	public List<MerchantConfiguration> listByStore(MerchantStore store) throws ServiceException {
+		return merchantConfigurationRepository.findByMerchantStore(store.getId());
+	}
+	
+	
+	@Override
+	public List<MerchantConfiguration> listByType(MerchantConfigurationType type, MerchantStore store) throws ServiceException {
+		return merchantConfigurationRepository.findByMerchantStoreAndType(store.getId(), type);
+	}
+	
+	@Override
 	public void saveMerchantConfig(MerchantConfig config, MerchantStore store) throws ServiceException {
 		
 		MerchantConfiguration configuration = merchantConfigurationRepository.findByMerchantStoreAndKey(store.getId(), MerchantConfigurationType.CONFIG.name());
@@ -109,6 +95,19 @@ public class MerchantConfigurationServiceImpl extends
 
 		}
 		
+	}
+	
+	@Override
+	public void saveOrUpdate(MerchantConfiguration entity) throws ServiceException {
+		
+
+		
+		if(entity.getId()!=null && entity.getId()>0) {
+			super.update(entity);
+		} else {
+			super.create(entity);
+
+		}
 	}
 	
 

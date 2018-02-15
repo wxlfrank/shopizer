@@ -10,7 +10,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang.Validate;
 
-import com.salesmanager.core.business.services.system.MerchantConfigurationService;
 import com.salesmanager.core.business.utils.ProductPriceUtils;
 import com.salesmanager.core.model.common.Delivery;
 import com.salesmanager.core.model.merchant.MerchantStore;
@@ -42,54 +41,24 @@ public class StorePickupShippingQuote implements ShippingQuoteModule, ShippingQu
 	
 	public final static String MODULE_CODE = "storePickUp";
 
-	@Inject
-	private MerchantConfigurationService merchantConfigurationService;
+//	@Inject
+//	private MerchantConfigurationService merchantConfigurationService;
 	
 	@Inject
 	private ProductPriceUtils productPriceUtils;
 
 
 	@Override
-	public void validateModuleConfiguration(
-			IntegrationConfiguration integrationConfiguration,
+	public CustomIntegrationConfiguration getCustomModuleConfiguration(
 			MerchantStore store) throws IntegrationException {
-		
-		
-		
-		
-		List<String> errorFields = null;
-		
-		//validate integrationKeys['account']
-		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
-		//if(keys==null || StringUtils.isBlank(keys.get("price"))) {
-		if(keys==null) {
-			errorFields = new ArrayList<String>();
-			errorFields.add("price");
-		} else {
-			//validate it can be parsed to BigDecimal
-			try {
-				BigDecimal price = new BigDecimal(keys.get("price"));
-			} catch(Exception e) {
-				errorFields = new ArrayList<String>();
-				errorFields.add("price");
-			}
-		}
-		
-		//if(keys==null || StringUtils.isBlank(keys.get("note"))) {
-		if(keys==null) {
-			errorFields = new ArrayList<String>();
-			errorFields.add("note");
-		}
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-
-		
-		if(errorFields!=null) {
-			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
-			ex.setErrorFields(errorFields);
-			throw ex;
-			
-		}
-
+	@Override
+	public String getModuleCode() {
+		// TODO Auto-generated method stub
+		return MODULE_CODE;
 	}
 
 	@Override
@@ -104,13 +73,6 @@ public class StorePickupShippingQuote implements ShippingQuoteModule, ShippingQu
 		// TODO Auto-generated method stub
 		return null;
 
-	}
-
-	@Override
-	public CustomIntegrationConfiguration getCustomModuleConfiguration(
-			MerchantStore store) throws IntegrationException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -171,9 +133,46 @@ public class StorePickupShippingQuote implements ShippingQuoteModule, ShippingQu
 	}
 
 	@Override
-	public String getModuleCode() {
-		// TODO Auto-generated method stub
-		return MODULE_CODE;
+	public void validateModuleConfiguration(
+			IntegrationConfiguration integrationConfiguration,
+			MerchantStore store) throws IntegrationException {
+		
+		
+		
+		
+		List<String> errorFields = null;
+		
+		//validate integrationKeys['account']
+		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
+		//if(keys==null || StringUtils.isBlank(keys.get("price"))) {
+		if(keys==null) {
+			errorFields = new ArrayList<String>();
+			errorFields.add("price");
+		} else {
+			//validate it can be parsed to BigDecimal
+			try {
+				new BigDecimal(keys.get("price"));
+			} catch(Exception e) {
+				errorFields = new ArrayList<String>();
+				errorFields.add("price");
+			}
+		}
+		
+		//if(keys==null || StringUtils.isBlank(keys.get("note"))) {
+		if(keys==null) {
+			errorFields = new ArrayList<String>();
+			errorFields.add("note");
+		}
+
+
+		
+		if(errorFields!=null) {
+			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
+			ex.setErrorFields(errorFields);
+			throw ex;
+			
+		}
+
 	}
 
 

@@ -20,43 +20,43 @@ public class IntegrationException extends ServiceException {
 	
 	private int errorCode = 0;
 
-	public int getErrorCode() {
-		return errorCode;
-	}
-
-	public void setErrorCode(int errorCode) {
-		this.errorCode = errorCode;
-	}
-
 	public IntegrationException(Exception e) {
 		super(e);
 	}
-	
-	public IntegrationException(String message, Exception e) {
-		super(message,e);
+
+	public IntegrationException(int code) {
+		
+		this.errorCode = code;
 	}
-	
+
 	public IntegrationException(int code, String message) {
 		
 		super(message);
 		this.errorCode = code;
 	}
 	
-	public IntegrationException(int code) {
-		
-		this.errorCode = code;
-	}
-
 	public IntegrationException(String message) {
 		super(message);
 	}
-
-	public void setErrorFields(List<String> errorFields) {
-		this.errorFields = errorFields;
+	
+	public IntegrationException(String message, Exception e) {
+		super(message,e);
+	}
+	
+	public int getErrorCode() {
+		return errorCode;
 	}
 
 	public List<String> getErrorFields() {
 		return errorFields;
+	}
+
+	public void setErrorCode(int errorCode) {
+		this.errorCode = errorCode;
+	}
+
+	public void setErrorFields(List<String> errorFields) {
+		this.errorFields = errorFields;
 	}
 
 }

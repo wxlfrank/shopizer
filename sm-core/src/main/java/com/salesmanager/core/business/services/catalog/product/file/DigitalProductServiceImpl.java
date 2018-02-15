@@ -70,11 +70,6 @@ public class DigitalProductServiceImpl extends SalesManagerEntityServiceImpl<Lon
 	}
 	
 	@Override
-	public DigitalProduct getByProduct(MerchantStore store, Product product) throws ServiceException {
-		return digitalProductRepository.findByProduct(store.getId(), product.getId());
-	}
-	
-	@Override
 	public void delete(DigitalProduct digitalProduct) throws ServiceException {
 		
 		Assert.notNull(digitalProduct,"DigitalProduct cannot be null");
@@ -85,6 +80,11 @@ public class DigitalProductServiceImpl extends SalesManagerEntityServiceImpl<Lon
 		productDownloadsFileManager.removeFile(digitalProduct.getProduct().getMerchantStore().getCode(), FileContentType.PRODUCT, digitalProduct.getProductFileName());
 		digitalProduct.getProduct().setProductVirtual(false);
 		productService.update(digitalProduct.getProduct());
+	}
+	
+	@Override
+	public DigitalProduct getByProduct(MerchantStore store, Product product) throws ServiceException {
+		return digitalProductRepository.findByProduct(store.getId(), product.getId());
 	}
 	
 	

@@ -36,6 +36,12 @@ public class CustomerOptionSetServiceImpl extends
 	
 
 	@Override
+	public void delete(CustomerOptionSet customerOptionSet) throws ServiceException {
+		customerOptionSet = customerOptionSetRepository.findOne(customerOptionSet.getId());
+		super.delete(customerOptionSet);
+	}
+	
+	@Override
 	public List<CustomerOptionSet> listByOption(CustomerOption option, MerchantStore store) throws ServiceException {
 		Validate.notNull(store,"merchant store cannot be null");
 		Validate.notNull(option,"option cannot be null");
@@ -44,11 +50,13 @@ public class CustomerOptionSetServiceImpl extends
 	}
 	
 	@Override
-	public void delete(CustomerOptionSet customerOptionSet) throws ServiceException {
-		customerOptionSet = customerOptionSetRepository.findOne(customerOptionSet.getId());
-		super.delete(customerOptionSet);
+	public List<CustomerOptionSet> listByOptionValue(
+			CustomerOptionValue optionValue, MerchantStore store)
+			throws ServiceException {
+		return customerOptionSetRepository.findByOptionValueId(store.getId(), optionValue.getId());
 	}
-	
+
+
 	@Override
 	public List<CustomerOptionSet> listByStore(MerchantStore store, Language language) throws ServiceException {
 		Validate.notNull(store,"merchant store cannot be null");
@@ -68,14 +76,6 @@ public class CustomerOptionSetServiceImpl extends
 			super.create(entity);
 		}
 		
-	}
-
-
-	@Override
-	public List<CustomerOptionSet> listByOptionValue(
-			CustomerOptionValue optionValue, MerchantStore store)
-			throws ServiceException {
-		return customerOptionSetRepository.findByOptionValueId(store.getId(), optionValue.getId());
 	}
 
 

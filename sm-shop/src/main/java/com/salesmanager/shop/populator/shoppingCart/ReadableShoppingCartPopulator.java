@@ -44,6 +44,22 @@ public class ReadableShoppingCartPopulator extends AbstractDataPopulator<Shoppin
     
     private ImageFilePath imageUtils;
 	
+	public ImageFilePath getImageUtils() {
+		return imageUtils;
+	}
+
+	public PricingService getPricingService() {
+		return pricingService;
+	}
+
+	public ProductAttributeService getProductAttributeService() {
+		return productAttributeService;
+	}
+
+	public ShoppingCartCalculationService getShoppingCartCalculationService() {
+		return shoppingCartCalculationService;
+	}
+
 	@Override
 	public ReadableShoppingCart populate(ShoppingCart source, ReadableShoppingCart target, MerchantStore store,
 			Language language) throws ConversionException {
@@ -209,41 +225,25 @@ public class ReadableShoppingCartPopulator extends AbstractDataPopulator<Shoppin
  
 	}
 
-	@Override
-	protected ReadableShoppingCart createTarget() {
-		return null;
-	}
-
-	public PricingService getPricingService() {
-		return pricingService;
+	public void setImageUtils(ImageFilePath imageUtils) {
+		this.imageUtils = imageUtils;
 	}
 
 	public void setPricingService(PricingService pricingService) {
 		this.pricingService = pricingService;
 	}
 
-	public ShoppingCartCalculationService getShoppingCartCalculationService() {
-		return shoppingCartCalculationService;
+	public void setProductAttributeService(ProductAttributeService productAttributeService) {
+		this.productAttributeService = productAttributeService;
 	}
 
 	public void setShoppingCartCalculationService(ShoppingCartCalculationService shoppingCartCalculationService) {
 		this.shoppingCartCalculationService = shoppingCartCalculationService;
 	}
 
-	public ImageFilePath getImageUtils() {
-		return imageUtils;
-	}
-
-	public void setImageUtils(ImageFilePath imageUtils) {
-		this.imageUtils = imageUtils;
-	}
-
-	public ProductAttributeService getProductAttributeService() {
-		return productAttributeService;
-	}
-
-	public void setProductAttributeService(ProductAttributeService productAttributeService) {
-		this.productAttributeService = productAttributeService;
+	@Override
+	protected ReadableShoppingCart createTarget() {
+		return null;
 	}
 
 }

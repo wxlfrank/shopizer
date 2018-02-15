@@ -35,22 +35,22 @@ import com.salesmanager.shop.utils.LanguageUtils;
 @RequestMapping("/api/v1")
 public class CustomerReviewApi {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerReviewApi.class);
+	
 	@Inject
 	private CustomerFacade customerFacade;
 	
 	@Inject
 	private StoreFacade storeFacade;
-	
+
 	@Inject
 	private LanguageUtils languageUtils;
-
+	
 	@Inject
 	private CustomerService customerService;
 	
 	@Inject
 	private CustomerReviewService customerReviewService;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerReviewApi.class);
 	
 	
 	/**
@@ -106,6 +106,46 @@ public class CustomerReviewApi {
 	
 	
 
+	@RequestMapping( value="/private/customers/{id}/reviews/{reviewid}", method=RequestMethod.DELETE)
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public void delete(@PathVariable final Long id, @PathVariable final Long reviewId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		
+		try {
+			
+			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
+			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
+			
+			CustomerReview customerReview = customerReviewService.getById(reviewId);
+			if(customerReview==null) {
+				response.sendError(404, "Customer review with id " + reviewId + " does not exist");
+				return;
+			}
+			
+			if(customerReview.getReviewedCustomer().getId().longValue() != id.longValue()) {
+				response.sendError(404, "Customer review with id " + reviewId + " does not exist for this customer");
+				return;
+			}
+			
+			
+
+
+			customerFacade.deleteCustomerReview(customerReview, merchantStore, language);
+
+
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting customer review",e);
+			try {
+				response.sendError(503, "Error while deleting customer review" + e.getMessage());
+			} catch (Exception ignore) {
+			}
+			
+			return;
+		}
+	}
+
 	@RequestMapping( value="/customers/{id}/reviews", method=RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
@@ -139,7 +179,7 @@ public class CustomerReviewApi {
 			return null;
 		}
 	}
-
+	
 	@RequestMapping( value="/private/customers/{id}/reviews/{reviewid}", method=RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
@@ -182,46 +222,6 @@ public class CustomerReviewApi {
 			}
 			
 			return null;
-		}
-	}
-	
-	@RequestMapping( value="/private/customers/{id}/reviews/{reviewid}", method=RequestMethod.DELETE)
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public void delete(@PathVariable final Long id, @PathVariable final Long reviewId, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		
-		try {
-			
-			MerchantStore merchantStore = storeFacade.getByCode(com.salesmanager.core.business.constants.Constants.DEFAULT_STORE);
-			Language language = languageUtils.getRESTLanguage(request, merchantStore);	
-			
-			CustomerReview customerReview = customerReviewService.getById(reviewId);
-			if(customerReview==null) {
-				response.sendError(404, "Customer review with id " + reviewId + " does not exist");
-				return;
-			}
-			
-			if(customerReview.getReviewedCustomer().getId().longValue() != id.longValue()) {
-				response.sendError(404, "Customer review with id " + reviewId + " does not exist for this customer");
-				return;
-			}
-			
-			
-
-
-			customerFacade.deleteCustomerReview(customerReview, merchantStore, language);
-
-
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting customer review",e);
-			try {
-				response.sendError(503, "Error while deleting customer review" + e.getMessage());
-			} catch (Exception ignore) {
-			}
-			
-			return;
 		}
 	}
 }

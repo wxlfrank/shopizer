@@ -20,10 +20,6 @@ public class ReadableFinalPricePopulator extends
 		return pricingService;
 	}
 
-	public void setPricingService(PricingService pricingService) {
-		this.pricingService = pricingService;
-	}
-
 	@Override
 	public ReadableProductPrice populate(FinalPrice source,
 			ReadableProductPrice target, MerchantStore store, Language language)
@@ -47,6 +43,10 @@ public class ReadableFinalPricePopulator extends
 		
 		
 		return target;
+	}
+
+	public void setPricingService(PricingService pricingService) {
+		this.pricingService = pricingService;
 	}
 
 	@Override

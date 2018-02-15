@@ -41,39 +41,45 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 	private ProductRelationshipService productRelationshipService;
 
 	@Override
-	public ReadableProductList listItemsByManufacturer(MerchantStore store,
-			Language language, Long manufacturerId, int startCount, int maxCount) throws Exception {
+	public ReadableProductList addItemToGroup(Product product, String group, MerchantStore store, Language language)
+			throws Exception {
+		
+		Validate.notNull(product,"Product muust not be null");
+		Validate.notNull(group,"group must not be null");
+		
+		ProductRelationship relationship = new ProductRelationship();
+		relationship.setActive(true);
+		relationship.setCode(group);
+		relationship.setStore(store);
+		relationship.setRelatedProduct(product);
+		
+		productRelationshipService.saveOrUpdate(relationship);
 		
 		
-		ProductCriteria productCriteria = new ProductCriteria();
-		productCriteria.setMaxCount(maxCount);
-		productCriteria.setStartIndex(startCount);
-		
-
-		productCriteria.setManufacturerId(manufacturerId);
-		com.salesmanager.core.model.catalog.product.ProductList products = productService.listByStore(store, language, productCriteria);
-
-		
-		ReadableProductPopulator populator = new ReadableProductPopulator();
-		populator.setPricingService(pricingService);
-		populator.setimageUtils(imageUtils);
-		
-		
-		ReadableProductList productList = new ReadableProductList();
-		for(Product product : products.getProducts()) {
-
-			//create new proxy product
-			ReadableProduct readProduct = populator.populate(product, new ReadableProduct(), store, language);
-			productList.getProducts().add(readProduct);
-			
-		}
-		
-		productList.setTotalCount(products.getTotalCount());
-		
-		
-		return productList;
+		return listItemsByGroup(group,store,language);
 	}
 	
+	@Override
+	public ReadableProductList listItemsByGroup(String group, MerchantStore store, Language language) throws Exception {
+
+
+		//get product group
+		List<ProductRelationship> groups = productRelationshipService.getByGroup(store, group, language);
+
+		if(group!=null) {
+			List<Long> ids = new ArrayList<Long>();
+			for(ProductRelationship relationship : groups) {
+				Product product = relationship.getRelatedProduct();
+				ids.add(product.getId());
+			}
+			
+			ReadableProductList list = listItemsByIds(store, language, ids, 0, 0);
+			return list;
+		}
+		
+		return null;
+	}
+
 	@Override
 	public ReadableProductList listItemsByIds(MerchantStore store, Language language, List<Long> ids, int startCount,
 			int maxCount) throws Exception {
@@ -113,43 +119,37 @@ public class ProductItemsFacadeImpl implements ProductItemsFacade {
 	}
 
 	@Override
-	public ReadableProductList listItemsByGroup(String group, MerchantStore store, Language language) throws Exception {
+	public ReadableProductList listItemsByManufacturer(MerchantStore store,
+			Language language, Long manufacturerId, int startCount, int maxCount) throws Exception {
+		
+		
+		ProductCriteria productCriteria = new ProductCriteria();
+		productCriteria.setMaxCount(maxCount);
+		productCriteria.setStartIndex(startCount);
+		
 
+		productCriteria.setManufacturerId(manufacturerId);
+		com.salesmanager.core.model.catalog.product.ProductList products = productService.listByStore(store, language, productCriteria);
 
-		//get product group
-		List<ProductRelationship> groups = productRelationshipService.getByGroup(store, group, language);
+		
+		ReadableProductPopulator populator = new ReadableProductPopulator();
+		populator.setPricingService(pricingService);
+		populator.setimageUtils(imageUtils);
+		
+		
+		ReadableProductList productList = new ReadableProductList();
+		for(Product product : products.getProducts()) {
 
-		if(group!=null) {
-			List<Long> ids = new ArrayList<Long>();
-			for(ProductRelationship relationship : groups) {
-				Product product = relationship.getRelatedProduct();
-				ids.add(product.getId());
-			}
+			//create new proxy product
+			ReadableProduct readProduct = populator.populate(product, new ReadableProduct(), store, language);
+			productList.getProducts().add(readProduct);
 			
-			ReadableProductList list = listItemsByIds(store, language, ids, 0, 0);
-			return list;
 		}
 		
-		return null;
-	}
-
-	@Override
-	public ReadableProductList addItemToGroup(Product product, String group, MerchantStore store, Language language)
-			throws Exception {
-		
-		Validate.notNull(product,"Product muust not be null");
-		Validate.notNull(group,"group must not be null");
-		
-		ProductRelationship relationship = new ProductRelationship();
-		relationship.setActive(true);
-		relationship.setCode(group);
-		relationship.setStore(store);
-		relationship.setRelatedProduct(product);
-		
-		productRelationshipService.saveOrUpdate(relationship);
+		productList.setTotalCount(products.getTotalCount());
 		
 		
-		return listItemsByGroup(group,store,language);
+		return productList;
 	}
 
 	@Override

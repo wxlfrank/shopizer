@@ -4,10 +4,7 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +24,12 @@ import com.salesmanager.shop.store.security.user.CustomerDetails;
 @Service("customerDetailsService")
 public class CustomerServicesImpl extends AbstractCustomerServices{
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerServicesImpl.class);
+//	private static final Logger LOGGER = LoggerFactory.getLogger(CustomerServicesImpl.class);
 	
 
-	private CustomerService customerService;
-	private PermissionService  permissionService;
-	private GroupService   groupService;
+//	private CustomerService customerService;
+//	private PermissionService  permissionService;
+//	private GroupService   groupService;
 	
 	@Inject
 	public CustomerServicesImpl(CustomerService customerService, PermissionService permissionService, GroupService groupService) {

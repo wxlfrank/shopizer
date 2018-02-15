@@ -37,62 +37,15 @@ import com.stripe.model.Refund;
 
 public class StripePayment implements PaymentModule {
 	
-	@Inject
-	private ProductPriceUtils productPriceUtils;
+//	private final static String AUTHORIZATION = "Authorization";
 
 	
-	private final static String AUTHORIZATION = "Authorization";
 	private final static String TRANSACTION = "Transaction";
-	
 	private static final Logger LOGGER = LoggerFactory.getLogger(StripePayment.class);
 	
-	@Override
-	public void validateModuleConfiguration(
-			IntegrationConfiguration integrationConfiguration,
-			MerchantStore store) throws IntegrationException {
-		
-		
-		List<String> errorFields = null;
-		
-		
-		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
-		
-		//validate integrationKeys['secretKey']
-		if(keys==null || StringUtils.isBlank(keys.get("secretKey"))) {
-			errorFields = new ArrayList<String>();
-			errorFields.add("secretKey");
-		}
-		
-		//validate integrationKeys['publishableKey']
-		if(keys==null || StringUtils.isBlank(keys.get("publishableKey"))) {
-			if(errorFields==null) {
-				errorFields = new ArrayList<String>();
-			}
-			errorFields.add("publishableKey");
-		}
-		
-		
-		if(errorFields!=null) {
-			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
-			ex.setErrorFields(errorFields);
-			throw ex;
-			
-		}
-		
-		
-		
-	}
-
-
-	@Override
-	public Transaction initTransaction(MerchantStore store, Customer customer,
-			BigDecimal amount, Payment payment,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		// Not supported
-		return null;
-	}
-
+	@Inject
+	private ProductPriceUtils productPriceUtils;
+	
 	@Override
 	public Transaction authorize(MerchantStore store, Customer customer,
 			List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
@@ -171,68 +124,6 @@ public class StripePayment implements PaymentModule {
 		
 	}
 
-	@Override
-	public Transaction capture(MerchantStore store, Customer customer,
-			Order order, Transaction capturableTransaction,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-
-
-			Transaction transaction = new Transaction();
-			try {
-				
-				
-				String apiKey = configuration.getIntegrationKeys().get("secretKey");
-
-				if(StringUtils.isBlank(apiKey)) {
-					IntegrationException te = new IntegrationException(
-							"Can't process Stripe, missing payment.metaData");
-					te.setExceptionType(IntegrationException.TRANSACTION_EXCEPTION);
-					te.setMessageCode("message.payment.error");
-					te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
-					throw te;
-				}
-				
-				String chargeId = capturableTransaction.getTransactionDetails().get("TRNORDERNUMBER");
-				
-				if(StringUtils.isBlank(chargeId)) {
-					IntegrationException te = new IntegrationException(
-							"Can't process Stripe capture, missing TRNORDERNUMBER");
-					te.setExceptionType(IntegrationException.TRANSACTION_EXCEPTION);
-					te.setMessageCode("message.payment.error");
-					te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
-					throw te;
-				}
-				
-
-				Stripe.apiKey = apiKey;
-				
-				Charge ch = Charge.retrieve(chargeId);
-				ch.capture();
-				
-				
-				transaction.setAmount(order.getTotal());
-				transaction.setOrder(order);
-				transaction.setTransactionDate(new Date());
-				transaction.setTransactionType(TransactionType.CAPTURE);
-				transaction.setPaymentType(PaymentType.CREDITCARD);
-				transaction.getTransactionDetails().put("TRANSACTIONID", capturableTransaction.getTransactionDetails().get("TRANSACTIONID"));
-				transaction.getTransactionDetails().put("TRNAPPROVED", ch.getStatus());
-				transaction.getTransactionDetails().put("TRNORDERNUMBER", ch.getId());
-				transaction.getTransactionDetails().put("MESSAGETEXT", null);
-				
-				//authorize a preauth 
-
-
-				return transaction;
-				
-			} catch (Exception e) {
-				
-				throw buildException(e);
-
-			}  
-
-	}
 
 	@Override
 	public Transaction authorizeAndCapture(MerchantStore store, Customer customer,
@@ -313,6 +204,78 @@ public class StripePayment implements PaymentModule {
 	}
 
 	@Override
+	public Transaction capture(MerchantStore store, Customer customer,
+			Order order, Transaction capturableTransaction,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+
+
+			Transaction transaction = new Transaction();
+			try {
+				
+				
+				String apiKey = configuration.getIntegrationKeys().get("secretKey");
+
+				if(StringUtils.isBlank(apiKey)) {
+					IntegrationException te = new IntegrationException(
+							"Can't process Stripe, missing payment.metaData");
+					te.setExceptionType(IntegrationException.TRANSACTION_EXCEPTION);
+					te.setMessageCode("message.payment.error");
+					te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
+					throw te;
+				}
+				
+				String chargeId = capturableTransaction.getTransactionDetails().get("TRNORDERNUMBER");
+				
+				if(StringUtils.isBlank(chargeId)) {
+					IntegrationException te = new IntegrationException(
+							"Can't process Stripe capture, missing TRNORDERNUMBER");
+					te.setExceptionType(IntegrationException.TRANSACTION_EXCEPTION);
+					te.setMessageCode("message.payment.error");
+					te.setErrorCode(IntegrationException.TRANSACTION_EXCEPTION);
+					throw te;
+				}
+				
+
+				Stripe.apiKey = apiKey;
+				
+				Charge ch = Charge.retrieve(chargeId);
+				ch.capture();
+				
+				
+				transaction.setAmount(order.getTotal());
+				transaction.setOrder(order);
+				transaction.setTransactionDate(new Date());
+				transaction.setTransactionType(TransactionType.CAPTURE);
+				transaction.setPaymentType(PaymentType.CREDITCARD);
+				transaction.getTransactionDetails().put("TRANSACTIONID", capturableTransaction.getTransactionDetails().get("TRANSACTIONID"));
+				transaction.getTransactionDetails().put("TRNAPPROVED", ch.getStatus());
+				transaction.getTransactionDetails().put("TRNORDERNUMBER", ch.getId());
+				transaction.getTransactionDetails().put("MESSAGETEXT", null);
+				
+				//authorize a preauth 
+
+
+				return transaction;
+				
+			} catch (Exception e) {
+				
+				throw buildException(e);
+
+			}  
+
+	}
+
+	@Override
+	public Transaction initTransaction(MerchantStore store, Customer customer,
+			BigDecimal amount, Payment payment,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		// Not supported
+		return null;
+	}
+
+	@Override
 	public Transaction refund(boolean partial, MerchantStore store, Transaction transaction,
 			Order order, BigDecimal amount,
 			IntegrationConfiguration configuration, IntegrationModule module)
@@ -347,7 +310,7 @@ public class StripePayment implements PaymentModule {
 			String strAmount = String.valueOf(amnt);
 			strAmount = strAmount.replace(".","");
 			
-			Map params = new HashMap();
+			Map<String, Object> params = new HashMap<String, Object>();
 			//TODO amount
 			params.put("amount", strAmount);
 			Charge ch = Charge.retrieve(trnID);
@@ -372,6 +335,43 @@ public class StripePayment implements PaymentModule {
 			throw buildException(e);
 
 		} 
+		
+		
+		
+	}
+
+	@Override
+	public void validateModuleConfiguration(
+			IntegrationConfiguration integrationConfiguration,
+			MerchantStore store) throws IntegrationException {
+		
+		
+		List<String> errorFields = null;
+		
+		
+		Map<String,String> keys = integrationConfiguration.getIntegrationKeys();
+		
+		//validate integrationKeys['secretKey']
+		if(keys==null || StringUtils.isBlank(keys.get("secretKey"))) {
+			errorFields = new ArrayList<String>();
+			errorFields.add("secretKey");
+		}
+		
+		//validate integrationKeys['publishableKey']
+		if(keys==null || StringUtils.isBlank(keys.get("publishableKey"))) {
+			if(errorFields==null) {
+				errorFields = new ArrayList<String>();
+			}
+			errorFields.add("publishableKey");
+		}
+		
+		
+		if(errorFields!=null) {
+			IntegrationException ex = new IntegrationException(IntegrationException.ERROR_VALIDATION_SAVE);
+			ex.setErrorFields(errorFields);
+			throw ex;
+			
+		}
 		
 		
 		
@@ -473,7 +473,7 @@ public class StripePayment implements PaymentModule {
 		  
 	} else if (ex instanceof InvalidRequestException) {
 		LOGGER.error("InvalidRequest error with stripe", ex.getMessage());
-		InvalidRequestException e =(InvalidRequestException)ex;
+//		InvalidRequestException e =(InvalidRequestException)ex;
 		IntegrationException te = new IntegrationException(
 				"Can't process Stripe, missing invalid payment parameters");
 		te.setExceptionType(IntegrationException.TRANSACTION_EXCEPTION);
@@ -483,7 +483,7 @@ public class StripePayment implements PaymentModule {
 		
 	} else if (ex instanceof AuthenticationException) {
 		LOGGER.error("Authentication error with stripe", ex.getMessage());
-		AuthenticationException e = (AuthenticationException)ex;
+//		AuthenticationException e = (AuthenticationException)ex;
 		  // Authentication with Stripe's API failed
 		  // (maybe you changed API keys recently)
 		IntegrationException te = new IntegrationException(
@@ -495,7 +495,7 @@ public class StripePayment implements PaymentModule {
 		
 	} else if (ex instanceof APIConnectionException) {
 		LOGGER.error("API connection error with stripe", ex.getMessage());
-		APIConnectionException e = (APIConnectionException)ex;
+//		APIConnectionException e = (APIConnectionException)ex;
 		  // Network communication with Stripe failed
 		IntegrationException te = new IntegrationException(
 				"Can't process Stripe, missing invalid payment parameters");
@@ -505,7 +505,7 @@ public class StripePayment implements PaymentModule {
 		return te;
 	} else if (ex instanceof StripeException) {
 		LOGGER.error("Error with stripe", ex.getMessage());
-		StripeException e = (StripeException)ex;
+//		StripeException e = (StripeException)ex;
 		  // Display a very generic error to the user, and maybe send
 		  // yourself an email
 		IntegrationException te = new IntegrationException(

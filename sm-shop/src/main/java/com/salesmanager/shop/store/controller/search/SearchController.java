@@ -20,9 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.salesmanager.core.business.services.catalog.category.CategoryService;
-import com.salesmanager.core.business.services.catalog.product.PricingService;
-import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.merchant.MerchantStoreService;
 import com.salesmanager.core.business.services.reference.language.LanguageService;
 import com.salesmanager.core.business.services.search.SearchService;
@@ -40,6 +37,10 @@ import com.salesmanager.shop.utils.ImageFilePath;
 @Controller
 public class SearchController {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
+	
+	private final static int AUTOCOMPLETE_ENTRIES_COUNT = 15;
+	
 	@Inject
 	private MerchantStoreService merchantStoreService;
 	
@@ -49,14 +50,15 @@ public class SearchController {
 	@Inject
 	private SearchService searchService;
 	
-	@Inject
-	private ProductService productService;
-	
-	@Inject
-	private CategoryService categoryService;
-	
-	@Inject
-	private PricingService pricingService;
+//	@Inject
+//	private ProductService productService;
+//	
+//	@Inject
+//	private CategoryService categoryService;
+//	
+//	@Inject
+//	private PricingService pricingService;
+
 	
 	@Inject
 	private SearchFacade searchFacade;
@@ -64,11 +66,6 @@ public class SearchController {
 	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
-
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
-	
-	private final static int AUTOCOMPLETE_ENTRIES_COUNT = 15;
 
 	
 	
@@ -122,6 +119,28 @@ public class SearchController {
 		
 	}
 
+	
+	/**
+	 * Displays the search page after a search query post
+	 * @param query
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value={"/shop/search/search.html"}, method=RequestMethod.POST)
+	public String displaySearch(@RequestParam("q") String query, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
+
+		model.addAttribute("q",query);
+		
+		/** template **/
+		StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Search.search).append(".").append(store.getStoreTemplate());
+		return template.toString();
+	}
 	
 	/**
 	 * Displays the search result page
@@ -185,28 +204,6 @@ public class SearchController {
 		
 		return returnList;
 		
-	}
-	
-	/**
-	 * Displays the search page after a search query post
-	 * @param query
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value={"/shop/search/search.html"}, method=RequestMethod.POST)
-	public String displaySearch(@RequestParam("q") String query, Model model, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
-
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.MERCHANT_STORE);
-
-		model.addAttribute("q",query);
-		
-		/** template **/
-		StringBuilder template = new StringBuilder().append(ControllerConstants.Tiles.Search.search).append(".").append(store.getStoreTemplate());
-		return template.toString();
 	}
 	
 	

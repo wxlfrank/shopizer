@@ -47,26 +47,6 @@ public class TransactionServiceImpl  extends SalesManagerEntityServiceImpl<Long,
 	}
 	
 	@Override
-	public List<Transaction> listTransactions(Order order) throws ServiceException {
-		
-		List<Transaction> transactions = transactionRepository.findByOrder(order.getId());
-		ObjectMapper mapper = new ObjectMapper();
-		for(Transaction transaction : transactions) {
-				if(!StringUtils.isBlank(transaction.getDetails())) {
-					try {
-						@SuppressWarnings("unchecked")
-						Map<String,String> objects = mapper.readValue(transaction.getDetails(), Map.class);
-						transaction.setTransactionDetails(objects);
-					} catch (Exception e) {
-						throw new ServiceException(e);
-					}
-				}
-		}
-		
-		return transactions;
-	}
-
-	@Override
 	public Transaction getCapturableTransaction(Order order)
 			throws ServiceException {
 		List<Transaction> transactions = transactionRepository.findByOrder(order.getId());
@@ -95,7 +75,7 @@ public class TransactionServiceImpl  extends SalesManagerEntityServiceImpl<Long,
 		
 		return capturable;
 	}
-	
+
 	@Override
 	public Transaction getRefundableTransaction(Order order)
 		throws ServiceException {
@@ -150,11 +130,31 @@ public class TransactionServiceImpl  extends SalesManagerEntityServiceImpl<Long,
 		
 		return finalTransaction;
 	}
-
+	
 	@Override
 	public List<Transaction> listTransactions(Date startDate, Date endDate) throws ServiceException {
 		
 		return transactionRepository.findByDates(startDate, endDate);
+	}
+
+	@Override
+	public List<Transaction> listTransactions(Order order) throws ServiceException {
+		
+		List<Transaction> transactions = transactionRepository.findByOrder(order.getId());
+		ObjectMapper mapper = new ObjectMapper();
+		for(Transaction transaction : transactions) {
+				if(!StringUtils.isBlank(transaction.getDetails())) {
+					try {
+						@SuppressWarnings("unchecked")
+						Map<String,String> objects = mapper.readValue(transaction.getDetails(), Map.class);
+						transaction.setTransactionDetails(objects);
+					} catch (Exception e) {
+						throw new ServiceException(e);
+					}
+				}
+		}
+		
+		return transactions;
 	}
 
 }

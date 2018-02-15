@@ -32,6 +32,95 @@ public class MerchantConfig implements Serializable, JSONAware {
 	private Map<String,Boolean> useDefaultSearchConfig= new HashMap<String,Boolean>();//language code | true or false
 	private Map<String,String> defaultSearchConfigPath= new HashMap<String,String>();//language code | file path
 
+	public Map<String,String> getDefaultSearchConfigPath() {
+		return defaultSearchConfigPath;
+	}
+
+	public Map<String,Boolean> getUseDefaultSearchConfig() {
+		return useDefaultSearchConfig;
+	}
+
+	public boolean isAllowPurchaseItems() {
+		return allowPurchaseItems;
+	}
+
+	public boolean isDebugMode() {
+		return debugMode;
+	}
+
+	public boolean isDisplayAddToCartOnFeaturedItems() {
+		return displayAddToCartOnFeaturedItems;
+	}
+
+	public boolean isDisplayContactUs() {
+		return displayContactUs;
+	}
+
+	public boolean isDisplayCustomerAgreement() {
+		return displayCustomerAgreement;
+	}
+
+	public boolean isDisplayCustomerSection() {
+		return displayCustomerSection;
+	}
+
+	public boolean isDisplaySearchBox() {
+		return displaySearchBox;
+	}
+
+	public boolean isDisplayStoreAddress() {
+		return displayStoreAddress;
+	}
+
+	public boolean isTestMode() {
+		return testMode;
+	}
+
+	public void setAllowPurchaseItems(boolean allowPurchaseItems) {
+		this.allowPurchaseItems = allowPurchaseItems;
+	}
+
+	public void setDebugMode(boolean debugMode) {
+		this.debugMode = debugMode;
+	}
+
+	public void setDefaultSearchConfigPath(Map<String,String> defaultSearchConfigPath) {
+		this.defaultSearchConfigPath = defaultSearchConfigPath;
+	}
+
+	public void setDisplayAddToCartOnFeaturedItems(
+			boolean displayAddToCartOnFeaturedItems) {
+		this.displayAddToCartOnFeaturedItems = displayAddToCartOnFeaturedItems;
+	}
+
+	public void setDisplayContactUs(boolean displayContactUs) {
+		this.displayContactUs = displayContactUs;
+	}
+
+	public void setDisplayCustomerAgreement(boolean displayCustomerAgreement) {
+		this.displayCustomerAgreement = displayCustomerAgreement;
+	}
+
+	public void setDisplayCustomerSection(boolean displayCustomerSection) {
+		this.displayCustomerSection = displayCustomerSection;
+	}
+
+	public void setDisplaySearchBox(boolean displaySearchBox) {
+		this.displaySearchBox = displaySearchBox;
+	}
+
+	public void setDisplayStoreAddress(boolean displayStoreAddress) {
+		this.displayStoreAddress = displayStoreAddress;
+	}
+
+	public void setTestMode(boolean testMode) {
+		this.testMode = testMode;
+	}
+
+	public void setUseDefaultSearchConfig(Map<String,Boolean> useDefaultSearchConfig) {
+		this.useDefaultSearchConfig = useDefaultSearchConfig;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public String toJSONString() {
@@ -70,95 +159,6 @@ public class MerchantConfig implements Serializable, JSONAware {
 		
 		
 		return data.toJSONString();
-	}
-
-	public void setDisplayCustomerSection(boolean displayCustomerSection) {
-		this.displayCustomerSection = displayCustomerSection;
-	}
-
-	public boolean isDisplayCustomerSection() {
-		return displayCustomerSection;
-	}
-
-	public void setDisplayContactUs(boolean displayContactUs) {
-		this.displayContactUs = displayContactUs;
-	}
-
-	public boolean isDisplayContactUs() {
-		return displayContactUs;
-	}
-
-	public boolean isDisplayStoreAddress() {
-		return displayStoreAddress;
-	}
-
-	public void setDisplayStoreAddress(boolean displayStoreAddress) {
-		this.displayStoreAddress = displayStoreAddress;
-	}
-
-	public void setUseDefaultSearchConfig(Map<String,Boolean> useDefaultSearchConfig) {
-		this.useDefaultSearchConfig = useDefaultSearchConfig;
-	}
-
-	public Map<String,Boolean> getUseDefaultSearchConfig() {
-		return useDefaultSearchConfig;
-	}
-
-	public void setDefaultSearchConfigPath(Map<String,String> defaultSearchConfigPath) {
-		this.defaultSearchConfigPath = defaultSearchConfigPath;
-	}
-
-	public Map<String,String> getDefaultSearchConfigPath() {
-		return defaultSearchConfigPath;
-	}
-
-	public void setDisplayAddToCartOnFeaturedItems(
-			boolean displayAddToCartOnFeaturedItems) {
-		this.displayAddToCartOnFeaturedItems = displayAddToCartOnFeaturedItems;
-	}
-
-	public boolean isDisplayAddToCartOnFeaturedItems() {
-		return displayAddToCartOnFeaturedItems;
-	}
-
-	public boolean isDisplayCustomerAgreement() {
-		return displayCustomerAgreement;
-	}
-
-	public void setDisplayCustomerAgreement(boolean displayCustomerAgreement) {
-		this.displayCustomerAgreement = displayCustomerAgreement;
-	}
-
-	public boolean isAllowPurchaseItems() {
-		return allowPurchaseItems;
-	}
-
-	public void setAllowPurchaseItems(boolean allowPurchaseItems) {
-		this.allowPurchaseItems = allowPurchaseItems;
-	}
-
-	public boolean isDisplaySearchBox() {
-		return displaySearchBox;
-	}
-
-	public void setDisplaySearchBox(boolean displaySearchBox) {
-		this.displaySearchBox = displaySearchBox;
-	}
-
-	public boolean isTestMode() {
-		return testMode;
-	}
-
-	public void setTestMode(boolean testMode) {
-		this.testMode = testMode;
-	}
-
-	public boolean isDebugMode() {
-		return debugMode;
-	}
-
-	public void setDebugMode(boolean debugMode) {
-		this.debugMode = debugMode;
 	}
 
 }

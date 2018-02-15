@@ -28,12 +28,12 @@ public class PersistableTransaction extends TransactionEntity implements Seriali
 		return paymentType;
 	}
 
-	public void setPaymentType(String paymentType) {
-		this.paymentType = paymentType;
-	}
-
 	public String getTransactionType() {
 		return transactionType;
+	}
+
+	public void setPaymentType(String paymentType) {
+		this.paymentType = paymentType;
 	}
 
 	public void setTransactionType(String transactionType) {

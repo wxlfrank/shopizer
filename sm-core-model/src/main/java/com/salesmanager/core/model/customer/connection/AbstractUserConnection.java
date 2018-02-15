@@ -29,75 +29,75 @@ public abstract class AbstractUserConnection<P> implements RemoteUser,
 		return accessToken;
 	}
 
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
-	}
-
 	public String getDisplayName() {
 		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
 	}
 
 	public Long getExpireTime() {
 		return expireTime;
 	}
 
-	public void setExpireTime(Long expireTime) {
-		this.expireTime = expireTime;
-	}
-
 	public String getImageUrl() {
 		return imageUrl;
-	}
-
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
 	}
 
 	public String getProfileUrl() {
 		return profileUrl;
 	}
 
-	public void setProfileUrl(String profileUrl) {
-		this.profileUrl = profileUrl;
-	}
-
 	public abstract String getProviderId();
-
-	public abstract void setProviderId(String providerId);
 
 	public abstract String getProviderUserId();
 
-	public abstract void setProviderUserId(String providerUserId);
-
 	public int getRank() {
 		return rank;
-	}
-
-	public void setRank(int rank) {
-		this.rank = rank;
 	}
 
 	public String getRefreshToken() {
 		return refreshToken;
 	}
 
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
-	}
-
 	public String getSecret() {
 		return secret;
+	}
+
+	public abstract String getUserId();
+
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
+	public void setExpireTime(Long expireTime) {
+		this.expireTime = expireTime;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	public void setProfileUrl(String profileUrl) {
+		this.profileUrl = profileUrl;
+	}
+
+	public abstract void setProviderId(String providerId);
+
+	public abstract void setProviderUserId(String providerUserId);
+
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
 	}
 
 	public void setSecret(String secret) {
 		this.secret = secret;
 	}
-
-	public abstract String getUserId();
 
 	public abstract void setUserId(String userId);
 

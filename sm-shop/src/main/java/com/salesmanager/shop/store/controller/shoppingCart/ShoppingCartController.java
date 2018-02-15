@@ -1,7 +1,6 @@
 package com.salesmanager.shop.store.controller.shoppingCart;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -22,12 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.salesmanager.core.business.services.catalog.product.PricingService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
-import com.salesmanager.core.business.services.catalog.product.attribute.ProductAttributeService;
-import com.salesmanager.core.business.services.order.OrderService;
 import com.salesmanager.core.business.services.shoppingcart.ShoppingCartService;
-import com.salesmanager.core.business.utils.ProductPriceUtils;
 import com.salesmanager.core.business.utils.ajax.AjaxResponse;
 import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.customer.Customer;
@@ -96,20 +91,20 @@ public class ShoppingCartController extends AbstractController {
 	@Inject
 	private ProductService productService;
 
-	@Inject
-	private ProductAttributeService productAttributeService;
-
-	@Inject
-	private PricingService pricingService;
-
-	@Inject
-	private OrderService orderService;
+//	@Inject
+//	private ProductAttributeService productAttributeService;
+//
+//	@Inject
+//	private PricingService pricingService;
+//
+//	@Inject
+//	private OrderService orderService;
 
 	@Inject
 	private ShoppingCartService shoppingCartService;
 
-	@Inject
-	private ProductPriceUtils productPriceUtils;
+//	@Inject
+//	private ProductPriceUtils productPriceUtils;
 
 	@Inject
 	private ShoppingCartFacade shoppingCartFacade;
@@ -347,6 +342,45 @@ public class ShoppingCartController extends AbstractController {
 
 
 	/**
+	 * Update the quantity of an item in the Shopping Cart (AJAX exposed method)
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value={"/updateShoppingCartItem.html"},  method = { RequestMethod.POST })
+	public @ResponseBody String updateShoppingCartItem( @RequestBody final ShoppingCartItem[] shoppingCartItems, final HttpServletRequest request, final  HttpServletResponse response)  {
+
+		AjaxResponse ajaxResponse = new AjaxResponse();
+		
+		
+		
+//	    MerchantStore store = getSessionAttribute(Constants.MERCHANT_STORE, request);
+//	    Language language = (Language)request.getAttribute(Constants.LANGUAGE);
+
+        
+        String cartCode = (String)request.getSession().getAttribute(Constants.SHOPPING_CART);
+        
+        if(StringUtils.isBlank(cartCode)) {
+        	return "redirect:/shop";
+        }
+        
+        try {
+//        	List<ShoppingCartItem> items = Arrays.asList(shoppingCartItems);
+//			ShoppingCartData shoppingCart = shoppingCartFacade.updateCartItems(items, store, language);
+			ajaxResponse.setStatus(AjaxResponse.RESPONSE_STATUS_SUCCESS);
+
+		} catch (Exception e) {
+			LOG.error("Excption while updating cart" ,e);
+			ajaxResponse.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+		}
+
+        	return ajaxResponse.toJSONString();
+
+
+	}
+
+	/**
 	 * Removes an item from the Shopping Cart (AJAX exposed method)
 	 * @param request
 	 * @param response
@@ -401,45 +435,6 @@ public class ShoppingCartController extends AbstractController {
 		return Constants.REDIRECT_PREFIX + "/shop/cart/shoppingCart.html";
 
 
-
-
-	}
-
-	/**
-	 * Update the quantity of an item in the Shopping Cart (AJAX exposed method)
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value={"/updateShoppingCartItem.html"},  method = { RequestMethod.POST })
-	public @ResponseBody String updateShoppingCartItem( @RequestBody final ShoppingCartItem[] shoppingCartItems, final HttpServletRequest request, final  HttpServletResponse response)  {
-
-		AjaxResponse ajaxResponse = new AjaxResponse();
-		
-		
-		
-	    MerchantStore store = getSessionAttribute(Constants.MERCHANT_STORE, request);
-	    Language language = (Language)request.getAttribute(Constants.LANGUAGE);
-
-        
-        String cartCode = (String)request.getSession().getAttribute(Constants.SHOPPING_CART);
-        
-        if(StringUtils.isBlank(cartCode)) {
-        	return "redirect:/shop";
-        }
-        
-        try {
-        	List<ShoppingCartItem> items = Arrays.asList(shoppingCartItems);
-			ShoppingCartData shoppingCart = shoppingCartFacade.updateCartItems(items, store, language);
-			ajaxResponse.setStatus(AjaxResponse.RESPONSE_STATUS_SUCCESS);
-
-		} catch (Exception e) {
-			LOG.error("Excption while updating cart" ,e);
-			ajaxResponse.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-		}
-
-        	return ajaxResponse.toJSONString();
 
 
 	}

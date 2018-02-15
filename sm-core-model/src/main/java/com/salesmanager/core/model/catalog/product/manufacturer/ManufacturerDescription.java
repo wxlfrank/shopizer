@@ -39,35 +39,35 @@ public class ManufacturerDescription extends Description {
 	public ManufacturerDescription() {
 	}
 
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public Integer getUrlClicked() {
-		return urlClicked;
-	}
-
-	public void setUrlClicked(Integer urlClicked) {
-		this.urlClicked = urlClicked;
-	}
-
 	public Date getDateLastClick() {
 		return dateLastClick;
-	}
-
-	public void setDateLastClick(Date dateLastClick) {
-		this.dateLastClick = dateLastClick;
 	}
 
 	public Manufacturer getManufacturer() {
 		return manufacturer;
 	}
 
+	public String getUrl() {
+		return url;
+	}
+
+	public Integer getUrlClicked() {
+		return urlClicked;
+	}
+
+	public void setDateLastClick(Date dateLastClick) {
+		this.dateLastClick = dateLastClick;
+	}
+
 	public void setManufacturer(Manufacturer manufacturer) {
 		this.manufacturer = manufacturer;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public void setUrlClicked(Integer urlClicked) {
+		this.urlClicked = urlClicked;
 	}
 }

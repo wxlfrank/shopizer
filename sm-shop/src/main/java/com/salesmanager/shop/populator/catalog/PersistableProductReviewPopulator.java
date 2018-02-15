@@ -38,12 +38,16 @@ public class PersistableProductReviewPopulator extends
 	
 
 
+	public CustomerService getCustomerService() {
+		return customerService;
+	}
+
 	public LanguageService getLanguageService() {
 		return languageService;
 	}
 
-	public void setLanguageService(LanguageService languageService) {
-		this.languageService = languageService;
+	public ProductService getProductService() {
+		return productService;
 	}
 
 	@Override
@@ -114,26 +118,22 @@ public class PersistableProductReviewPopulator extends
 		}
 		
 	}
+	
+	public void setCustomerService(CustomerService customerService) {
+		this.customerService = customerService;
+	}
+
+	public void setLanguageService(LanguageService languageService) {
+		this.languageService = languageService;
+	}
+	
+	public void setProductService(ProductService productService) {
+		this.productService = productService;
+	}
 
 	@Override
 	protected ProductReview createTarget() {
 		return null;
-	}
-	
-	public CustomerService getCustomerService() {
-		return customerService;
-	}
-
-	public void setCustomerService(CustomerService customerService) {
-		this.customerService = customerService;
-	}
-	
-	public ProductService getProductService() {
-		return productService;
-	}
-
-	public void setProductService(ProductService productService) {
-		this.productService = productService;
 	}
 
 

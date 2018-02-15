@@ -40,12 +40,12 @@ public class CustomerOptionDescription extends Description {
 		return customerOption;
 	}
 
-	public void setCustomerOption(CustomerOption customerOption) {
-		this.customerOption = customerOption;
-	}
-
 	public String getCustomerOptionComment() {
 		return customerOptionComment;
+	}
+
+	public void setCustomerOption(CustomerOption customerOption) {
+		this.customerOption = customerOption;
 	}
 
 	public void setCustomerOptionComment(String customerOptionComment) {

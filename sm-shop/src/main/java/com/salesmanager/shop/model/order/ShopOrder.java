@@ -38,55 +38,55 @@ public class ShopOrder extends PersistableOrder implements Serializable {
 	private String errorMessage = null;
 
 	
-	public void setShoppingCartItems(List<ShoppingCartItem> shoppingCartItems) {
-		this.shoppingCartItems = shoppingCartItems;
-	}
-	public List<ShoppingCartItem> getShoppingCartItems() {
-		return shoppingCartItems;
-	}
-
-	public void setOrderTotalSummary(OrderTotalSummary orderTotalSummary) {
-		this.orderTotalSummary = orderTotalSummary;
-	}
-	public OrderTotalSummary getOrderTotalSummary() {
-		return orderTotalSummary;
-	}
-
-	public ShippingSummary getShippingSummary() {
-		return shippingSummary;
-	}
-	public void setShippingSummary(ShippingSummary shippingSummary) {
-		this.shippingSummary = shippingSummary;
-	}
-	public ShippingOption getSelectedShippingOption() {
-		return selectedShippingOption;
-	}
-	public void setSelectedShippingOption(ShippingOption selectedShippingOption) {
-		this.selectedShippingOption = selectedShippingOption;
+	public String getDefaultPaymentMethodCode() {
+		return defaultPaymentMethodCode;
 	}
 	public String getErrorMessage() {
 		return errorMessage;
 	}
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
-	public String getPaymentMethodType() {
-		return paymentMethodType;
-	}
-	public void setPaymentMethodType(String paymentMethodType) {
-		this.paymentMethodType = paymentMethodType;
+
+	public OrderTotalSummary getOrderTotalSummary() {
+		return orderTotalSummary;
 	}
 	public Map<String,String> getPayment() {
 		return payment;
 	}
-	public void setPayment(Map<String,String> payment) {
-		this.payment = payment;
+
+	public String getPaymentMethodType() {
+		return paymentMethodType;
 	}
-	public String getDefaultPaymentMethodCode() {
-		return defaultPaymentMethodCode;
+	public ShippingOption getSelectedShippingOption() {
+		return selectedShippingOption;
+	}
+	public ShippingSummary getShippingSummary() {
+		return shippingSummary;
+	}
+	public List<ShoppingCartItem> getShoppingCartItems() {
+		return shoppingCartItems;
 	}
 	public void setDefaultPaymentMethodCode(String defaultPaymentMethodCode) {
 		this.defaultPaymentMethodCode = defaultPaymentMethodCode;
+	}
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+	public void setOrderTotalSummary(OrderTotalSummary orderTotalSummary) {
+		this.orderTotalSummary = orderTotalSummary;
+	}
+	public void setPayment(Map<String,String> payment) {
+		this.payment = payment;
+	}
+	public void setPaymentMethodType(String paymentMethodType) {
+		this.paymentMethodType = paymentMethodType;
+	}
+	public void setSelectedShippingOption(ShippingOption selectedShippingOption) {
+		this.selectedShippingOption = selectedShippingOption;
+	}
+	public void setShippingSummary(ShippingSummary shippingSummary) {
+		this.shippingSummary = shippingSummary;
+	}
+	public void setShoppingCartItems(List<ShoppingCartItem> shoppingCartItems) {
+		this.shoppingCartItems = shoppingCartItems;
 	}
 
 

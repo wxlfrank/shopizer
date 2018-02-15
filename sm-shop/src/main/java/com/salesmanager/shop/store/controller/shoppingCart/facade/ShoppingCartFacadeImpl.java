@@ -85,21 +85,6 @@ public class ShoppingCartFacadeImpl
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
 
-    public void deleteShoppingCart(final Long id, final MerchantStore store) throws Exception {
-    	ShoppingCart cart = shoppingCartService.getById(id, store);
-    	if(cart!=null) {
-    		shoppingCartService.deleteCart(cart);
-    	}
-    }
-    
-    @Override
-    public void deleteShoppingCart(final String code, final MerchantStore store) throws Exception {
-    	ShoppingCart cart = shoppingCartService.getByCode(code, store);
-    	if(cart!=null) {
-    		shoppingCartService.deleteCart(cart);
-    	}
-    }
-
     @Override
     public ShoppingCartData addItemsToShoppingCart( final ShoppingCartData shoppingCartData,
                                                     final ShoppingCartItem item, final MerchantStore store, final Language language,final Customer customer )
@@ -167,154 +152,73 @@ public class ShoppingCartFacadeImpl
 
         return shoppingCartDataPopulator.populate( cartModel, store, language );
     }
-
-    private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem( final ShoppingCart cartModel,
-                                                                                               final ShoppingCartItem shoppingCartItem,
-                                                                                               final MerchantStore store )
-        throws Exception
-    {
-
-        Product product = productService.getById( shoppingCartItem.getProductId() );
-
-        if ( product == null )
-        {
-            throw new Exception( "Item with id " + shoppingCartItem.getProductId() + " does not exist" );
-        }
-
-        if ( product.getMerchantStore().getId().intValue() != store.getId().intValue() )
-        {
-            throw new Exception( "Item with id " + shoppingCartItem.getProductId() + " does not belong to merchant "
-                + store.getId() );
-        }
-        
-		/**
-		 * Check if product quantity is 0
-		 * Check if product is available
-		 * Check if date available <= now
-		 */
-        
-        Set<ProductAvailability> availabilities = product.getAvailabilities();
-        if(availabilities == null) {
-        	
-        	throw new Exception( "Item with id " + product.getId() + " is not properly configured" );
-        	
-        }
-        	
-        for(ProductAvailability availability : availabilities) {
-        	if(availability.getProductQuantity() == null || availability.getProductQuantity().intValue() ==0) {
-                throw new Exception( "Item with id " + product.getId() + " is not available");
-        	}
-        }
-        
-        if(!product.isAvailable()) {
-        	throw new Exception( "Item with id " + product.getId() + " is not available");
-        }
-        
-        if(!DateUtil.dateBeforeEqualsDate(product.getDateAvailable(), new Date())) {
-        	throw new Exception( "Item with id " + product.getId() + " is not available");
-        }
-
-
-        com.salesmanager.core.model.shoppingcart.ShoppingCartItem item =
-            shoppingCartService.populateShoppingCartItem( product );
-
-        item.setQuantity( shoppingCartItem.getQuantity() );
-        item.setShoppingCart( cartModel );
-
-        // attributes
-        List<ShoppingCartAttribute> cartAttributes = shoppingCartItem.getShoppingCartAttributes();
-        if ( !CollectionUtils.isEmpty( cartAttributes ) )
-        {
-            for ( ShoppingCartAttribute attribute : cartAttributes )
-            {
-                ProductAttribute productAttribute = productAttributeService.getById( attribute.getAttributeId() );
-                if ( productAttribute != null
-                    && productAttribute.getProduct().getId().longValue() == product.getId().longValue() )
-                {
-                    com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem attributeItem =
-                        new com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem( item,
-                                                                                                         productAttribute );
-
-                    item.addAttributes( attributeItem );
-                }
-            }
-        }
-        return item;
-
-    }
-
     
-    //used for api
-	private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem(ShoppingCart cartModel,
-			 PersistableShoppingCartItem shoppingCartItem, MerchantStore store) throws Exception {
-
-		Product product = productService.getById(shoppingCartItem.getProduct());
-
-		if (product == null) {
-			throw new Exception("Item with id " + shoppingCartItem.getProduct() + " does not exist");
-		}
-
-		if (product.getMerchantStore().getId().intValue() != store.getId().intValue()) {
-			throw new Exception("Item with id " + shoppingCartItem.getProduct() + " does not belong to merchant "
-					+ store.getId());
+    @Override
+	public ReadableShoppingCart addToCart(Customer customer, PersistableShoppingCartItem item, MerchantStore store,
+			Language language) throws Exception {
+		
+		Validate.notNull(customer,"Customer cannot be null");
+		Validate.notNull(customer.getId(),"Customer.id cannot be null or empty");
+		
+		//Check if customer has an existing shopping cart
+		ShoppingCart cartModel = shoppingCartService.getByCustomer(customer);
+		
+		//if cart does not exist create a new one
+		if(cartModel==null) {
+			cartModel = new ShoppingCart();
+			cartModel.setCustomerId(customer.getId());
+			cartModel.setMerchantStore(store);
+			cartModel.setShoppingCartCode(uniqueShoppingCartCode());
 		}
 		
-		/**
-		 * Check if product quantity is 0
-		 * Check if product is available
-		 * Check if date available <= now
-		 */
-        
-        Set<ProductAvailability> availabilities = product.getAvailabilities();
-        if(availabilities == null) {
-        	
-        	throw new Exception( "Item with id " + product.getId() + " is not properly configured" );
-        	
-        }
-        	
-        for(ProductAvailability availability : availabilities) {
-        	if(availability.getProductQuantity() == null || availability.getProductQuantity().intValue() ==0) {
-                throw new Exception( "Item with id " + product.getId() + " is not available");
+		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemModel = createCartItem(cartModel, item, store);
+		
+		//need to check if the item is already in the cart
+        boolean duplicateFound = false;
+        //only if item has no attributes
+        if(CollectionUtils.isEmpty(item.getAttributes())) {//increment quantity
+        	//get duplicate item from the cart
+        	Set<com.salesmanager.core.model.shoppingcart.ShoppingCartItem> cartModelItems = cartModel.getLineItems();
+        	for(com.salesmanager.core.model.shoppingcart.ShoppingCartItem cartItem : cartModelItems) {
+        		if(cartItem.getProduct().getId().longValue()==item.getProduct().longValue()) {
+        			if(CollectionUtils.isEmpty(cartItem.getAttributes())) {
+        				if(!duplicateFound) {
+        					if(!itemModel.isProductVirtual()) {
+	        					cartItem.setQuantity(cartItem.getQuantity() + item.getQuantity());
+        					}
+        					duplicateFound = true;
+        					break;
+        				}
+        			}
+        		}
         	}
+        } 
+        
+        if(!duplicateFound) {
+        	cartModel.getLineItems().add( itemModel );
         }
         
-        if(!product.isAvailable()) {
-        	throw new Exception( "Item with id " + product.getId() + " is not available");
-        }
+        saveShoppingCart( cartModel );
+
+        //refresh cart
+        cartModel = shoppingCartService.getById(cartModel.getId(), store);
+
+        shoppingCartCalculationService.calculate( cartModel, store, language );
         
-        if(!DateUtil.dateBeforeEqualsDate(product.getDateAvailable(), new Date())) {
-        	throw new Exception( "Item with id " + product.getId() + " is not available");
-        }
+        ReadableShoppingCartPopulator readableShoppingCart = new ReadableShoppingCartPopulator();
+        
+        readableShoppingCart.setImageUtils(imageUtils);
+        readableShoppingCart.setPricingService(pricingService);
+        readableShoppingCart.setProductAttributeService(productAttributeService);
+        readableShoppingCart.setShoppingCartCalculationService(shoppingCartCalculationService);
+  
+        ReadableShoppingCart readableCart = new  ReadableShoppingCart();
+        
+        readableShoppingCart.populate(cartModel, readableCart,  store, language);
+
 		
-
-		com.salesmanager.core.model.shoppingcart.ShoppingCartItem item = shoppingCartService
-				.populateShoppingCartItem(product);
-
-		item.setQuantity(shoppingCartItem.getQuantity());
-		item.setShoppingCart(cartModel);
-		
-		//set attributes
-		List<com.salesmanager.shop.model.catalog.product.attribute.ProductAttribute> attributes = shoppingCartItem.getAttributes();
-		if (!CollectionUtils.isEmpty(attributes)) {
-			for(com.salesmanager.shop.model.catalog.product.attribute.ProductAttribute attribute : attributes) {
-				
-				ProductAttribute productAttribute = productAttributeService.getById(attribute.getId());
-				
-				if (productAttribute != null
-						&& productAttribute.getProduct().getId().longValue() == product.getId().longValue()) {
-					
-					com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem attributeItem = new com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem(
-							item, productAttribute);
-
-					item.addAttributes(attributeItem);
-				}				
-			}
-		}
-
-		return item;
-
-	}   
-    
+		return readableCart;
+	}
 
     @Override
     public ShoppingCart createCartModel( final String shoppingCartCode, final MerchantStore store,final Customer customer )
@@ -340,34 +244,80 @@ public class ShoppingCartFacadeImpl
         return cartModel;
     }
 
-
-
-
-
-    private com.salesmanager.core.model.shoppingcart.ShoppingCartItem getEntryToUpdate( final long entryId,
-                                                                                                 final ShoppingCart cartModel )
-    {
-        if ( CollectionUtils.isNotEmpty( cartModel.getLineItems() ) )
-        {
-            for ( com.salesmanager.core.model.shoppingcart.ShoppingCartItem shoppingCartItem : cartModel.getLineItems() )
-            {
-                if ( shoppingCartItem.getId().longValue() == entryId )
-                {
-                    LOG.info( "Found line item  for given entry id: " + entryId );
-                    return shoppingCartItem;
-
-                }
-            }
-        }
-        LOG.info( "Unable to find any entry for given Id: " + entryId );
-        return null;
+    public void deleteShoppingCart(final Long id, final MerchantStore store) throws Exception {
+    	ShoppingCart cart = shoppingCartService.getById(id, store);
+    	if(cart!=null) {
+    		shoppingCartService.deleteCart(cart);
+    	}
     }
 
-    private Object getKeyValue( final String key )
-    {
-        ServletRequestAttributes reqAttr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        return reqAttr.getRequest().getAttribute( key );
-    }
+    
+    @Override
+    public void deleteShoppingCart(final String code, final MerchantStore store) throws Exception {
+    	ShoppingCart cart = shoppingCartService.getByCode(code, store);
+    	if(cart!=null) {
+    		shoppingCartService.deleteCart(cart);
+    	}
+    }   
+    
+
+    @Override
+	public ReadableShoppingCart getById(Long shoppingCartId, MerchantStore store, Language language) throws Exception {
+		// TODO Auto-generated method stub
+		ShoppingCart cart = shoppingCartService.getById(shoppingCartId);
+		
+		ReadableShoppingCart readableCart = null;
+		
+		if(cart != null) {
+			
+	        ReadableShoppingCartPopulator readableShoppingCart = new ReadableShoppingCartPopulator();
+	        
+	        readableShoppingCart.setImageUtils(imageUtils);
+	        readableShoppingCart.setPricingService(pricingService);
+	        readableShoppingCart.setProductAttributeService(productAttributeService);
+	        readableShoppingCart.setShoppingCartCalculationService(shoppingCartCalculationService);
+
+	        readableShoppingCart.populate(cart, readableCart,  store, language);
+			
+			
+		}
+		
+		return readableCart;
+	}
+
+
+
+
+
+    @Override
+	public ReadableShoppingCart getCart(Customer customer, MerchantStore store, Language language) throws Exception {
+		
+		Validate.notNull(customer,"Customer cannot be null");
+		Validate.notNull(customer.getId(),"Customer.id cannot be null or empty");
+		
+		//Check if customer has an existing shopping cart
+		ShoppingCart cartModel = shoppingCartService.getByCustomer(customer);
+		
+		if(cartModel == null) {
+			return null;
+		}
+		
+        shoppingCartCalculationService.calculate( cartModel, store, language );
+        
+        ReadableShoppingCartPopulator readableShoppingCart = new ReadableShoppingCartPopulator();
+        
+        readableShoppingCart.setImageUtils(imageUtils);
+        readableShoppingCart.setPricingService(pricingService);
+        readableShoppingCart.setProductAttributeService(productAttributeService);
+        readableShoppingCart.setShoppingCartCalculationService(shoppingCartCalculationService);
+  
+        ReadableShoppingCart readableCart = new  ReadableShoppingCart();
+        
+        readableShoppingCart.populate(cartModel, readableCart,  store, language);
+
+		
+		return readableCart;
+	}
 
     @Override
     public ShoppingCartData getShoppingCartData( final Customer customer, final MerchantStore store,
@@ -456,6 +406,43 @@ public class ShoppingCartFacadeImpl
     }
 
     @Override
+	public ShoppingCartData getShoppingCartData(String code, MerchantStore store, Language language) {
+		try {
+			ShoppingCart cartModel = shoppingCartService.getByCode( code, store );
+			if(cartModel!=null) {
+				ShoppingCartData cart = getShoppingCartData(cartModel, language);
+				return cart;
+			}
+		} catch( NoResultException nre) {
+	        	//nothing
+
+		} catch(Exception e) {
+			LOG.error("Cannot retrieve cart code " + code,e);
+		}
+
+
+		return null;
+	}
+
+    @Override
+	public ShoppingCart getShoppingCartModel(Customer customer,
+			MerchantStore store) throws Exception {
+		return shoppingCartService.getByCustomer(customer);
+	}
+
+    @Override
+	public ShoppingCart getShoppingCartModel(Long id, MerchantStore store) throws Exception {
+		return shoppingCartService.getById(id);
+	}
+    
+    @Override
+	public ShoppingCart getShoppingCartModel(String shoppingCartCode,
+			MerchantStore store) throws Exception {
+		return shoppingCartService.getByCode( shoppingCartCode, store );
+	}
+
+
+    @Override
     public ShoppingCartData removeCartItem( final Long itemID, final String cartId ,final MerchantStore store,final Language language )
         throws Exception
     {
@@ -467,8 +454,8 @@ public class ShoppingCartFacadeImpl
             {
                 if ( CollectionUtils.isNotEmpty( cartModel.getLineItems() ) )
                 {
-                    Set<com.salesmanager.core.model.shoppingcart.ShoppingCartItem> shoppingCartItemSet =
-                        new HashSet<com.salesmanager.core.model.shoppingcart.ShoppingCartItem>();
+//                    Set<com.salesmanager.core.model.shoppingcart.ShoppingCartItem> shoppingCartItemSet =
+//                        new HashSet<com.salesmanager.core.model.shoppingcart.ShoppingCartItem>();
                     for ( com.salesmanager.core.model.shoppingcart.ShoppingCartItem shoppingCartItem : cartModel.getLineItems() )
                     {
                         //if ( shoppingCartItem.getId().longValue() != itemID.longValue() )
@@ -495,7 +482,13 @@ public class ShoppingCartFacadeImpl
         return null;
     }
 
-    @Override
+	@Override
+	public void saveOrUpdateShoppingCart(ShoppingCart cart) throws Exception {
+		shoppingCartService.saveOrUpdate(cart);
+		
+	}
+
+	@Override
     public ShoppingCartData updateCartItem( final Long itemID, final String cartId, final long newQuantity,final MerchantStore store, final Language language )
         throws Exception
     {
@@ -538,8 +531,8 @@ public class ShoppingCartFacadeImpl
         }
         return null;
     }
-    
-    @Override
+
+	@Override
     public ShoppingCartData updateCartItems( final List<ShoppingCartItem> shoppingCartItems, final MerchantStore store, final Language language )
             throws Exception
         {
@@ -595,8 +588,153 @@ public class ShoppingCartFacadeImpl
 
         }
 
+	//used for api
+	private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem(ShoppingCart cartModel,
+			 PersistableShoppingCartItem shoppingCartItem, MerchantStore store) throws Exception {
 
-    private ShoppingCart getCartModel( final String cartId,final MerchantStore store )
+		Product product = productService.getById(shoppingCartItem.getProduct());
+
+		if (product == null) {
+			throw new Exception("Item with id " + shoppingCartItem.getProduct() + " does not exist");
+		}
+
+		if (product.getMerchantStore().getId().intValue() != store.getId().intValue()) {
+			throw new Exception("Item with id " + shoppingCartItem.getProduct() + " does not belong to merchant "
+					+ store.getId());
+		}
+		
+		/**
+		 * Check if product quantity is 0
+		 * Check if product is available
+		 * Check if date available <= now
+		 */
+        
+        Set<ProductAvailability> availabilities = product.getAvailabilities();
+        if(availabilities == null) {
+        	
+        	throw new Exception( "Item with id " + product.getId() + " is not properly configured" );
+        	
+        }
+        	
+        for(ProductAvailability availability : availabilities) {
+        	if(availability.getProductQuantity() == null || availability.getProductQuantity().intValue() ==0) {
+                throw new Exception( "Item with id " + product.getId() + " is not available");
+        	}
+        }
+        
+        if(!product.isAvailable()) {
+        	throw new Exception( "Item with id " + product.getId() + " is not available");
+        }
+        
+        if(!DateUtil.dateBeforeEqualsDate(product.getDateAvailable(), new Date())) {
+        	throw new Exception( "Item with id " + product.getId() + " is not available");
+        }
+		
+
+		com.salesmanager.core.model.shoppingcart.ShoppingCartItem item = shoppingCartService
+				.populateShoppingCartItem(product);
+
+		item.setQuantity(shoppingCartItem.getQuantity());
+		item.setShoppingCart(cartModel);
+		
+		//set attributes
+		List<com.salesmanager.shop.model.catalog.product.attribute.ProductAttribute> attributes = shoppingCartItem.getAttributes();
+		if (!CollectionUtils.isEmpty(attributes)) {
+			for(com.salesmanager.shop.model.catalog.product.attribute.ProductAttribute attribute : attributes) {
+				
+				ProductAttribute productAttribute = productAttributeService.getById(attribute.getId());
+				
+				if (productAttribute != null
+						&& productAttribute.getProduct().getId().longValue() == product.getId().longValue()) {
+					
+					com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem attributeItem = new com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem(
+							item, productAttribute);
+
+					item.addAttributes(attributeItem);
+				}				
+			}
+		}
+
+		return item;
+
+	}
+
+	private com.salesmanager.core.model.shoppingcart.ShoppingCartItem createCartItem( final ShoppingCart cartModel,
+                                                                                               final ShoppingCartItem shoppingCartItem,
+                                                                                               final MerchantStore store )
+        throws Exception
+    {
+
+        Product product = productService.getById( shoppingCartItem.getProductId() );
+
+        if ( product == null )
+        {
+            throw new Exception( "Item with id " + shoppingCartItem.getProductId() + " does not exist" );
+        }
+
+        if ( product.getMerchantStore().getId().intValue() != store.getId().intValue() )
+        {
+            throw new Exception( "Item with id " + shoppingCartItem.getProductId() + " does not belong to merchant "
+                + store.getId() );
+        }
+        
+		/**
+		 * Check if product quantity is 0
+		 * Check if product is available
+		 * Check if date available <= now
+		 */
+        
+        Set<ProductAvailability> availabilities = product.getAvailabilities();
+        if(availabilities == null) {
+        	
+        	throw new Exception( "Item with id " + product.getId() + " is not properly configured" );
+        	
+        }
+        	
+        for(ProductAvailability availability : availabilities) {
+        	if(availability.getProductQuantity() == null || availability.getProductQuantity().intValue() ==0) {
+                throw new Exception( "Item with id " + product.getId() + " is not available");
+        	}
+        }
+        
+        if(!product.isAvailable()) {
+        	throw new Exception( "Item with id " + product.getId() + " is not available");
+        }
+        
+        if(!DateUtil.dateBeforeEqualsDate(product.getDateAvailable(), new Date())) {
+        	throw new Exception( "Item with id " + product.getId() + " is not available");
+        }
+
+
+        com.salesmanager.core.model.shoppingcart.ShoppingCartItem item =
+            shoppingCartService.populateShoppingCartItem( product );
+
+        item.setQuantity( shoppingCartItem.getQuantity() );
+        item.setShoppingCart( cartModel );
+
+        // attributes
+        List<ShoppingCartAttribute> cartAttributes = shoppingCartItem.getShoppingCartAttributes();
+        if ( !CollectionUtils.isEmpty( cartAttributes ) )
+        {
+            for ( ShoppingCartAttribute attribute : cartAttributes )
+            {
+                ProductAttribute productAttribute = productAttributeService.getById( attribute.getAttributeId() );
+                if ( productAttribute != null
+                    && productAttribute.getProduct().getId().longValue() == product.getId().longValue() )
+                {
+                    com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem attributeItem =
+                        new com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem( item,
+                                                                                                         productAttribute );
+
+                    item.addAttributes( attributeItem );
+                }
+            }
+        }
+        return item;
+
+    }
+
+	private ShoppingCart getCartModel( final String cartId,final MerchantStore store )
     {
         if ( StringUtils.isNotBlank( cartId ) )
         {
@@ -617,176 +755,38 @@ public class ShoppingCartFacadeImpl
         }
         return null;
     }
-
-	@Override
-	public ShoppingCartData getShoppingCartData(String code, MerchantStore store, Language language) {
-		try {
-			ShoppingCart cartModel = shoppingCartService.getByCode( code, store );
-			if(cartModel!=null) {
-				ShoppingCartData cart = getShoppingCartData(cartModel, language);
-				return cart;
-			}
-		} catch( NoResultException nre) {
-	        	//nothing
-
-		} catch(Exception e) {
-			LOG.error("Cannot retrieve cart code " + code,e);
-		}
-
-
-		return null;
-	}
-
-	@Override
-	public ShoppingCart getShoppingCartModel(String shoppingCartCode,
-			MerchantStore store) throws Exception {
-		return shoppingCartService.getByCode( shoppingCartCode, store );
-	}
-
-	@Override
-	public ShoppingCart getShoppingCartModel(Customer customer,
-			MerchantStore store) throws Exception {
-		return shoppingCartService.getByCustomer(customer);
-	}
-
-	@Override
-	public void saveOrUpdateShoppingCart(ShoppingCart cart) throws Exception {
-		shoppingCartService.saveOrUpdate(cart);
-		
-	}
-
-	@Override
-	public ReadableShoppingCart getCart(Customer customer, MerchantStore store, Language language) throws Exception {
-		
-		Validate.notNull(customer,"Customer cannot be null");
-		Validate.notNull(customer.getId(),"Customer.id cannot be null or empty");
-		
-		//Check if customer has an existing shopping cart
-		ShoppingCart cartModel = shoppingCartService.getByCustomer(customer);
-		
-		if(cartModel == null) {
-			return null;
-		}
-		
-        shoppingCartCalculationService.calculate( cartModel, store, language );
-        
-        ReadableShoppingCartPopulator readableShoppingCart = new ReadableShoppingCartPopulator();
-        
-        readableShoppingCart.setImageUtils(imageUtils);
-        readableShoppingCart.setPricingService(pricingService);
-        readableShoppingCart.setProductAttributeService(productAttributeService);
-        readableShoppingCart.setShoppingCartCalculationService(shoppingCartCalculationService);
-  
-        ReadableShoppingCart readableCart = new  ReadableShoppingCart();
-        
-        readableShoppingCart.populate(cartModel, readableCart,  store, language);
-
-		
-		return readableCart;
-	}
-
-	@Override
-	public ReadableShoppingCart addToCart(Customer customer, PersistableShoppingCartItem item, MerchantStore store,
-			Language language) throws Exception {
-		
-		Validate.notNull(customer,"Customer cannot be null");
-		Validate.notNull(customer.getId(),"Customer.id cannot be null or empty");
-		
-		//Check if customer has an existing shopping cart
-		ShoppingCart cartModel = shoppingCartService.getByCustomer(customer);
-		
-		//if cart does not exist create a new one
-		if(cartModel==null) {
-			cartModel = new ShoppingCart();
-			cartModel.setCustomerId(customer.getId());
-			cartModel.setMerchantStore(store);
-			cartModel.setShoppingCartCode(uniqueShoppingCartCode());
-		}
-		
-		com.salesmanager.core.model.shoppingcart.ShoppingCartItem itemModel = createCartItem(cartModel, item, store);
-		
-		//need to check if the item is already in the cart
-        boolean duplicateFound = false;
-        //only if item has no attributes
-        if(CollectionUtils.isEmpty(item.getAttributes())) {//increment quantity
-        	//get duplicate item from the cart
-        	Set<com.salesmanager.core.model.shoppingcart.ShoppingCartItem> cartModelItems = cartModel.getLineItems();
-        	for(com.salesmanager.core.model.shoppingcart.ShoppingCartItem cartItem : cartModelItems) {
-        		if(cartItem.getProduct().getId().longValue()==item.getProduct().longValue()) {
-        			if(CollectionUtils.isEmpty(cartItem.getAttributes())) {
-        				if(!duplicateFound) {
-        					if(!itemModel.isProductVirtual()) {
-	        					cartItem.setQuantity(cartItem.getQuantity() + item.getQuantity());
-        					}
-        					duplicateFound = true;
-        					break;
-        				}
-        			}
-        		}
-        	}
-        } 
-        
-        if(!duplicateFound) {
-        	cartModel.getLineItems().add( itemModel );
-        }
-        
-        saveShoppingCart( cartModel );
-
-        //refresh cart
-        cartModel = shoppingCartService.getById(cartModel.getId(), store);
-
-        shoppingCartCalculationService.calculate( cartModel, store, language );
-        
-        ReadableShoppingCartPopulator readableShoppingCart = new ReadableShoppingCartPopulator();
-        
-        readableShoppingCart.setImageUtils(imageUtils);
-        readableShoppingCart.setPricingService(pricingService);
-        readableShoppingCart.setProductAttributeService(productAttributeService);
-        readableShoppingCart.setShoppingCartCalculationService(shoppingCartCalculationService);
-  
-        ReadableShoppingCart readableCart = new  ReadableShoppingCart();
-        
-        readableShoppingCart.populate(cartModel, readableCart,  store, language);
-
-		
-		return readableCart;
-	}
 	
+	private com.salesmanager.core.model.shoppingcart.ShoppingCartItem getEntryToUpdate( final long entryId,
+                                                                                                 final ShoppingCart cartModel )
+    {
+        if ( CollectionUtils.isNotEmpty( cartModel.getLineItems() ) )
+        {
+            for ( com.salesmanager.core.model.shoppingcart.ShoppingCartItem shoppingCartItem : cartModel.getLineItems() )
+            {
+                if ( shoppingCartItem.getId().longValue() == entryId )
+                {
+                    LOG.info( "Found line item  for given entry id: " + entryId );
+                    return shoppingCartItem;
+
+                }
+            }
+        }
+        LOG.info( "Unable to find any entry for given Id: " + entryId );
+        return null;
+    }
+	
+	private Object getKeyValue( final String key )
+    {
+        ServletRequestAttributes reqAttr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        return reqAttr.getRequest().getAttribute( key );
+    }
+
 	private void saveShoppingCart(ShoppingCart shoppingCart) throws Exception {
 		shoppingCartService.save(shoppingCart);
 	}
-	
+
 	private String uniqueShoppingCartCode() {
 		return UUID.randomUUID().toString().replaceAll( "-", "" );
-	}
-
-	@Override
-	public ReadableShoppingCart getById(Long shoppingCartId, MerchantStore store, Language language) throws Exception {
-		// TODO Auto-generated method stub
-		ShoppingCart cart = shoppingCartService.getById(shoppingCartId);
-		
-		ReadableShoppingCart readableCart = null;
-		
-		if(cart != null) {
-			
-	        ReadableShoppingCartPopulator readableShoppingCart = new ReadableShoppingCartPopulator();
-	        
-	        readableShoppingCart.setImageUtils(imageUtils);
-	        readableShoppingCart.setPricingService(pricingService);
-	        readableShoppingCart.setProductAttributeService(productAttributeService);
-	        readableShoppingCart.setShoppingCartCalculationService(shoppingCartCalculationService);
-
-	        readableShoppingCart.populate(cart, readableCart,  store, language);
-			
-			
-		}
-		
-		return readableCart;
-	}
-
-	@Override
-	public ShoppingCart getShoppingCartModel(Long id, MerchantStore store) throws Exception {
-		return shoppingCartService.getById(id);
 	}
 
 

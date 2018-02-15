@@ -40,6 +40,8 @@ import com.salesmanager.shop.utils.LanguageUtils;
 @RequestMapping("/api/v1")
 public class OrderTotalApi {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(OrderTotalApi.class);
+	
 	@Inject
 	private StoreFacade storeFacade;
 	
@@ -63,8 +65,6 @@ public class OrderTotalApi {
 	
 	@Inject
 	private OrderService orderService;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(OrderTotalApi.class);
 	
 	/**
 	 * This service calculates order total for a given shopping cart

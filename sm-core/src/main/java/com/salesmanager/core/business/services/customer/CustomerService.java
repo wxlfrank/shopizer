@@ -17,15 +17,9 @@ public interface CustomerService  extends SalesManagerEntityService<Long, Custom
 
 	public List<Customer> getByName(String firstName);
 
-	List<Customer> listByStore(MerchantStore store);
-
 	Customer getByNick(String nick);
-	void saveOrUpdate(Customer customer) throws ServiceException ;
-
-	CustomerList listByStore(MerchantStore store, CustomerCriteria criteria);
 
 	Customer getByNick(String nick, int storeId);
-
 	/**
 	 * Return an {@link com.salesmanager.core.business.common.model.Address} object from the client IP address. Uses underlying GeoLocation module
 	 * @param store
@@ -35,6 +29,12 @@ public interface CustomerService  extends SalesManagerEntityService<Long, Custom
 	 */
 	Address getCustomerAddress(MerchantStore store, String ipAddress)
 			throws ServiceException;
+
+	List<Customer> listByStore(MerchantStore store);
+
+	CustomerList listByStore(MerchantStore store, CustomerCriteria criteria);
+
+	void saveOrUpdate(Customer customer) throws ServiceException ;
 
 
 }

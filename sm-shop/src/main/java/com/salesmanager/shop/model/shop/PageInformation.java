@@ -12,29 +12,29 @@ public class PageInformation implements Serializable {
 	private String pageDescription;
 	private String pageKeywords;
 	private String pageUrl;
-	public String getPageTitle() {
-		return pageTitle;
-	}
-	public void setPageTitle(String pageTitle) {
-		this.pageTitle = pageTitle;
-	}
 	public String getPageDescription() {
 		return pageDescription;
-	}
-	public void setPageDescription(String pageDescription) {
-		this.pageDescription = pageDescription;
 	}
 	public String getPageKeywords() {
 		return pageKeywords;
 	}
-	public void setPageKeywords(String pageKeywords) {
-		this.pageKeywords = pageKeywords;
-	}
-	public void setPageUrl(String pageUrl) {
-		this.pageUrl = pageUrl;
+	public String getPageTitle() {
+		return pageTitle;
 	}
 	public String getPageUrl() {
 		return pageUrl;
+	}
+	public void setPageDescription(String pageDescription) {
+		this.pageDescription = pageDescription;
+	}
+	public void setPageKeywords(String pageKeywords) {
+		this.pageKeywords = pageKeywords;
+	}
+	public void setPageTitle(String pageTitle) {
+		this.pageTitle = pageTitle;
+	}
+	public void setPageUrl(String pageUrl) {
+		this.pageUrl = pageUrl;
 	}
 
 }

@@ -47,60 +47,60 @@ public class ProductDescription extends Description {
 	public ProductDescription() {
 	}
 
-	public String getProductHighlight() {
-		return productHighlight;
-	}
-
-	public void setProductHighlight(String productHighlight) {
-		this.productHighlight = productHighlight;
-	}
-
-	public String getProductExternalDl() {
-		return productExternalDl;
-	}
-
-	public void setProductExternalDl(String productExternalDl) {
-		this.productExternalDl = productExternalDl;
-	}
-
-	public String getSeUrl() {
-		return seUrl;
-	}
-
-	public void setSeUrl(String seUrl) {
-		this.seUrl = seUrl;
-	}
-
-	public String getMetatagTitle() {
-		return metatagTitle;
-	}
-
-	public void setMetatagTitle(String metatagTitle) {
-		this.metatagTitle = metatagTitle;
+	public String getMetatagDescription() {
+		return metatagDescription;
 	}
 
 	public String getMetatagKeywords() {
 		return metatagKeywords;
 	}
 
-	public void setMetatagKeywords(String metatagKeywords) {
-		this.metatagKeywords = metatagKeywords;
-	}
-
-	public String getMetatagDescription() {
-		return metatagDescription;
-	}
-
-	public void setMetatagDescription(String metatagDescription) {
-		this.metatagDescription = metatagDescription;
+	public String getMetatagTitle() {
+		return metatagTitle;
 	}
 
 	public Product getProduct() {
 		return product;
 	}
 
+	public String getProductExternalDl() {
+		return productExternalDl;
+	}
+
+	public String getProductHighlight() {
+		return productHighlight;
+	}
+
+	public String getSeUrl() {
+		return seUrl;
+	}
+
+	public void setMetatagDescription(String metatagDescription) {
+		this.metatagDescription = metatagDescription;
+	}
+
+	public void setMetatagKeywords(String metatagKeywords) {
+		this.metatagKeywords = metatagKeywords;
+	}
+
+	public void setMetatagTitle(String metatagTitle) {
+		this.metatagTitle = metatagTitle;
+	}
+
 	public void setProduct(Product product) {
 		this.product = product;
+	}
+
+	public void setProductExternalDl(String productExternalDl) {
+		this.productExternalDl = productExternalDl;
+	}
+
+	public void setProductHighlight(String productHighlight) {
+		this.productHighlight = productHighlight;
+	}
+
+	public void setSeUrl(String seUrl) {
+		this.seUrl = seUrl;
 	}
 
 }

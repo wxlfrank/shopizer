@@ -20,6 +20,95 @@ public class IndexProduct implements JSONAware {
 	private String lang;
 	private String id;//required by the search framework
 
+	public List<String> getCategories() {
+		return categories;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public String getHighlight() {
+		return highlight;
+	}
+
+
+	public String getId() {
+		return id;
+	}
+
+	public String getLang() {
+		return lang;
+	}
+
+	public String getManufacturer() {
+		return manufacturer;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Double getPrice() {
+		return price;
+	}
+
+	public String getStore() {
+		return store;
+	}
+
+	public List<String> getTags() {
+		return tags;
+	}
+
+	public boolean isAvailable() {
+		return available;
+	}
+
+	public void setAvailable(boolean available) {
+		this.available = available;
+	}
+
+	public void setCategories(List<String> categories) {
+		this.categories = categories;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setHighlight(String highlight) {
+		this.highlight = highlight;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setLang(String lang) {
+		this.lang = lang;
+	}
+
+	public void setManufacturer(String manufacturer) {
+		this.manufacturer = manufacturer;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setPrice(Double price) {
+		this.price = price;
+	}
+
+	public void setStore(String store) {
+		this.store = store;
+	}
+
+	public void setTags(List<String> tags) {
+		this.tags = tags;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public String toJSONString() {
@@ -54,95 +143,6 @@ public class IndexProduct implements JSONAware {
 		
 		return obj.toJSONString();
 
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-
-	public List<String> getCategories() {
-		return categories;
-	}
-
-	public void setCategories(List<String> categories) {
-		this.categories = categories;
-	}
-
-	public boolean isAvailable() {
-		return available;
-	}
-
-	public void setAvailable(boolean available) {
-		this.available = available;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public List<String> getTags() {
-		return tags;
-	}
-
-	public void setTags(List<String> tags) {
-		this.tags = tags;
-	}
-
-	public String getHighlight() {
-		return highlight;
-	}
-
-	public void setHighlight(String highlight) {
-		this.highlight = highlight;
-	}
-
-	public void setPrice(Double price) {
-		this.price = price;
-	}
-
-	public Double getPrice() {
-		return price;
-	}
-
-	public void setStore(String store) {
-		this.store = store;
-	}
-
-	public String getStore() {
-		return store;
-	}
-
-	public void setLang(String lang) {
-		this.lang = lang;
-	}
-
-	public String getLang() {
-		return lang;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setManufacturer(String manufacturer) {
-		this.manufacturer = manufacturer;
-	}
-
-	public String getManufacturer() {
-		return manufacturer;
 	}
 
 }

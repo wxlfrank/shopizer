@@ -6,9 +6,7 @@ import java.util.Map;
 import org.jopendocument.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
 public class ErrorController {
@@ -45,6 +42,26 @@ public class ErrorController {
  
 	}
     
+	/**
+	 * Generic exception catch allpage
+	 * @param ex
+	 * @return
+	 */
+	@RequestMapping(value="/error", method=RequestMethod.GET)
+	public ModelAndView handleCatchAllException(Model model) {
+
+		
+		ModelAndView modelAndView = null;
+
+			
+		modelAndView = new ModelAndView("error/generic_error");
+ 
+		return modelAndView;
+ 
+	}
+	
+
+	
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	public ModelAndView handleException(Exception ex) {
@@ -70,8 +87,6 @@ public class ErrorController {
  
 	}
 	
-
-	
 	@ExceptionHandler(RuntimeException.class)
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	public ModelAndView handleRuntimeException(Exception ex) {
@@ -89,24 +104,6 @@ public class ErrorController {
 		
  
 		return model;
- 
-	}
-	
-	/**
-	 * Generic exception catch allpage
-	 * @param ex
-	 * @return
-	 */
-	@RequestMapping(value="/error", method=RequestMethod.GET)
-	public ModelAndView handleCatchAllException(Model model) {
-
-		
-		ModelAndView modelAndView = null;
-
-			
-		modelAndView = new ModelAndView("error/generic_error");
- 
-		return modelAndView;
  
 	}
 	

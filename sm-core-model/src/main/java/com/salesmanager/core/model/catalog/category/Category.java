@@ -86,123 +86,33 @@ public class Category extends SalesManagerEntity<Long, Category> implements Audi
 	@Column(name="CODE", length=100, nullable=false)
 	private String code;
 
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
 	public Category() {
 	}
-	
+
 	public Category(MerchantStore store) {
 		this.merchantStore = store;
 		this.id = 0L;
 	}
-	
-	@Override
-	public Long getId() {
-		return this.id;
-	}
 
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
 	@Override
 	public AuditSection getAuditSection() {
 		return auditSection;
 	}
 	
-	@Override
-	public void setAuditSection(AuditSection auditSection) {
-		this.auditSection = auditSection;
+	public List<Category> getCategories() {
+		return categories;
 	}
-
-	public List<CategoryDescription> getDescriptions() {
-		return descriptions;
-	}
-
-	public void setDescriptions(List<CategoryDescription> descriptions) {
-		this.descriptions = descriptions;
-	}
-
+	
 	public String getCategoryImage() {
 		return categoryImage;
 	}
 
-	public void setCategoryImage(String categoryImage) {
-		this.categoryImage = categoryImage;
-	}
-
-	public Integer getSortOrder() {
-		return sortOrder;
-	}
-
-	public void setSortOrder(Integer sortOrder) {
-		this.sortOrder = sortOrder;
-	}
-
-	public boolean isCategoryStatus() {
-		return categoryStatus;
-	}
-
-	public void setCategoryStatus(boolean categoryStatus) {
-		this.categoryStatus = categoryStatus;
-	}
-
-	public boolean isVisible() {
-		return visible;
-	}
-
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
-
-	public Integer getDepth() {
-		return depth;
-	}
-
-	public void setDepth(Integer depth) {
-		this.depth = depth;
-	}
-
-	public String getLineage() {
-		return lineage;
-	}
-
-	public void setLineage(String lineage) {
-		this.lineage = lineage;
-	}
-
-	public Category getParent() {
-		return parent;
-	}
-
-	public void setParent(Category parent) {
-		this.parent = parent;
+	public String getCode() {
+		return code;
 	}
 	
-
-
-
-	public MerchantStore getMerchantStore() {
-		return merchantStore;
-	}
-
-	public void setMerchantStore(MerchantStore merchantStore) {
-		this.merchantStore = merchantStore;
-	}
-
-	public List<Category> getCategories() {
-		return categories;
-	}
-
-	public void setCategories(List<Category> categories) {
-		this.categories = categories;
+	public Integer getDepth() {
+		return depth;
 	}
 	
 	public CategoryDescription getDescription() {
@@ -213,11 +123,101 @@ public class Category extends SalesManagerEntity<Long, Category> implements Audi
 		return null;
 	}
 
+	public List<CategoryDescription> getDescriptions() {
+		return descriptions;
+	}
+
+	@Override
+	public Long getId() {
+		return this.id;
+	}
+
+	public String getLineage() {
+		return lineage;
+	}
+
+	public MerchantStore getMerchantStore() {
+		return merchantStore;
+	}
+
+	public Category getParent() {
+		return parent;
+	}
+
+	public Integer getSortOrder() {
+		return sortOrder;
+	}
+
+	public boolean isCategoryStatus() {
+		return categoryStatus;
+	}
+
 	public boolean isFeatured() {
 		return featured;
 	}
 
+	public boolean isVisible() {
+		return visible;
+	}
+
+	@Override
+	public void setAuditSection(AuditSection auditSection) {
+		this.auditSection = auditSection;
+	}
+
+	public void setCategories(List<Category> categories) {
+		this.categories = categories;
+	}
+
+	public void setCategoryImage(String categoryImage) {
+		this.categoryImage = categoryImage;
+	}
+
+	public void setCategoryStatus(boolean categoryStatus) {
+		this.categoryStatus = categoryStatus;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public void setDepth(Integer depth) {
+		this.depth = depth;
+	}
+
+	public void setDescriptions(List<CategoryDescription> descriptions) {
+		this.descriptions = descriptions;
+	}
+	
+
+
+
 	public void setFeatured(boolean featured) {
 		this.featured = featured;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public void setLineage(String lineage) {
+		this.lineage = lineage;
+	}
+
+	public void setMerchantStore(MerchantStore merchantStore) {
+		this.merchantStore = merchantStore;
+	}
+	
+	public void setParent(Category parent) {
+		this.parent = parent;
+	}
+
+	public void setSortOrder(Integer sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 }

@@ -2,12 +2,12 @@ package com.salesmanager.shop.populator.order;
 
 import org.apache.commons.lang.Validate;
 
-import com.salesmanager.core.business.services.catalog.product.PricingService;
 import com.salesmanager.core.business.exception.ConversionException;
+import com.salesmanager.core.business.services.catalog.product.PricingService;
+import com.salesmanager.core.business.utils.AbstractDataPopulator;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
 import com.salesmanager.core.model.shipping.ShippingSummary;
-import com.salesmanager.core.business.utils.AbstractDataPopulator;
 import com.salesmanager.shop.model.customer.ReadableDelivery;
 import com.salesmanager.shop.model.order.shipping.ReadableShippingSummary;
 
@@ -15,6 +15,10 @@ public class ReadableShippingSummaryPopulator extends
 		AbstractDataPopulator<ShippingSummary, ReadableShippingSummary> {
 	
 	private PricingService pricingService;
+
+	public PricingService getPricingService() {
+		return pricingService;
+	}
 
 	@Override
 	public ReadableShippingSummary populate(ShippingSummary source,
@@ -63,18 +67,14 @@ public class ReadableShippingSummaryPopulator extends
 		
 	}
 
+	public void setPricingService(PricingService pricingService) {
+		this.pricingService = pricingService;
+	}
+
 	@Override
 	protected ReadableShippingSummary createTarget() {
 		return new 
 				ReadableShippingSummary();
-	}
-
-	public PricingService getPricingService() {
-		return pricingService;
-	}
-
-	public void setPricingService(PricingService pricingService) {
-		this.pricingService = pricingService;
 	}
 
 }

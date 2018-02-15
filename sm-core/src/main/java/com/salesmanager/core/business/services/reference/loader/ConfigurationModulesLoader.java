@@ -23,30 +23,6 @@ public class ConfigurationModulesLoader {
 	
 
 	
-	public static String toJSONString(Map<String,IntegrationConfiguration> configurations) throws Exception {
-		
-		StringBuilder jsonModules = new StringBuilder();
-		jsonModules.append("[");
-		int count = 0;
-		for(Object key : configurations.keySet()) {
-			
-			String k = (String)key;
-			IntegrationConfiguration c = (IntegrationConfiguration)configurations.get(k);
-			
-			String jsonString = c.toJSONString();
-			jsonModules.append(jsonString);
-			
-			count ++;
-			if(count<configurations.size()) {
-				jsonModules.append(",");
-			}
-		}
-		jsonModules.append("]");
-		return jsonModules.toString();
-		
-		
-	}
-	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Map<String,IntegrationConfiguration> loadIntegrationConfigurations(String value) throws Exception {
 		
@@ -102,6 +78,30 @@ public class ConfigurationModulesLoader {
   		
 
 	
+	}
+	
+	public static String toJSONString(Map<String,IntegrationConfiguration> configurations) throws Exception {
+		
+		StringBuilder jsonModules = new StringBuilder();
+		jsonModules.append("[");
+		int count = 0;
+		for(Object key : configurations.keySet()) {
+			
+			String k = (String)key;
+			IntegrationConfiguration c = (IntegrationConfiguration)configurations.get(k);
+			
+			String jsonString = c.toJSONString();
+			jsonModules.append(jsonString);
+			
+			count ++;
+			if(count<configurations.size()) {
+				jsonModules.append(",");
+			}
+		}
+		jsonModules.append("]");
+		return jsonModules.toString();
+		
+		
 	}
 
 }

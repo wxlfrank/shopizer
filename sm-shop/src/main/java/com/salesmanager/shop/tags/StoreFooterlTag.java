@@ -25,6 +25,10 @@ public class StoreFooterlTag extends TagSupport {
 	private final static String COPY = "\u00a9";
 
 
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
 	public int doStartTag() throws JspException {
 		try {
 
@@ -65,10 +69,6 @@ public class StoreFooterlTag extends TagSupport {
 			LOGGER.error("Error while getting content url", ex);
 		}
 		return SKIP_BODY;
-	}
-
-	public int doEndTag() {
-		return EVAL_PAGE;
 	}
 
 

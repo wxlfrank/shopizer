@@ -1,5 +1,22 @@
 package com.salesmanager.core.business.services.search;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
 import com.salesmanager.core.business.constants.Constants;
 import com.salesmanager.core.business.exception.ServiceException;
 import com.salesmanager.core.business.services.catalog.product.PricingService;
@@ -17,15 +34,6 @@ import com.shopizer.search.services.FacetEntry;
 import com.shopizer.search.services.SearchHit;
 import com.shopizer.search.services.SearchRequest;
 import com.shopizer.search.services.SearchResponse;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
-import javax.inject.Inject;
-import java.util.*;
 
 
 @Service("productSearchService")
@@ -48,8 +56,25 @@ public class SearchServiceImpl implements com.salesmanager.core.business.service
 	private CoreConfiguration configuration;
 	
 
-	public void initService() {
-		searchService.initService();
+	public void deleteIndex(MerchantStore store, Product product) throws ServiceException {
+		
+		if(configuration.getProperty(INDEX_PRODUCTS)==null || configuration.getProperty(INDEX_PRODUCTS).equals(Constants.FALSE)) {
+			return;
+		}
+		
+		Set<ProductDescription> descriptions = product.getDescriptions();
+		for(ProductDescription description : descriptions) {
+			
+			StringBuilder collectionName = new StringBuilder();
+			collectionName.append(PRODUCT_INDEX_NAME).append(UNDERSCORE).append(description.getLanguage().getCode()).append(UNDERSCORE).append(store.getCode().toLowerCase());
+
+			try {
+				searchService.deleteObject(collectionName.toString(), new StringBuilder().append(PRODUCT_INDEX_NAME).append(UNDERSCORE).append(description.getLanguage().getCode()).toString(), String.valueOf(product.getId()));
+			} catch (Exception e) {
+				LOGGER.error("Cannot delete index for product id [" + product.getId() + "], ",e);
+			}
+		}
+	
 	}
 
 	@Async
@@ -145,55 +170,8 @@ public class SearchServiceImpl implements com.salesmanager.core.business.service
 	}
 
 
-	public void deleteIndex(MerchantStore store, Product product) throws ServiceException {
-		
-		if(configuration.getProperty(INDEX_PRODUCTS)==null || configuration.getProperty(INDEX_PRODUCTS).equals(Constants.FALSE)) {
-			return;
-		}
-		
-		Set<ProductDescription> descriptions = product.getDescriptions();
-		for(ProductDescription description : descriptions) {
-			
-			StringBuilder collectionName = new StringBuilder();
-			collectionName.append(PRODUCT_INDEX_NAME).append(UNDERSCORE).append(description.getLanguage().getCode()).append(UNDERSCORE).append(store.getCode().toLowerCase());
-
-			try {
-				searchService.deleteObject(collectionName.toString(), new StringBuilder().append(PRODUCT_INDEX_NAME).append(UNDERSCORE).append(description.getLanguage().getCode()).toString(), String.valueOf(product.getId()));
-			} catch (Exception e) {
-				LOGGER.error("Cannot delete index for product id [" + product.getId() + "], ",e);
-			}
-		}
-	
-	}
-	
-
-	public SearchKeywords searchForKeywords(String collectionName, String jsonString, int entriesCount) throws ServiceException {
-		
-		/**
-		 * 	$('#search').searchAutocomplete({
-			url: '<%=request.getContextPath()%>/search/autocomplete/keyword_en'
-		  		//filter: function() { 
-				//return '\"filter\" : {\"numeric_range\" : {\"price\" : {\"from\" : \"22\",\"to\" : \"45\",\"include_lower\" : true,\"include_upper\" : true}}}';
-		  		//}
-     		});
-     		
-     	**/	
-     		
-		try {
-
-			SearchResponse response = searchService.searchAutoComplete(collectionName, jsonString, entriesCount);
-			
-			SearchKeywords keywords = new SearchKeywords();
-			keywords.setKeywords(Arrays.asList(response.getInlineSearchList()));
-			
-			return keywords;
-			
-		} catch (Exception e) {
-			LOGGER.error("Error while searching keywords " + jsonString,e);
-			throw new ServiceException(e);
-		}
-
-		
+	public void initService() {
+		searchService.initService();
 	}
 	
 
@@ -311,6 +289,36 @@ public class SearchServiceImpl implements com.salesmanager.core.business.service
 			LOGGER.error("Error while searching keywords " + jsonString,e);
 			throw new ServiceException(e);
 		}
+		
+	}
+	
+
+	public SearchKeywords searchForKeywords(String collectionName, String jsonString, int entriesCount) throws ServiceException {
+		
+		/**
+		 * 	$('#search').searchAutocomplete({
+			url: '<%=request.getContextPath()%>/search/autocomplete/keyword_en'
+		  		//filter: function() { 
+				//return '\"filter\" : {\"numeric_range\" : {\"price\" : {\"from\" : \"22\",\"to\" : \"45\",\"include_lower\" : true,\"include_upper\" : true}}}';
+		  		//}
+     		});
+     		
+     	**/	
+     		
+		try {
+
+			SearchResponse response = searchService.searchAutoComplete(collectionName, jsonString, entriesCount);
+			
+			SearchKeywords keywords = new SearchKeywords();
+			keywords.setKeywords(Arrays.asList(response.getInlineSearchList()));
+			
+			return keywords;
+			
+		} catch (Exception e) {
+			LOGGER.error("Error while searching keywords " + jsonString,e);
+			throw new ServiceException(e);
+		}
+
 		
 	}
 	

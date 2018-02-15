@@ -14,19 +14,11 @@ import com.salesmanager.core.business.exception.ServiceException;
 public interface SalesManagerEntityService<K extends Serializable & Comparable<K>, E extends com.salesmanager.core.model.generic.SalesManagerEntity<K, ?>> extends TransactionalAspectAwareService{
 
 	/**
-	 * Crée l'entité dans la base de données. Mis à part dans les tests pour faire des sauvegardes simples, utiliser
-	 * create() car il est possible qu'il y ait des listeners sur la création d'une entité.
+	 * Compte le nombre d'entités de ce type présentes dans la base.
 	 * 
-	 * @param entity entité
+	 * @return nombre d'entités
 	 */
-	void save(E entity) throws ServiceException;
-	
-	/**
-	 * Met à jour l'entité dans la base de données.
-	 * 
-	 * @param entity entité
-	 */
-	void update(E entity) throws ServiceException;
+	Long count();
 	
 	/**
 	 * Crée l'entité dans la base de données.
@@ -34,13 +26,18 @@ public interface SalesManagerEntityService<K extends Serializable & Comparable<K
 	 * @param entity entité
 	 */
 	void create(E entity) throws ServiceException;
-
+	
 	/**
 	 * Supprime l'entité de la base de données
 	 * 
 	 * @param entity entité
 	 */
 	void delete(E entity) throws ServiceException;
+
+	/**
+	 * Flushe la session.
+	 */
+	void flush();
 	
 
 	/**
@@ -60,16 +57,19 @@ public interface SalesManagerEntityService<K extends Serializable & Comparable<K
 	
 	
 	/**
-	 * Compte le nombre d'entités de ce type présentes dans la base.
+	 * Crée l'entité dans la base de données. Mis à part dans les tests pour faire des sauvegardes simples, utiliser
+	 * create() car il est possible qu'il y ait des listeners sur la création d'une entité.
 	 * 
-	 * @return nombre d'entités
+	 * @param entity entité
 	 */
-	Long count();
+	void save(E entity) throws ServiceException;
 	
 	/**
-	 * Flushe la session.
+	 * Met à jour l'entité dans la base de données.
+	 * 
+	 * @param entity entité
 	 */
-	void flush();
+	void update(E entity) throws ServiceException;
 	
 
 

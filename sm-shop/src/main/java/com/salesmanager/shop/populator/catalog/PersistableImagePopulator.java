@@ -15,6 +15,10 @@ public class PersistableImagePopulator extends AbstractDataPopulator<Persistable
 	
 	private Product product;
 	
+	public Product getProduct() {
+		return product;
+	}
+
 	@Override
 	public ProductImage populate(PersistableImage source, ProductImage target, MerchantStore store, Language language)
 			throws ConversionException {
@@ -35,18 +39,14 @@ public class PersistableImagePopulator extends AbstractDataPopulator<Persistable
 		return target;
 	}
 
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
 	@Override
 	protected ProductImage createTarget() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public Product getProduct() {
-		return product;
-	}
-
-	public void setProduct(Product product) {
-		this.product = product;
 	}
 
 }

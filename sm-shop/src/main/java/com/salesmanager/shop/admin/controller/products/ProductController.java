@@ -1,5 +1,41 @@
 package com.salesmanager.shop.admin.controller.products;
 
+import java.awt.image.BufferedImage;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.imageio.ImageIO;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.salesmanager.core.business.services.catalog.category.CategoryService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
 import com.salesmanager.core.business.services.catalog.product.image.ProductImageService;
@@ -30,28 +66,6 @@ import com.salesmanager.shop.admin.model.web.Menu;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.utils.DateUtil;
 import com.salesmanager.shop.utils.LabelUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.*;
-
-import javax.imageio.ImageIO;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.awt.image.BufferedImage;
-import java.math.BigDecimal;
-import java.util.*;
 
 @Controller
 public class ProductController {
@@ -89,11 +103,163 @@ public class ProductController {
 	CategoryService categoryService;
 
 	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/addProductToCategories.html", method=RequestMethod.POST)
+	public String addProductToCategory(@RequestParam("productId") long productId, @RequestParam("id") long categoryId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		
+		setMenu(model,request);
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		Language language = (Language)request.getAttribute("LANGUAGE");
+		
+		
+		//get the product and validate it belongs to the current merchant
+		Product product = productService.getById(productId);
+		
+		if(product==null) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+
+		//get parent categories
+		List<Category> categories = categoryService.listByStore(store,language);
+		
+		Category category = categoryService.getById(categoryId);
+		
+		if(category==null) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		if(category.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		product.getCategories().add(category);
+		
+		productService.update(product);
+		
+		model.addAttribute("product", product);
+		model.addAttribute("categories", categories);
+		
+		return "catalogue-product-categories";
+		
+	}
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/product-categories/remove.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> deleteProductFromCategory(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String sCategoryid = request.getParameter("categoryId");
+		String sProductId = request.getParameter("productId");
+		
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		AjaxResponse resp = new AjaxResponse();
+		
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		
+		try {
+			
+			Long categoryId = Long.parseLong(sCategoryid);
+			Long productId = Long.parseLong(sProductId);
+			
+			Category category = categoryService.getById(categoryId);
+			Product product = productService.getById(productId);
+			
+			if(category==null || category.getMerchantStore().getId()!=store.getId()) {
+
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			} 
+			
+			if(product==null || product.getMerchantStore().getId()!=store.getId()) {
+
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			} 
+			
+			product.getCategories().remove(category);
+			productService.update(product);	
+			
+			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+
+		
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting category", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	/**
+	 * List all categories and let the merchant associate the product to a category
+	 * @param productId
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/displayProductToCategories.html", method=RequestMethod.GET)
+	public String displayAddProductToCategories(@RequestParam("id") long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	
+		
+		setMenu(model,request);
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		Language language = (Language)request.getAttribute("LANGUAGE");
+		
+		
+		//get the product and validate it belongs to the current merchant
+		Product product = productService.getById(productId);
+		
+		if(product==null) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+
+		//get parent categories
+		List<Category> categories = categoryService.listByStore(store,language);
+		
+		model.addAttribute("product", product);
+		model.addAttribute("categories", categories);
+		return "catalogue-product-categories";
+		
+	}
+	
+	
+	
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/createProduct.html", method=RequestMethod.GET)
+	public String displayProductCreate(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return displayProduct(null,model,request,response);
+
+	}
+	
+
+	@PreAuthorize("hasRole('PRODUCTS')")
 	@RequestMapping(value="/admin/products/editProduct.html", method=RequestMethod.GET)
 	public String displayProductEdit(@RequestParam("id") long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return displayProduct(productId,model,request,response);
 
 	}
+	
 	
 	@PreAuthorize("hasRole('PRODUCTS')")
 	@RequestMapping(value="/admin/products/viewEditProduct.html", method=RequestMethod.GET)
@@ -109,156 +275,343 @@ public class ProductController {
 		
 		return displayProduct(productId,model,request,response);
 	}
-	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/createProduct.html", method=RequestMethod.GET)
-	public String displayProductCreate(Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return displayProduct(null,model,request,response);
 
-	}
 	
-	
-	
-	private String displayProduct(Long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	/**
+	 * Creates a duplicate product with the same inner object graph
+	 * Will ignore SKU, reviews and images
+	 * @param id
+	 * @param result
+	 * @param model
+	 * @param request
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/product/duplicate.html", method=RequestMethod.POST)
+	public String duplicateProduct(@ModelAttribute("productId") Long  id, BindingResult result, Model model, HttpServletRequest request, Locale locale) throws Exception {
 		
 
+		Language language = (Language)request.getAttribute("LANGUAGE");
+		
 		//display menu
 		setMenu(model,request);
 		
-		
 		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		Language language = (Language)request.getAttribute("LANGUAGE");
 		
-
 		List<Manufacturer> manufacturers = manufacturerService.listByStore(store, language);
-		
 		List<ProductType> productTypes = productTypeService.list();
-		
 		List<TaxClass> taxClasses = taxClassService.listByStore(store);
-		
-		List<Language> languages = store.getLanguages();
-		
 
-		
-		com.salesmanager.shop.admin.model.catalog.Product product = new com.salesmanager.shop.admin.model.catalog.Product();
-		List<ProductDescription> descriptions = new ArrayList<ProductDescription>();
-
-		if(productId!=null && productId!=0) {//edit mode
-			
-
-			Product dbProduct = productService.getById(productId);
-			
-			if(dbProduct==null || dbProduct.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-				return "redirect:/admin/products/products.html";
-			}
-			
-			product.setProduct(dbProduct);
-			Set<ProductDescription> productDescriptions = dbProduct.getDescriptions();
-			
-			for(Language l : languages) {
-				
-				ProductDescription productDesc = null;
-				for(ProductDescription desc : productDescriptions) {
-					
-					Language lang = desc.getLanguage();
-					if(lang.getCode().equals(l.getCode())) {
-						productDesc = desc;
-					}
-
-				}
-				
-				if(productDesc==null) {
-					productDesc = new ProductDescription();
-					productDesc.setLanguage(l);
-				}
-
-				descriptions.add(productDesc);
-				
-			}
-			
-			for(ProductImage image : dbProduct.getImages()) {
-				if(image.isDefaultImage()) {
-					product.setProductImage(image);
-					break;
-				}
-
-			}
-			
-			
-			ProductAvailability productAvailability = null;
-			ProductPrice productPrice = null;
-			
-			Set<ProductAvailability> availabilities = dbProduct.getAvailabilities();
-			if(availabilities!=null && availabilities.size()>0) {
-				
-				for(ProductAvailability availability : availabilities) {
-					if(availability.getRegion().equals(com.salesmanager.core.business.constants.Constants.ALL_REGIONS)) {
-						productAvailability = availability;
-						Set<ProductPrice> prices = availability.getPrices();
-						for(ProductPrice price : prices) {
-							if(price.isDefaultPrice()) {
-								productPrice = price;
-								product.setProductPrice(priceUtil.getAdminFormatedAmount(store, productPrice.getProductPriceAmount()));
-							}
-						}
-					}
-				}
-			}
-			
-			if(productAvailability==null) {
-				productAvailability = new ProductAvailability();
-			}
-			
-			if(productPrice==null) {
-				productPrice = new ProductPrice();
-			}
-			
-			product.setAvailability(productAvailability);
-			product.setPrice(productPrice);
-			product.setDescriptions(descriptions);
-			
-			
-			product.setDateAvailable(DateUtil.formatDate(dbProduct.getDateAvailable()));
-
-
-		} else {
-
-
-			for(Language l : languages) {
-				
-				ProductDescription desc = new ProductDescription();
-				desc.setLanguage(l);
-				descriptions.add(desc);
-				
-			}
-			
-			Product prod = new Product();
-			
-			prod.setAvailable(true);
-			
-			ProductAvailability productAvailability = new ProductAvailability();
-			ProductPrice price = new ProductPrice();
-			product.setPrice(price);
-			product.setAvailability(productAvailability);
-			product.setProduct(prod);
-			product.setDescriptions(descriptions);
-			product.setDateAvailable(DateUtil.formatDate(new Date()));
-
-
-		}
-		
-		
-		
-		
-		
-		model.addAttribute("product",product);
 		model.addAttribute("manufacturers", manufacturers);
 		model.addAttribute("productTypes", productTypes);
 		model.addAttribute("taxClasses", taxClasses);
-		return "admin-products-edit";
+		
+		Product dbProduct = productService.getById(id);
+		Product newProduct = new Product();
+		
+		if(dbProduct==null || dbProduct.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+			return "redirect:/admin/products/products.html";
+		}
+		
+		//Make a copy of the product
+		com.salesmanager.shop.admin.model.catalog.Product product = new com.salesmanager.shop.admin.model.catalog.Product();
+		
+		Set<ProductAvailability> availabilities = new HashSet<ProductAvailability>();
+		//availability - price
+		for(ProductAvailability pAvailability : dbProduct.getAvailabilities()) {
+			
+			ProductAvailability availability = new ProductAvailability();
+			availability.setProductDateAvailable(pAvailability.getProductDateAvailable());
+			availability.setProductIsAlwaysFreeShipping(pAvailability.getProductIsAlwaysFreeShipping());
+			availability.setProductQuantity(pAvailability.getProductQuantity());
+			availability.setProductQuantityOrderMax(pAvailability.getProductQuantityOrderMax());
+			availability.setProductQuantityOrderMin(pAvailability.getProductQuantityOrderMin());
+			availability.setProductStatus(pAvailability.getProductStatus());
+			availability.setRegion(pAvailability.getRegion());
+			availability.setRegionVariant(pAvailability.getRegionVariant());
+
+
+			
+			Set<ProductPrice> prices = pAvailability.getPrices();
+			for(ProductPrice pPrice : prices) {
+				
+				ProductPrice price = new ProductPrice();
+				price.setDefaultPrice(pPrice.isDefaultPrice());
+				price.setProductPriceAmount(pPrice.getProductPriceAmount());
+				price.setProductAvailability(availability);
+				price.setProductPriceSpecialAmount(pPrice.getProductPriceSpecialAmount());
+				price.setProductPriceSpecialEndDate(pPrice.getProductPriceSpecialEndDate());
+				price.setProductPriceSpecialStartDate(pPrice.getProductPriceSpecialStartDate());
+				price.setProductPriceType(pPrice.getProductPriceType());
+				
+				Set<ProductPriceDescription> priceDescriptions = new HashSet<ProductPriceDescription>();
+				//price descriptions
+				for(ProductPriceDescription pPriceDescription : pPrice.getDescriptions()) {
+					
+					ProductPriceDescription productPriceDescription = new ProductPriceDescription();
+					productPriceDescription.setAuditSection(pPriceDescription.getAuditSection());
+					productPriceDescription.setDescription(pPriceDescription.getDescription());
+					productPriceDescription.setName(pPriceDescription.getName());
+					productPriceDescription.setLanguage(pPriceDescription.getLanguage());
+					productPriceDescription.setProductPrice(price);
+					priceDescriptions.add(productPriceDescription);
+					
+				}
+				price.setDescriptions(priceDescriptions);
+				if(price.isDefaultPrice()) {
+					product.setPrice(price);
+					product.setProductPrice(priceUtil.getAdminFormatedAmount(store, price.getProductPriceAmount()));
+				}
+				
+				availability.getPrices().add(price);
+			}
+			
+			
+
+			if(availability.getRegion().equals(com.salesmanager.core.business.constants.Constants.ALL_REGIONS)) {
+				product.setAvailability(availability);
+			}
+			
+			availabilities.add(availability);
+		}
+		
+		newProduct.setAvailabilities(availabilities);
+		
+		
+		
+		//attributes
+		Set<ProductAttribute> attributes = new HashSet<ProductAttribute>();
+		for(ProductAttribute pAttribute : dbProduct.getAttributes()) {
+			
+			ProductAttribute attribute = new ProductAttribute();
+			attribute.setAttributeDefault(pAttribute.getAttributeDefault());
+			attribute.setAttributeDiscounted(pAttribute.getAttributeDiscounted());
+			attribute.setAttributeDisplayOnly(pAttribute.getAttributeDisplayOnly());
+			attribute.setAttributeRequired(pAttribute.getAttributeRequired());
+			attribute.setProductAttributePrice(pAttribute.getProductAttributePrice());
+			attribute.setProductAttributeIsFree(pAttribute.getProductAttributeIsFree());
+			attribute.setProductAttributeWeight(pAttribute.getProductAttributeWeight());
+			attribute.setProductOption(pAttribute.getProductOption());
+			attribute.setProductOptionSortOrder(pAttribute.getProductOptionSortOrder());
+			attribute.setProductOptionValue(pAttribute.getProductOptionValue());
+			attributes.add(attribute);
+						
+		}
+		newProduct.setAttributes(attributes);
+		
+		//relationships
+		Set<ProductRelationship> relationships = new HashSet<ProductRelationship>();
+		for(ProductRelationship pRelationship : dbProduct.getRelationships()) {
+			
+			ProductRelationship relationship = new ProductRelationship();
+			relationship.setActive(pRelationship.isActive());
+			relationship.setCode(pRelationship.getCode());
+			relationship.setRelatedProduct(pRelationship.getRelatedProduct());
+			relationship.setStore(store);
+			relationships.add(relationship);
+
+		}
+		
+		newProduct.setRelationships(relationships);
+		
+		//product description
+		Set<ProductDescription> descsset = new HashSet<ProductDescription>();
+		List<ProductDescription> desclist = new ArrayList<ProductDescription>();
+		Set<ProductDescription> descriptions = dbProduct.getDescriptions();
+		for(ProductDescription pDescription : descriptions) {
+			
+			ProductDescription description = new ProductDescription();
+			description.setAuditSection(pDescription.getAuditSection());
+			description.setName(pDescription.getName());
+			description.setDescription(pDescription.getDescription());
+			description.setLanguage(pDescription.getLanguage());
+			description.setMetatagDescription(pDescription.getMetatagDescription());
+			description.setMetatagKeywords(pDescription.getMetatagKeywords());
+			description.setMetatagTitle(pDescription.getMetatagTitle());
+			descsset.add(description);
+			desclist.add(description);
+		}
+		newProduct.setDescriptions(descsset);
+		product.setDescriptions(desclist);
+		
+		//product
+		newProduct.setAuditSection(dbProduct.getAuditSection());
+		newProduct.setAvailable(dbProduct.isAvailable());
+		
+		
+
+		//copy
+		// newProduct.setCategories(dbProduct.getCategories());
+		newProduct.setDateAvailable(dbProduct.getDateAvailable());
+		newProduct.setManufacturer(dbProduct.getManufacturer());
+		newProduct.setMerchantStore(store);
+		newProduct.setProductHeight(dbProduct.getProductHeight());
+		newProduct.setProductIsFree(dbProduct.getProductIsFree());
+		newProduct.setProductLength(dbProduct.getProductLength());
+		newProduct.setProductOrdered(dbProduct.getProductOrdered());
+		newProduct.setProductWeight(dbProduct.getProductWeight());
+		newProduct.setProductWidth(dbProduct.getProductWidth());
+		newProduct.setSortOrder(dbProduct.getSortOrder());
+		newProduct.setTaxClass(dbProduct.getTaxClass());
+		newProduct.setType(dbProduct.getType());
+		newProduct.setSku(UUID.randomUUID().toString().replace("-",""));
+		newProduct.setProductVirtual(dbProduct.isProductVirtual());
+		newProduct.setProductShipeable(dbProduct.isProductShipeable());
+		
+		productService.update(newProduct);
+		
+		Set<Category> categories = dbProduct.getCategories();
+		for(Category category : categories) {
+			Category categoryCopy = categoryService.getById(category.getId());
+			newProduct.getCategories().add(categoryCopy);
+			productService.update(newProduct);
+		}
+		
+		product.setProduct(newProduct);
+		model.addAttribute("product", product);
+		model.addAttribute("success","success");
+		
+		return "redirect:/admin/products/editProduct.html?id=" + newProduct.getId();
 	}
 	
+	
+	/**
+	 * List all categories associated to a Product
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/product-categories/paging.html", method=RequestMethod.POST)
+	public @ResponseBody ResponseEntity<String> pageProductCategories(HttpServletRequest request, HttpServletResponse response) {
 
+		String sProductId = request.getParameter("productId");
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		
+		AjaxResponse resp = new AjaxResponse();
+		
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		
+		Long productId;
+		Product product = null;
+		
+		try {
+			productId = Long.parseLong(sProductId);
+		} catch (Exception e) {
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorString("Product id is not valid");
+			String returnString = resp.toJSONString();
+			return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+		}
+
+		
+		try {
+
+			product = productService.getById(productId);
+
+			
+			if(product==null) {
+				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+				resp.setErrorString("Product id is not valid");
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+				resp.setErrorString("Product id is not valid");
+				String returnString = resp.toJSONString();
+				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+			}
+			
+			
+			Language language = (Language)request.getAttribute("LANGUAGE");
+
+			
+			Set<Category> categories = product.getCategories();
+			
+
+			for(Category category : categories) {
+				Map entry = new HashMap();
+				entry.put("categoryId", category.getId());
+				
+				List<CategoryDescription> descriptions = category.getDescriptions();
+				String categoryName = category.getDescriptions().get(0).getName();
+				for(CategoryDescription description : descriptions){
+					if(description.getLanguage().getCode().equals(language.getCode())) {
+						categoryName = description.getName();
+					}
+				}
+				entry.put("name", categoryName);
+				resp.addDataEntry(entry);
+			}
+
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while paging products", e);
+			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+
+
+	}
+	
+	/**
+	 * Removes a product image based on the productimage id
+	 * @param request
+	 * @param response
+	 * @param locale
+	 * @return
+	 */
+	@PreAuthorize("hasRole('PRODUCTS')")
+	@RequestMapping(value="/admin/products/product/removeImage.html")
+	public @ResponseBody ResponseEntity<String> removeImage(HttpServletRequest request, HttpServletResponse response, Locale locale) {
+		String iid = request.getParameter("imageId");
+
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		
+		AjaxResponse resp = new AjaxResponse();
+
+		
+		try {
+			
+			Long id = Long.parseLong(iid);
+			ProductImage productImage = productImageService.getById(id);
+			if(productImage==null || productImage.getProduct().getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+
+				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
+				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
+				
+			} else {
+				
+				productImageService.removeProductImage(productImage);
+				resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
+				
+			}
+		
+		
+		} catch (Exception e) {
+			LOGGER.error("Error while deleting product", e);
+			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
+			resp.setErrorMessage(e);
+		}
+		
+		String returnString = resp.toJSONString();
+		final HttpHeaders httpHeaders= new HttpHeaders();
+	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
+	}
+	
+	
 	@PreAuthorize("hasRole('PRODUCTS')")
 	@RequestMapping(value="/admin/products/save.html", method=RequestMethod.POST)
 	public String saveProduct(@Valid @ModelAttribute("product") com.salesmanager.shop.admin.model.catalog.Product  product, BindingResult result, Model model, HttpServletRequest request, Locale locale) throws Exception {
@@ -537,483 +890,144 @@ public class ProductController {
 		return "admin-products-edit";
 	}
 	
-	
-	/**
-	 * Creates a duplicate product with the same inner object graph
-	 * Will ignore SKU, reviews and images
-	 * @param id
-	 * @param result
-	 * @param model
-	 * @param request
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/product/duplicate.html", method=RequestMethod.POST)
-	public String duplicateProduct(@ModelAttribute("productId") Long  id, BindingResult result, Model model, HttpServletRequest request, Locale locale) throws Exception {
+
+	private String displayProduct(Long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 
-		Language language = (Language)request.getAttribute("LANGUAGE");
-		
 		//display menu
 		setMenu(model,request);
 		
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
 		
-		List<Manufacturer> manufacturers = manufacturerService.listByStore(store, language);
-		List<ProductType> productTypes = productTypeService.list();
-		List<TaxClass> taxClasses = taxClassService.listByStore(store);
+		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
+		Language language = (Language)request.getAttribute("LANGUAGE");
+		
 
+		List<Manufacturer> manufacturers = manufacturerService.listByStore(store, language);
+		
+		List<ProductType> productTypes = productTypeService.list();
+		
+		List<TaxClass> taxClasses = taxClassService.listByStore(store);
+		
+		List<Language> languages = store.getLanguages();
+		
+
+		
+		com.salesmanager.shop.admin.model.catalog.Product product = new com.salesmanager.shop.admin.model.catalog.Product();
+		List<ProductDescription> descriptions = new ArrayList<ProductDescription>();
+
+		if(productId!=null && productId!=0) {//edit mode
+			
+
+			Product dbProduct = productService.getById(productId);
+			
+			if(dbProduct==null || dbProduct.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
+				return "redirect:/admin/products/products.html";
+			}
+			
+			product.setProduct(dbProduct);
+			Set<ProductDescription> productDescriptions = dbProduct.getDescriptions();
+			
+			for(Language l : languages) {
+				
+				ProductDescription productDesc = null;
+				for(ProductDescription desc : productDescriptions) {
+					
+					Language lang = desc.getLanguage();
+					if(lang.getCode().equals(l.getCode())) {
+						productDesc = desc;
+					}
+
+				}
+				
+				if(productDesc==null) {
+					productDesc = new ProductDescription();
+					productDesc.setLanguage(l);
+				}
+
+				descriptions.add(productDesc);
+				
+			}
+			
+			for(ProductImage image : dbProduct.getImages()) {
+				if(image.isDefaultImage()) {
+					product.setProductImage(image);
+					break;
+				}
+
+			}
+			
+			
+			ProductAvailability productAvailability = null;
+			ProductPrice productPrice = null;
+			
+			Set<ProductAvailability> availabilities = dbProduct.getAvailabilities();
+			if(availabilities!=null && availabilities.size()>0) {
+				
+				for(ProductAvailability availability : availabilities) {
+					if(availability.getRegion().equals(com.salesmanager.core.business.constants.Constants.ALL_REGIONS)) {
+						productAvailability = availability;
+						Set<ProductPrice> prices = availability.getPrices();
+						for(ProductPrice price : prices) {
+							if(price.isDefaultPrice()) {
+								productPrice = price;
+								product.setProductPrice(priceUtil.getAdminFormatedAmount(store, productPrice.getProductPriceAmount()));
+							}
+						}
+					}
+				}
+			}
+			
+			if(productAvailability==null) {
+				productAvailability = new ProductAvailability();
+			}
+			
+			if(productPrice==null) {
+				productPrice = new ProductPrice();
+			}
+			
+			product.setAvailability(productAvailability);
+			product.setPrice(productPrice);
+			product.setDescriptions(descriptions);
+			
+			
+			product.setDateAvailable(DateUtil.formatDate(dbProduct.getDateAvailable()));
+
+
+		} else {
+
+
+			for(Language l : languages) {
+				
+				ProductDescription desc = new ProductDescription();
+				desc.setLanguage(l);
+				descriptions.add(desc);
+				
+			}
+			
+			Product prod = new Product();
+			
+			prod.setAvailable(true);
+			
+			ProductAvailability productAvailability = new ProductAvailability();
+			ProductPrice price = new ProductPrice();
+			product.setPrice(price);
+			product.setAvailability(productAvailability);
+			product.setProduct(prod);
+			product.setDescriptions(descriptions);
+			product.setDateAvailable(DateUtil.formatDate(new Date()));
+
+
+		}
+		
+		
+		
+		
+		
+		model.addAttribute("product",product);
 		model.addAttribute("manufacturers", manufacturers);
 		model.addAttribute("productTypes", productTypes);
 		model.addAttribute("taxClasses", taxClasses);
-		
-		Product dbProduct = productService.getById(id);
-		Product newProduct = new Product();
-		
-		if(dbProduct==null || dbProduct.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		//Make a copy of the product
-		com.salesmanager.shop.admin.model.catalog.Product product = new com.salesmanager.shop.admin.model.catalog.Product();
-		
-		Set<ProductAvailability> availabilities = new HashSet<ProductAvailability>();
-		//availability - price
-		for(ProductAvailability pAvailability : dbProduct.getAvailabilities()) {
-			
-			ProductAvailability availability = new ProductAvailability();
-			availability.setProductDateAvailable(pAvailability.getProductDateAvailable());
-			availability.setProductIsAlwaysFreeShipping(pAvailability.getProductIsAlwaysFreeShipping());
-			availability.setProductQuantity(pAvailability.getProductQuantity());
-			availability.setProductQuantityOrderMax(pAvailability.getProductQuantityOrderMax());
-			availability.setProductQuantityOrderMin(pAvailability.getProductQuantityOrderMin());
-			availability.setProductStatus(pAvailability.getProductStatus());
-			availability.setRegion(pAvailability.getRegion());
-			availability.setRegionVariant(pAvailability.getRegionVariant());
-
-
-			
-			Set<ProductPrice> prices = pAvailability.getPrices();
-			for(ProductPrice pPrice : prices) {
-				
-				ProductPrice price = new ProductPrice();
-				price.setDefaultPrice(pPrice.isDefaultPrice());
-				price.setProductPriceAmount(pPrice.getProductPriceAmount());
-				price.setProductAvailability(availability);
-				price.setProductPriceSpecialAmount(pPrice.getProductPriceSpecialAmount());
-				price.setProductPriceSpecialEndDate(pPrice.getProductPriceSpecialEndDate());
-				price.setProductPriceSpecialStartDate(pPrice.getProductPriceSpecialStartDate());
-				price.setProductPriceType(pPrice.getProductPriceType());
-				
-				Set<ProductPriceDescription> priceDescriptions = new HashSet<ProductPriceDescription>();
-				//price descriptions
-				for(ProductPriceDescription pPriceDescription : pPrice.getDescriptions()) {
-					
-					ProductPriceDescription productPriceDescription = new ProductPriceDescription();
-					productPriceDescription.setAuditSection(pPriceDescription.getAuditSection());
-					productPriceDescription.setDescription(pPriceDescription.getDescription());
-					productPriceDescription.setName(pPriceDescription.getName());
-					productPriceDescription.setLanguage(pPriceDescription.getLanguage());
-					productPriceDescription.setProductPrice(price);
-					priceDescriptions.add(productPriceDescription);
-					
-				}
-				price.setDescriptions(priceDescriptions);
-				if(price.isDefaultPrice()) {
-					product.setPrice(price);
-					product.setProductPrice(priceUtil.getAdminFormatedAmount(store, price.getProductPriceAmount()));
-				}
-				
-				availability.getPrices().add(price);
-			}
-			
-			
-
-			if(availability.getRegion().equals(com.salesmanager.core.business.constants.Constants.ALL_REGIONS)) {
-				product.setAvailability(availability);
-			}
-			
-			availabilities.add(availability);
-		}
-		
-		newProduct.setAvailabilities(availabilities);
-		
-		
-		
-		//attributes
-		Set<ProductAttribute> attributes = new HashSet<ProductAttribute>();
-		for(ProductAttribute pAttribute : dbProduct.getAttributes()) {
-			
-			ProductAttribute attribute = new ProductAttribute();
-			attribute.setAttributeDefault(pAttribute.getAttributeDefault());
-			attribute.setAttributeDiscounted(pAttribute.getAttributeDiscounted());
-			attribute.setAttributeDisplayOnly(pAttribute.getAttributeDisplayOnly());
-			attribute.setAttributeRequired(pAttribute.getAttributeRequired());
-			attribute.setProductAttributePrice(pAttribute.getProductAttributePrice());
-			attribute.setProductAttributeIsFree(pAttribute.getProductAttributeIsFree());
-			attribute.setProductAttributeWeight(pAttribute.getProductAttributeWeight());
-			attribute.setProductOption(pAttribute.getProductOption());
-			attribute.setProductOptionSortOrder(pAttribute.getProductOptionSortOrder());
-			attribute.setProductOptionValue(pAttribute.getProductOptionValue());
-			attributes.add(attribute);
-						
-		}
-		newProduct.setAttributes(attributes);
-		
-		//relationships
-		Set<ProductRelationship> relationships = new HashSet<ProductRelationship>();
-		for(ProductRelationship pRelationship : dbProduct.getRelationships()) {
-			
-			ProductRelationship relationship = new ProductRelationship();
-			relationship.setActive(pRelationship.isActive());
-			relationship.setCode(pRelationship.getCode());
-			relationship.setRelatedProduct(pRelationship.getRelatedProduct());
-			relationship.setStore(store);
-			relationships.add(relationship);
-
-		}
-		
-		newProduct.setRelationships(relationships);
-		
-		//product description
-		Set<ProductDescription> descsset = new HashSet<ProductDescription>();
-		List<ProductDescription> desclist = new ArrayList<ProductDescription>();
-		Set<ProductDescription> descriptions = dbProduct.getDescriptions();
-		for(ProductDescription pDescription : descriptions) {
-			
-			ProductDescription description = new ProductDescription();
-			description.setAuditSection(pDescription.getAuditSection());
-			description.setName(pDescription.getName());
-			description.setDescription(pDescription.getDescription());
-			description.setLanguage(pDescription.getLanguage());
-			description.setMetatagDescription(pDescription.getMetatagDescription());
-			description.setMetatagKeywords(pDescription.getMetatagKeywords());
-			description.setMetatagTitle(pDescription.getMetatagTitle());
-			descsset.add(description);
-			desclist.add(description);
-		}
-		newProduct.setDescriptions(descsset);
-		product.setDescriptions(desclist);
-		
-		//product
-		newProduct.setAuditSection(dbProduct.getAuditSection());
-		newProduct.setAvailable(dbProduct.isAvailable());
-		
-		
-
-		//copy
-		// newProduct.setCategories(dbProduct.getCategories());
-		newProduct.setDateAvailable(dbProduct.getDateAvailable());
-		newProduct.setManufacturer(dbProduct.getManufacturer());
-		newProduct.setMerchantStore(store);
-		newProduct.setProductHeight(dbProduct.getProductHeight());
-		newProduct.setProductIsFree(dbProduct.getProductIsFree());
-		newProduct.setProductLength(dbProduct.getProductLength());
-		newProduct.setProductOrdered(dbProduct.getProductOrdered());
-		newProduct.setProductWeight(dbProduct.getProductWeight());
-		newProduct.setProductWidth(dbProduct.getProductWidth());
-		newProduct.setSortOrder(dbProduct.getSortOrder());
-		newProduct.setTaxClass(dbProduct.getTaxClass());
-		newProduct.setType(dbProduct.getType());
-		newProduct.setSku(UUID.randomUUID().toString().replace("-",""));
-		newProduct.setProductVirtual(dbProduct.isProductVirtual());
-		newProduct.setProductShipeable(dbProduct.isProductShipeable());
-		
-		productService.update(newProduct);
-		
-		Set<Category> categories = dbProduct.getCategories();
-		for(Category category : categories) {
-			Category categoryCopy = categoryService.getById(category.getId());
-			newProduct.getCategories().add(categoryCopy);
-			productService.update(newProduct);
-		}
-		
-		product.setProduct(newProduct);
-		model.addAttribute("product", product);
-		model.addAttribute("success","success");
-		
-		return "redirect:/admin/products/editProduct.html?id=" + newProduct.getId();
-	}
-
-	
-	/**
-	 * Removes a product image based on the productimage id
-	 * @param request
-	 * @param response
-	 * @param locale
-	 * @return
-	 */
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/product/removeImage.html")
-	public @ResponseBody ResponseEntity<String> removeImage(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String iid = request.getParameter("imageId");
-
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		AjaxResponse resp = new AjaxResponse();
-
-		
-		try {
-			
-			Long id = Long.parseLong(iid);
-			ProductImage productImage = productImageService.getById(id);
-			if(productImage==null || productImage.getProduct().getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				
-			} else {
-				
-				productImageService.removeProductImage(productImage);
-				resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-				
-			}
-		
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting product", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-	}
-	
-	
-	/**
-	 * List all categories and let the merchant associate the product to a category
-	 * @param productId
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/displayProductToCategories.html", method=RequestMethod.GET)
-	public String displayAddProductToCategories(@RequestParam("id") long productId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-	
-		
-		setMenu(model,request);
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		Language language = (Language)request.getAttribute("LANGUAGE");
-		
-		
-		//get the product and validate it belongs to the current merchant
-		Product product = productService.getById(productId);
-		
-		if(product==null) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-
-		//get parent categories
-		List<Category> categories = categoryService.listByStore(store,language);
-		
-		model.addAttribute("product", product);
-		model.addAttribute("categories", categories);
-		return "catalogue-product-categories";
-		
-	}
-	
-	/**
-	 * List all categories associated to a Product
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/product-categories/paging.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> pageProductCategories(HttpServletRequest request, HttpServletResponse response) {
-
-		String sProductId = request.getParameter("productId");
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		
-		AjaxResponse resp = new AjaxResponse();
-		
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		
-		Long productId;
-		Product product = null;
-		
-		try {
-			productId = Long.parseLong(sProductId);
-		} catch (Exception e) {
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorString("Product id is not valid");
-			String returnString = resp.toJSONString();
-			return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-		}
-
-		
-		try {
-
-			product = productService.getById(productId);
-
-			
-			if(product==null) {
-				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-				resp.setErrorString("Product id is not valid");
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-				resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-				resp.setErrorString("Product id is not valid");
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			}
-			
-			
-			Language language = (Language)request.getAttribute("LANGUAGE");
-
-			
-			Set<Category> categories = product.getCategories();
-			
-
-			for(Category category : categories) {
-				Map entry = new HashMap();
-				entry.put("categoryId", category.getId());
-				
-				List<CategoryDescription> descriptions = category.getDescriptions();
-				String categoryName = category.getDescriptions().get(0).getName();
-				for(CategoryDescription description : descriptions){
-					if(description.getLanguage().getCode().equals(language.getCode())) {
-						categoryName = description.getName();
-					}
-				}
-				entry.put("name", categoryName);
-				resp.addDataEntry(entry);
-			}
-
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_SUCCESS);
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while paging products", e);
-			resp.setStatus(AjaxPageableResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-
-
-	}
-	
-	
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/product-categories/remove.html", method=RequestMethod.POST)
-	public @ResponseBody ResponseEntity<String> deleteProductFromCategory(HttpServletRequest request, HttpServletResponse response, Locale locale) {
-		String sCategoryid = request.getParameter("categoryId");
-		String sProductId = request.getParameter("productId");
-		
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		
-		AjaxResponse resp = new AjaxResponse();
-		
-		final HttpHeaders httpHeaders= new HttpHeaders();
-	    httpHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-
-		
-		try {
-			
-			Long categoryId = Long.parseLong(sCategoryid);
-			Long productId = Long.parseLong(sProductId);
-			
-			Category category = categoryService.getById(categoryId);
-			Product product = productService.getById(productId);
-			
-			if(category==null || category.getMerchantStore().getId()!=store.getId()) {
-
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			} 
-			
-			if(product==null || product.getMerchantStore().getId()!=store.getId()) {
-
-				resp.setStatusMessage(messages.getMessage("message.unauthorized", locale));
-				resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);			
-				String returnString = resp.toJSONString();
-				return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-			} 
-			
-			product.getCategories().remove(category);
-			productService.update(product);	
-			
-			resp.setStatus(AjaxResponse.RESPONSE_OPERATION_COMPLETED);
-
-		
-		
-		} catch (Exception e) {
-			LOGGER.error("Error while deleting category", e);
-			resp.setStatus(AjaxResponse.RESPONSE_STATUS_FAIURE);
-			resp.setErrorMessage(e);
-		}
-		
-		String returnString = resp.toJSONString();
-
-		return new ResponseEntity<String>(returnString,httpHeaders,HttpStatus.OK);
-	}
-	
-
-	@PreAuthorize("hasRole('PRODUCTS')")
-	@RequestMapping(value="/admin/products/addProductToCategories.html", method=RequestMethod.POST)
-	public String addProductToCategory(@RequestParam("productId") long productId, @RequestParam("id") long categoryId, Model model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		setMenu(model,request);
-		MerchantStore store = (MerchantStore)request.getAttribute(Constants.ADMIN_STORE);
-		Language language = (Language)request.getAttribute("LANGUAGE");
-		
-		
-		//get the product and validate it belongs to the current merchant
-		Product product = productService.getById(productId);
-		
-		if(product==null) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		if(product.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-
-		//get parent categories
-		List<Category> categories = categoryService.listByStore(store,language);
-		
-		Category category = categoryService.getById(categoryId);
-		
-		if(category==null) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		if(category.getMerchantStore().getId().intValue()!=store.getId().intValue()) {
-			return "redirect:/admin/products/products.html";
-		}
-		
-		product.getCategories().add(category);
-		
-		productService.update(product);
-		
-		model.addAttribute("product", product);
-		model.addAttribute("categories", categories);
-		
-		return "catalogue-product-categories";
-		
+		return "admin-products-edit";
 	}
 
 	private void setMenu(Model model, HttpServletRequest request) throws Exception {

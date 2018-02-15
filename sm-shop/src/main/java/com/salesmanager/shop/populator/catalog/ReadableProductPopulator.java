@@ -45,22 +45,8 @@ public class ReadableProductPopulator extends
 
 
 
-	public void setimageUtils(ImageFilePath imageUtils) {
-		this.imageUtils = imageUtils;
-	}
-
-
-
-
 	public PricingService getPricingService() {
 		return pricingService;
-	}
-
-
-
-
-	public void setPricingService(PricingService pricingService) {
-		this.pricingService = pricingService;
 	}
 
 
@@ -282,6 +268,20 @@ public class ReadableProductPopulator extends
 		} catch (Exception e) {
 			throw new ConversionException(e);
 		}
+	}
+
+
+
+
+	public void setimageUtils(ImageFilePath imageUtils) {
+		this.imageUtils = imageUtils;
+	}
+
+
+
+
+	public void setPricingService(PricingService pricingService) {
+		this.pricingService = pricingService;
 	}
 
 

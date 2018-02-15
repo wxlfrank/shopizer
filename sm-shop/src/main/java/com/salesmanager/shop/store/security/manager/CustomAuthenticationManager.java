@@ -24,14 +24,6 @@ public abstract class CustomAuthenticationManager {
     private String tokenHeader;
 
 	
-	public String getTokenHeader() {
-		return tokenHeader;
-	}
-
-	public void setTokenHeader(String tokenHeader) {
-		this.tokenHeader = tokenHeader;
-	}
-
 	public void authenticateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		
@@ -57,6 +49,14 @@ public abstract class CustomAuthenticationManager {
 		this.success(request, response, authResult);
 
 		
+	}
+
+	public String getTokenHeader() {
+		return tokenHeader;
+	}
+
+	public void setTokenHeader(String tokenHeader) {
+		this.tokenHeader = tokenHeader;
 	}
 	
 	private void success(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws AuthenticationException {

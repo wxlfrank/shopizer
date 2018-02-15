@@ -24,6 +24,70 @@ import com.salesmanager.core.modules.integration.payment.model.PaymentModule;
 public class MoneyOrderPayment implements PaymentModule {
 
 	@Override
+	public Transaction authorize(MerchantStore store, Customer customer,
+			List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		//NOT REQUIRED
+		return null;
+	}
+
+	@Override
+	public Transaction authorizeAndCapture(MerchantStore store, Customer customer,
+			List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		
+		
+		Transaction transaction = new Transaction();
+		transaction.setAmount(amount);
+		transaction.setTransactionDate(new Date());
+		transaction.setTransactionType(TransactionType.AUTHORIZECAPTURE);
+		transaction.setPaymentType(PaymentType.MONEYORDER);
+
+		
+		return transaction;
+		
+		
+		
+	}
+
+	@Override
+	public Transaction capture(MerchantStore store, Customer customer,
+			Order order, Transaction capturableTransaction,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+/*	@Override
+	public Transaction capture(MerchantStore store, Customer customer,
+			List<ShoppingCartItem> items, BigDecimal amount, Payment payment, Transaction transaction,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		//NOT REQUIRED
+		return null;
+	}*/
+
+	@Override
+	public Transaction initTransaction(MerchantStore store, Customer customer,
+			BigDecimal amount, Payment payment,
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		//NOT REQUIRED
+		return null;
+	}
+
+	@Override
+	public Transaction refund(boolean partial, MerchantStore store, Transaction transaction,
+			Order order, BigDecimal amount, 
+			IntegrationConfiguration configuration, IntegrationModule module)
+			throws IntegrationException {
+		throw new IntegrationException("Transaction not supported");
+	}
+
+	@Override
 	public void validateModuleConfiguration(
 			IntegrationConfiguration integrationConfiguration,
 			MerchantStore store) throws IntegrationException {
@@ -50,70 +114,6 @@ public class MoneyOrderPayment implements PaymentModule {
 		
 			return;
 
-	}
-
-	@Override
-	public Transaction initTransaction(MerchantStore store, Customer customer,
-			BigDecimal amount, Payment payment,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		//NOT REQUIRED
-		return null;
-	}
-
-	@Override
-	public Transaction authorize(MerchantStore store, Customer customer,
-			List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		//NOT REQUIRED
-		return null;
-	}
-
-/*	@Override
-	public Transaction capture(MerchantStore store, Customer customer,
-			List<ShoppingCartItem> items, BigDecimal amount, Payment payment, Transaction transaction,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		//NOT REQUIRED
-		return null;
-	}*/
-
-	@Override
-	public Transaction authorizeAndCapture(MerchantStore store, Customer customer,
-			List<ShoppingCartItem> items, BigDecimal amount, Payment payment,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		
-		
-		Transaction transaction = new Transaction();
-		transaction.setAmount(amount);
-		transaction.setTransactionDate(new Date());
-		transaction.setTransactionType(TransactionType.AUTHORIZECAPTURE);
-		transaction.setPaymentType(PaymentType.MONEYORDER);
-
-		
-		return transaction;
-		
-		
-		
-	}
-
-	@Override
-	public Transaction refund(boolean partial, MerchantStore store, Transaction transaction,
-			Order order, BigDecimal amount, 
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		throw new IntegrationException("Transaction not supported");
-	}
-
-	@Override
-	public Transaction capture(MerchantStore store, Customer customer,
-			Order order, Transaction capturableTransaction,
-			IntegrationConfiguration configuration, IntegrationModule module)
-			throws IntegrationException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
